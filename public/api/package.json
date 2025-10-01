@@ -1,0 +1,20 @@
+{
+  "name": "enem-pro-webhook",
+  "version": "1.0.0",
+  "description": "Webhook server for Cakto payment integration",
+  "main": "webhook/cakto.js",
+  "scripts": {
+    "start": "node webhook/cakto.js",
+    "dev": "nodemon webhook/cakto.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "crypto": "^1.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["webhook", "cakto", "payment", "enem"],
+  "author": "ENEM Pro",
+  "license": "MIT"
+}

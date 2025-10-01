@@ -1,0 +1,66 @@
+/**
+ * @file Firebase Security Rules for EnemPro.
+ *
+ * @core_philosophy This ruleset enforces a strict user-ownership model for user profiles
+ *  and restricts administrative privileges to designated admin users.
+ * @data_structure User profile data is stored under `/users/{userId}`.
+ * @key_security_decisions
+ *   - Users can only read and write their own profile data.
+ *   - Administrative access is not yet implemented; this is a placeholder for future role-based authorization.
+ *   - Data validation is minimal in this prototype to allow rapid iteration.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Defines the `isSignedIn()` function.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Defines the `isOwner(userId)` function.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Defines the `isExistingOwner(userId)` function.
+     * @details This function combines the `isOwner()` check with a resource existence check to ensure that update and delete operations only apply to existing documents.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && exists(/databases/$(database)/documents/users/$(userId));
+    }
+
+    /*******************
+     * User Profile Rules
+     *******************/
+
+    /**
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (get) User A can read their own profile: `auth.uid == "userA"`.
+     * @allow (create) User A can create their own profile: `auth.uid == "userA"`.
+     * @allow (update) User A can update their own profile: `auth.uid == "userA"`.
+     * @allow (delete) User A can delete their own profile: `auth.uid == "userA"`.
+     * @deny (get) User A cannot read User B's profile: `auth.uid == "userA", userId == "userB"`.
+     * @deny (create) User A cannot create User B's profile: `auth.uid == "userA", userId == "userB"`.
+     * @deny (update) User A cannot update User B's profile: `auth.uid == "userA", userId == "userB"`.
+     * @deny (delete) User A cannot delete User B's profile: `auth.uid == "userA", userId == "userB"`.
+     * @principle Enforces document ownership, allowing users to manage their own data.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      allow create: if isOwner(userId) && request.resource.data.get('id') == userId;
+
+      allow update: if isExistingOwner(userId);
+
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}

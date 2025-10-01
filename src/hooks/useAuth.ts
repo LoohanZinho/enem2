@@ -1,0 +1,102 @@
+"use client";
+import { useState, useEffect } from 'react';
+import { authService } from '@/services/AuthService';
+import { User } from '@/types/User';
+
+interface AuthContextType {
+  user: User | null;
+  login: (email: string, password: string) => Promise<{success: boolean; message: string}>;
+  updateUser: (updates: Partial<User>) => Promise<boolean>;
+  logout: () => void;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+}
+
+// Hook personalizado para autenticação
+export const useAuth = (): AuthContextType => {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Verificar se há usuário logado no localStorage
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const storedUserId = localStorage.getItem('enem_pro_user_id');
+        if (storedUserId) {
+          // Buscar dados completos do usuário no banco
+          const userData = await authService.getUserById(storedUserId);
+          if (userData) {
+            setUser(userData);
+          } else {
+            // Se usuário não existe mais no banco, limpar localStorage
+            localStorage.removeItem('enem_pro_user_id');
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+        localStorage.removeItem('enem_pro_user_id');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+
+  const login = async (email: string, password: string): Promise<{success: boolean; message: string}> => {
+    setIsLoading(true);
+    
+    try {
+      // Validação básica
+      if (!email || !password) {
+        return { success: false, message: 'Email e senha são obrigatórios'};
+      }
+
+      if (!email.includes('@')) {
+        return { success: false, message: 'Email inválido'};
+      }
+
+      if (password.length < 6) {
+        return { success: false, message: 'A senha deve ter pelo menos 6 caracteres'};
+      }
+
+      const result = await authService.login({email, password});
+      
+      if (result.success && result.user) {
+        localStorage.setItem('enem_pro_user_id', result.user.id);
+        setUser(result.user);
+        return { success: true, message: 'Login bem-sucedido!'};
+      } else {
+        return { success: false, message: result.message };
+      }
+
+    } catch (error) {
+      console.error('Erro no login:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      return { success: false, message: errorMessage };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateUser = async (updates: Partial<User>): Promise<boolean> => {
+    if (!user) return false;
+    // This is a placeholder as updateUser is not fully implemented in AuthService yet.
+    return false;
+  };
+
+  const logout = () => {
+    localStorage.removeItem('enem_pro_user_id');
+    setUser(null);
+  };
+
+  return {
+    user,
+    login,
+    updateUser,
+    logout,
+    isAuthenticated: !!user,
+    isLoading
+  };
+};

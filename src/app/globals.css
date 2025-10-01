@@ -1,0 +1,799 @@
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind base;
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind components;
+/* stylelint-disable-next-line at-rule-no-unknown */
+@tailwind utilities;
+
+/* Estilos para animação 3D dos flashcards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* ENEM Study Platform Design System 
+Educational platform inspired by modern learning platforms
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Core neutral colors */
+    --background: 0 0% 100%;
+    --foreground: 224 71% 4%;
+
+    /* Card system */
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    /* Popover system */
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    /* Primary - Education Blue */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 98%;
+    --primary-hover: 217 91% 55%;
+
+    /* Secondary - Soft Gray */
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
+
+    /* Success - Progress Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --success-light: 142 70% 45%;
+
+    /* Warning - Attention Orange */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+
+    /* Accent - Learning Purple */
+    --accent: 262 83% 58%;
+    --accent-foreground: 0 0% 98%;
+    --accent-light: 262 83% 70%;
+
+    /* Muted colors */
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 8% 46%;
+
+    /* Destructive */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs */
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 91% 60%;
+
+    /* Radius */
+    --radius: 0.75rem;
+
+    /* Custom gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 70% 45%));
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(220 14% 98%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(262 83% 58%) 50%, hsl(142 76% 36%) 100%);
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    --shadow-card: 0 4px 12px hsl(217 91% 60% / 0.15);
+    --shadow-floating: 0 20px 25px -5px hsl(0 0% 0% / 0.1), 0 8px 10px -6px hsl(0 0% 0% / 0.1);
+
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    /* Core neutral colors */
+    --background: 224 71% 4%;
+    --foreground: 0 0% 98%;
+
+    /* Card system */
+    --card: 224 71% 4%;
+    --card-foreground: 0 0% 98%;
+
+    /* Popover system */
+    --popover: 224 71% 4%;
+    --popover-foreground: 0 0% 98%;
+
+    /* Primary - Education Blue */
+    --primary: 217 91% 65%;
+    --primary-foreground: 224 71% 4%;
+    --primary-hover: 217 91% 70%;
+
+    /* Secondary - Dark Gray */
+    --secondary: 215 27% 12%;
+    --secondary-foreground: 0 0% 98%;
+
+    /* Success - Progress Green */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --success-light: 142 70% 45%;
+
+    /* Warning - Attention Orange */
+    --warning: 38 92% 50%;
+    --warning-foreground: 224 71% 4%;
+
+    /* Accent - Learning Purple */
+    --accent: 262 83% 68%;
+    --accent-foreground: 224 71% 4%;
+    --accent-light: 262 83% 75%;
+
+    /* Muted colors */
+    --muted: 215 27% 12%;
+    --muted-foreground: 217 10% 64%;
+
+    /* Destructive */
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    /* Borders and inputs */
+    --border: 215 27% 12%;
+    --input: 215 27% 12%;
+    --ring: 217 91% 65%;
+
+    /* Custom gradients for dark mode */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 65%), hsl(262 83% 68%));
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%), hsl(142 70% 45%));
+    --gradient-card: linear-gradient(145deg, hsl(224 71% 4%), hsl(215 27% 12%));
+    --gradient-hero: linear-gradient(135deg, hsl(217 91% 65%) 0%, hsl(262 83% 68%) 50%, hsl(142 76% 36%) 100%);
+
+    /* Shadows for dark mode */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.3);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.3), 0 2px 4px -2px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.3), 0 4px 6px -4px hsl(0 0% 0% / 0.3);
+    --shadow-card: 0 4px 12px hsl(217 91% 65% / 0.25);
+    --shadow-floating: 0 20px 25px -5px hsl(0 0% 0% / 0.4), 0 8px 10px -6px hsl(0 0% 0% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom utility classes for the ENEM platform */
+@layer utilities {
+  .gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .gradient-success {
+    background: var(--gradient-success);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  .gradient-hero {
+    background: var(--gradient-hero);
+  }
+  
+  .shadow-card {
+    box-shadow: var(--shadow-card);
+  }
+  
+  .shadow-floating {
+    box-shadow: var(--shadow-floating);
+  }
+  
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  
+  .transition-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  .text-gradient-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Animações de flutuação para frases motivacionais */
+  .animate-float-slow {
+    animation: float-slow 6s ease-in-out infinite;
+  }
+
+  .animate-float-medium {
+    animation: float-medium 4s ease-in-out infinite;
+  }
+
+  .animate-float-fast {
+    animation: float-fast 3s ease-in-out infinite;
+  }
+
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.3;
+    }
+    25% {
+      transform: translateY(-10px) rotate(1deg);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateY(-5px) rotate(0deg);
+      opacity: 0.4;
+    }
+    75% {
+      transform: translateY(-15px) rotate(-1deg);
+      opacity: 0.6;
+    }
+  }
+
+  @keyframes float-medium {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.25;
+    }
+    33% {
+      transform: translateY(-8px) rotate(0.5deg);
+      opacity: 0.4;
+    }
+    66% {
+      transform: translateY(-12px) rotate(-0.5deg);
+      opacity: 0.35;
+    }
+  }
+
+  @keyframes float-fast {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.2;
+    }
+    50% {
+      transform: translateY(-6px) rotate(1deg);
+      opacity: 0.4;
+    }
+  }
+
+  /* Efeito Knight Rider - LED indo e voltando */
+  .animate-led-glow {
+    position: relative;
+    overflow: visible;
+  }
+
+  .animate-led-glow::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 40%,
+      #ff0000 45%,
+      #ff4444 50%,
+      #ff0000 55%,
+      transparent 60%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: knight-rider 2s ease-in-out infinite;
+    opacity: 1;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+  }
+
+  @keyframes knight-rider {
+    0% {
+      background-position: -200% 0;
+    }
+    50% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  /* Efeito Knight Rider para botão outline */
+  .animate-led-silver {
+    position: relative;
+    overflow: visible;
+  }
+
+  .animate-led-silver::after {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 35%,
+      #ff0000 40%,
+      #ff6666 45%,
+      #ff0000 50%,
+      transparent 55%,
+      transparent 100%
+    );
+    background-size: 250% 100%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: knight-rider-outline 2.5s ease-in-out infinite;
+    opacity: 1;
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.6);
+  }
+
+  @keyframes knight-rider-outline {
+    0% {
+      background-position: -250% 0;
+    }
+    50% {
+      background-position: 250% 0;
+    }
+    100% {
+      background-position: -250% 0;
+    }
+  }
+
+  /* Efeito Knight Rider para card de preços */
+  .animate-led-card {
+    position: relative;
+    overflow: visible;
+  }
+
+  .animate-led-card::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+      0deg,
+      transparent 0%,
+      transparent 30%,
+      #ff0000 35%,
+      #ff4444 40%,
+      #ff0000 45%,
+      transparent 50%,
+      transparent 100%
+    );
+    background-size: 100% 300%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: knight-rider-card 3s ease-in-out infinite;
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+  }
+
+  @keyframes knight-rider-card {
+    0% {
+      background-position: 0 -300%;
+    }
+    50% {
+      background-position: 0 300%;
+    }
+    100% {
+      background-position: 0 -300%;
+    }
+  }
+
+  /* Badge de desconto com efeito premium */
+  .discount-badge {
+    position: relative;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 50%, #ff6b6b 100%);
+    background-size: 200% 200%;
+    animation: discount-shimmer 2s ease-in-out infinite;
+    box-shadow: 
+      0 4px 15px rgba(255, 107, 107, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .discount-badge::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #ff6b6b, #ff8e8e, #ff6b6b, #ff8e8e);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: discount-border 3s linear infinite;
+  }
+
+  .discount-badge::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    animation: discount-flash 2s ease-in-out infinite;
+  }
+
+  @keyframes discount-shimmer {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes discount-border {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 400% 50%;
+    }
+  }
+
+  @keyframes discount-flash {
+    0%, 90%, 100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(-100%);
+    }
+    5%, 85% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(100%);
+    }
+  }
+
+  /* Versão alternativa mais sutil */
+  .discount-badge-subtle {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+    box-shadow: 
+      0 4px 12px rgba(239, 68, 68, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .discount-badge-subtle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: discount-sweep 2s ease-in-out infinite;
+  }
+
+  @keyframes discount-sweep {
+    0% {
+      left: -100%;
+    }
+    50% {
+      left: 100%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+
+  /* Badge de desconto em cinza com animação */
+  .discount-badge-gray {
+    position: relative;
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 50%, #6b7280 100%);
+    background-size: 200% 200%;
+    animation: discount-shimmer-gray 2.5s ease-in-out infinite;
+    box-shadow: 
+      0 4px 15px rgba(107, 114, 128, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .discount-badge-gray::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #6b7280, #9ca3af, #6b7280, #9ca3af);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: discount-border-gray 3.5s linear infinite;
+  }
+
+  .discount-badge-gray::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.4) 50%, transparent 70%);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    animation: discount-flash-gray 2.5s ease-in-out infinite;
+  }
+
+  @keyframes discount-shimmer-gray {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes discount-border-gray {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 400% 50%;
+    }
+  }
+
+  @keyframes discount-flash-gray {
+    0%, 90%, 100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(-100%);
+    }
+    5%, 85% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(100%);
+    }
+  }
+
+  /* Badge de desconto em azul com animação */
+  .discount-badge-blue {
+    position: relative;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+    background-size: 200% 200%;
+    animation: discount-shimmer-blue 2s ease-in-out infinite;
+    box-shadow: 
+      0 4px 15px rgba(59, 130, 246, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+
+  .discount-badge-blue::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #3b82f6, #60a5fa, #3b82f6, #60a5fa);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: discount-border-blue 3s linear infinite;
+  }
+
+  .discount-badge-blue::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    animation: discount-flash-blue 2s ease-in-out infinite;
+  }
+
+  @keyframes discount-shimmer-blue {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes discount-border-blue {
+    0% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 400% 50%;
+    }
+  }
+
+  @keyframes discount-flash-blue {
+    0%, 90%, 100% {
+      opacity: 0;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(-100%);
+    }
+    5%, 85% {
+      opacity: 1;
+      transform: translate(-50%, -50%) rotate(-45deg) translateX(100%);
+    }
+  }
+
+  /* Badge de desconto azul com efeito pulsante */
+  .discount-badge-blue-pulse {
+    position: relative;
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+    background-size: 200% 200%;
+    animation: discount-pulse-blue 1.5s ease-in-out infinite;
+    box-shadow: 
+      0 4px 20px rgba(29, 78, 216, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  .discount-badge-blue-pulse::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6, #60a5fa, #3b82f6);
+    background-size: 300% 300%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: discount-pulse-border 2s ease-in-out infinite;
+  }
+
+  @keyframes discount-pulse-blue {
+    0%, 100% {
+      background-position: 0% 50%;
+      transform: scale(1);
+    }
+    50% {
+      background-position: 100% 50%;
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes discount-pulse-border {
+    0%, 100% {
+      background-position: 0% 50%;
+      opacity: 0.8;
+    }
+    50% {
+      background-position: 100% 50%;
+      opacity: 1;
+    }
+  }
+
+  /* Botão com animação igual ao badge de desconto */
+  .button-discount-style {
+    position: relative;
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%);
+    background-size: 200% 200%;
+    animation: discount-shimmer-blue 2s ease-in-out infinite;
+    box-shadow: 
+      0 4px 15px rgba(59, 130, 246, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    border: none;
+    color: white;
+    font-weight: bold;
+  }
+
+  .button-discount-style::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #3b82f6, #60a5fa, #3b82f6, #60a5fa);
+    background-size: 400% 400%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: discount-border-blue 3s linear infinite;
+  }
+
+  .button-discount-style::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.5) 50%, transparent 70%);
+    transform: translate(-50%, -50%) rotate(-45deg);
+    animation: discount-flash-blue 2s ease-in-out infinite;
+  }
+
+  .button-discount-style:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #2563eb 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 6px 20px rgba(59, 130, 246, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+
+  .button-discount-style:active {
+    transform: translateY(0);
+  }
+
+  .button-discount-style:disabled {
+    opacity: 0.7;
+    animation: none;
+    background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 50%, #9ca3af 100%);
+  }
+
+  .button-discount-style:disabled::before,
+  .button-discount-style:disabled::after {
+    display: none;
+  }
+
+  /* Badge de desconto azul para modo escuro */
+  .dark .discount-badge-blue {
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #1d4ed8 100%);
+    box-shadow: 
+      0 4px 15px rgba(29, 78, 216, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .discount-badge-blue::before {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6, #1d4ed8, #3b82f6);
+  }
+
+  /* Botão com animação para modo escuro */
+  .dark .button-discount-style {
+    background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #1d4ed8 100%);
+    box-shadow: 
+      0 4px 15px rgba(29, 78, 216, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.1),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .dark .button-discount-style::before {
+    background: linear-gradient(135deg, #1d4ed8, #3b82f6, #1d4ed8, #3b82f6);
+  }
+
+  .dark .button-discount-style:hover {
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #1e40af 100%);
+    box-shadow: 
+      0 6px 20px rgba(29, 78, 216, 0.6),
+      0 0 0 1px rgba(255, 255, 255, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+}

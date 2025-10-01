@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Representa um usuário na plataforma EnemPro.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID único do usuário."
+        },
+        "email": {
+          "type": "string",
+          "description": "Endereço de e-mail do usuário.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "Nome completo do usuário."
+        },
+        "password": {
+          "type": "string",
+          "description": "Senha do usuário em texto puro."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Data e hora de criação da conta.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Data e hora da última atualização.",
+          "format": "date-time"
+        },
+        "isActive": {
+          "type": "boolean",
+          "description": "Indica se a conta do usuário está ativa."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["user", "admin"],
+          "description": "Papel do usuário no sistema."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "password",
+        "createdAt",
+        "updatedAt",
+        "isActive",
+        "role"
+      ]
+    }
+  },
+  "auth": {
+    "providers": []
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Armazena as informações de perfil dos usuários."
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "firebase": {
+      "command": "npx",
+      "args": ["-y", "firebase-tools@latest", "experimental:mcp"]
+    },
+    "tavily-search": {
+      "command": "npx",
+      "args": [
+        "-y", 
+        "mcp-remote", 
+        "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
+      ]
+    }
+  }
+}
