@@ -31,15 +31,18 @@ class AuthService {
   private didInitialize = false;
 
   private async initialize() {
-    if (!this.db) {
-      const firebaseServices = await initializeFirebase();
-      this.db = getFirestore(firebaseServices.firebaseApp);
-      this.usersCollection = collection(this.db, 'users');
-    }
+    if (this.db) return;
+    // Since this is an async method, it will only be called when one of the service methods is called,
+    // which is a client-side action. So, it's safe to initialize Firebase here.
+    const firebaseServices = initializeFirebase();
+    this.db = getFirestore(firebaseServices.firebaseApp);
+    this.usersCollection = collection(this.db, 'users');
   }
 
   private ensureInitialized() {
+    // This logic is now moved to getCurrentUser to be lazy-loaded.
     if (this.didInitialize) return;
+
     if (typeof window !== 'undefined') {
         const user = localStorage.getItem(this.CURRENT_USER_KEY);
         this.currentUser = user ? JSON.parse(user) : null;
@@ -48,13 +51,16 @@ class AuthService {
   }
 
   getCurrentUser(): User | null {
-    this.ensureInitialized();
+    // Lazy initialization of currentUser from localStorage
+    if (!this.didInitialize) {
+        this.ensureInitialized();
+    }
     return this.currentUser;
   }
 
   private setCurrentUser(user: User | null): void {
     this.currentUser = user;
-    this.didInitialize = true;
+    this.didInitialize = true; // Mark as initialized once a user is set
     if (typeof window === 'undefined') return;
     if (user) {
       localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
