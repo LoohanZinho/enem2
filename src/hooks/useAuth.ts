@@ -22,7 +22,7 @@ export const useAuth = (): AuthContextType => {
     const checkAuth = async () => {
       try {
         const storedUserId = localStorage.getItem('enem_pro_user_id');
-        if (storedUserId) {
+        if (storedUserId && storedUserId !== 'undefined' && storedUserId !== 'null') {
           // Buscar dados completos do usuário no banco
           const userData = await authService.getUserById(storedUserId);
           if (userData) {
@@ -96,6 +96,7 @@ export const useAuth = (): AuthContextType => {
 
   const logout = () => {
     localStorage.removeItem('enem_pro_user_id');
+    localStorage.removeItem('enem_pro_current_user');
     setUser(null);
   };
 

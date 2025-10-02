@@ -308,8 +308,6 @@ const ResumosModulos = () => {
       if (subMateria) {
         setSelectedSubMateria(subMateria);
       }
-    } else {
-      setMateriaSelecionada(materia);
     }
   };
 
@@ -341,7 +339,7 @@ const ResumosModulos = () => {
     return `${sizeInMB.toFixed(1)} MB`;
   };
 
-  if (materiaSelecionada) {
+  if (materiaSelecionada && !isAdmin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-primary/5">
         <Header />

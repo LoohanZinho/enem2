@@ -305,7 +305,7 @@ export class GamificationService {
         return this.userStats;
     }
     const saved = localStorage.getItem('enem_pro_gamification');
-    if (saved) {
+    if (saved && saved !== 'undefined' && saved !== 'null') {
       try {
         this.userStats = JSON.parse(saved);
       } catch (e) {

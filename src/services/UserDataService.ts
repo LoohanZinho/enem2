@@ -38,7 +38,9 @@ export class UserDataService {
     if (typeof window === 'undefined') return null;
     try {
       const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
-      if (!userJson || userJson === 'undefined') return null;
+      if (!userJson || userJson === 'undefined' || userJson === 'null') {
+        return null;
+      }
       return JSON.parse(userJson);
     } catch (error) {
       console.error("Erro ao ler usuário do localStorage:", error);

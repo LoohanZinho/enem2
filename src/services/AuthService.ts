@@ -43,7 +43,11 @@ class AuthService {
     if (typeof window !== 'undefined') {
         const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
         try {
-            this.currentUser = userJson ? JSON.parse(userJson) : null;
+            if (userJson && userJson !== 'undefined') {
+              this.currentUser = JSON.parse(userJson);
+            } else {
+              this.currentUser = null;
+            }
         } catch (e) {
             console.error("Failed to parse user from localStorage", e);
             this.currentUser = null;

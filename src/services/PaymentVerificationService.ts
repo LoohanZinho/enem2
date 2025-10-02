@@ -40,10 +40,11 @@ class PaymentVerificationService {
    */
   async verifyPayment(): Promise<PaymentStatus> {
     try {
+      if (typeof window === 'undefined') return { isPaid: false };
       // Verificar se existe confirmação de pagamento no localStorage
       const paymentData = localStorage.getItem(this.PAYMENT_KEY);
       
-      if (!paymentData) {
+      if (!paymentData || paymentData === 'undefined' || paymentData === 'null') {
         return { isPaid: false };
       }
 
@@ -85,6 +86,7 @@ class PaymentVerificationService {
    */
   async processCaktoWebhook(webhookData: CaktoWebhookData): Promise<boolean> {
     try {
+      if (typeof window === 'undefined') return false;
       // Verificar se é um evento de pagamento aprovado
       if (webhookData.event === 'payment.approved' || webhookData.event === 'payment.completed') {
         const paymentData = {
@@ -133,6 +135,7 @@ class PaymentVerificationService {
    */
   async simulatePaymentApproval(customerEmail: string, customerName: string): Promise<boolean> {
     try {
+      if (typeof window === 'undefined') return false;
       const paymentData = {
         id: `PAY_${Date.now()}`,
         amount: 5790, // R$ 57,90
@@ -175,6 +178,7 @@ class PaymentVerificationService {
    * Limpa todos os dados de pagamento
    */
   clearPaymentData(): void {
+    if (typeof window === 'undefined') return;
     localStorage.removeItem(this.PAYMENT_KEY);
     localStorage.removeItem('enem_pro_completed_flow');
     localStorage.removeItem('enem_pro_access_code');

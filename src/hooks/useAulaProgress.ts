@@ -40,7 +40,7 @@ export const useAulaProgress = () => {
   // Carregar progresso do localStorage
   useEffect(() => {
     const savedProgress = localStorage.getItem(STORAGE_KEY);
-    if (savedProgress) {
+    if (savedProgress && savedProgress !== 'undefined' && savedProgress !== 'null') {
       try {
         const parsed = JSON.parse(savedProgress);
         setProgress(parsed);

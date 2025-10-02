@@ -235,7 +235,7 @@ Mensagem: ${message}
     if (typeof window === 'undefined') return;
     try {
       const stored = localStorage.getItem('enem_pro_notifications');
-      if (stored) {
+      if (stored && stored !== 'undefined' && stored !== 'null') {
         this.notifications = JSON.parse(stored);
       } else {
         // Notificações de exemplo
@@ -278,7 +278,7 @@ Mensagem: ${message}
     if (typeof window === 'undefined') return;
     try {
       const stored = localStorage.getItem('enem_pro_notification_preferences');
-      if (stored) {
+      if (stored && stored !== 'undefined' && stored !== 'null') {
         this.preferences = { ...this.preferences, ...JSON.parse(stored) };
       }
     } catch (error) {

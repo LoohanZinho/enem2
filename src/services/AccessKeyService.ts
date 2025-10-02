@@ -272,7 +272,10 @@ class AccessKeyService {
     if (typeof window === 'undefined') return null;
     try {
       const keyData = localStorage.getItem(this.CURRENT_KEY_KEY);
-      return keyData ? JSON.parse(keyData) : null;
+      if (keyData && keyData !== 'undefined' && keyData !== 'null') {
+        return JSON.parse(keyData);
+      }
+      return null;
     } catch (error) {
       console.error('Erro ao obter chave atual:', error);
       return null;
@@ -286,7 +289,10 @@ class AccessKeyService {
     if (typeof window === 'undefined') return [];
     try {
       const keysData = localStorage.getItem(this.STORAGE_KEY);
-      return keysData ? JSON.parse(keysData) : [];
+      if (keysData && keysData !== 'undefined' && keysData !== 'null') {
+        return JSON.parse(keysData);
+      }
+      return [];
     } catch (error) {
       console.error('Erro ao obter chaves:', error);
       return [];
