@@ -283,6 +283,37 @@ const CronogramaEstudos = () => {
   const getStatusIcon = (status: string) => ({completed: <CheckCircle className="h-4 w-4" />, in_progress: <Play className="h-4 w-4" />, pending: <Circle className="h-4 w-4" />}[status as 'completed'|'in_progress'|'pending'] || <Circle className="h-4 w-4" />);
   const getPriorityColor = (priority: string) => ({high: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400', medium: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400', low: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'}[priority as 'high'|'medium'|'low'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
 
+  const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
+    <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start mb-2">
+        <Badge variant={getTypeColor(activity.type) as any} className="text-xs">{activity.type}</Badge>
+        <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>{activity.priority}</Badge>
+      </div>
+      <p className="font-semibold text-sm">{activity.subject}</p>
+      <p className="text-xs text-muted-foreground mb-2">{activity.topic}</p>
+      <div className="flex justify-between items-center text-xs text-muted-foreground">
+        <span>{activity.time} - {activity.duration}</span>
+        <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
+          {getStatusIcon(activity.status)} <span className="ml-1">{activity.status}</span>
+        </Badge>
+      </div>
+      <div className="flex gap-1 mt-3">
+        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleStartActivity(activity.id)}>
+          {activeTimer === activity.id ? <Pause size={14} /> : <Play size={14} />}
+        </Button>
+        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+          <CheckCircle size={14} />
+        </Button>
+        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingActivity(activity)}>
+          <Edit size={14} />
+        </Button>
+        <Button size="icon" variant="destructive" className="h-7 w-7" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+          <Trash2 size={14} />
+        </Button>
+      </div>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -340,53 +371,65 @@ const CronogramaEstudos = () => {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+          {/* Desktop View: Grid */}
+          <div className="hidden md:grid md:grid-cols-7 gap-4">
             {schedule.map((day, dayIndex) => (
-              <Card key={dayIndex}>
-                <CardHeader>
-                  <CardTitle className="text-center">{day.day}</CardTitle>
-                  <p className="text-center text-sm text-muted-foreground">{day.date}</p>
+              <Card key={dayIndex} className="bg-card/50 dark:bg-slate-800/50">
+                <CardHeader className="text-center">
+                  <CardTitle className="text-base">{day.day}</CardTitle>
+                  <p className="text-xs text-muted-foreground">{day.date}</p>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-2 p-2">
                   {day.activities.map((activity) => (
-                    <Card key={activity.id} className="p-2">
-                      <div className="flex justify-between items-center mb-2">
-                        <Badge variant={getTypeColor(activity.type) as any}>{activity.type}</Badge>
-                        <Badge className={getPriorityColor(activity.priority)}>{activity.priority}</Badge>
-                      </div>
-                      <p className="font-semibold">{activity.subject}</p>
-                      <p className="text-sm text-muted-foreground">{activity.topic}</p>
-                      <div className="flex justify-between items-center mt-2">
-                        <span className="text-xs">{activity.time} - {activity.duration}</span>
-                        <Badge className={getStatusColor(activity.status)}>
-                          {getStatusIcon(activity.status)}
-                        </Badge>
-                      </div>
-                      <div className="flex gap-2 mt-2">
-                        <Button size="sm" onClick={() => handleStartActivity(activity.id)}>
-                          {activeTimer === activity.id ? <Pause size={16} /> : <Play size={16} />}
-                        </Button>
-                        <Button size="sm" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-                          <CheckCircle size={16} />
-                        </Button>
-                        <Button size="sm" onClick={() => setEditingActivity(activity)}>
-                          <Edit size={16} />
-                        </Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
-                    </Card>
+                    <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
                   ))}
                   <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
                     setSelectedDayIndex(dayIndex);
                     setIsAddingActivity(true);
                   }}>
-                    <Plus size={16} className="mr-2" /> Adicionar
+                    <Plus size={14} className="mr-1" /> Adicionar
                   </Button>
                 </CardContent>
               </Card>
             ))}
+          </div>
+
+          {/* Mobile View: Tabs */}
+          <div className="md:hidden">
+            <Tabs defaultValue={schedule[new Date().getDay() -1]?.day || schedule[0]?.day} className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                {schedule.slice(0, 4).map((day) => (
+                  <TabsTrigger key={day.day} value={day.day}>{day.day.substring(0,3)}</TabsTrigger>
+                ))}
+              </TabsList>
+              <TabsList className="grid w-full grid-cols-3 mt-1">
+                {schedule.slice(4).map((day) => (
+                  <TabsTrigger key={day.day} value={day.day}>{day.day.substring(0,3)}</TabsTrigger>
+                ))}
+              </TabsList>
+              {schedule.map((day, dayIndex) => (
+                <TabsContent key={day.day} value={day.day}>
+                  <Card className="mt-4">
+                    <CardHeader>
+                      <CardTitle>{day.day} - {day.date}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      {day.activities.length > 0 ? day.activities.map((activity) => (
+                        <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
+                      )) : (
+                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma atividade agendada.</p>
+                      )}
+                      <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
+                        setSelectedDayIndex(dayIndex);
+setIsAddingActivity(true);
+                      }}>
+                        <Plus size={14} className="mr-1" /> Adicionar Atividade
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              ))}
+            </Tabs>
           </div>
         </div>
 
