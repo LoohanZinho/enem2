@@ -24,10 +24,10 @@ export interface FlashcardData {
   category: string;
   tags: string[];
   createdAt: Date;
-  lastReviewed: null;
+  lastReviewed: Date | null;
   reviewCount: number;
   correctCount: number;
-  nextReview: Date;
+  nextReview: Date | null;
   interval: number;
   easeFactor: number;
   isNew: boolean;

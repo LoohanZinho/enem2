@@ -1019,7 +1019,7 @@ const Flashcards = () => {
     
     // Atualizar card com algoritmo SRS
     const updatedCard = updateCardWithSRS(currentCard, correct);
-    setFlashcards(prev => prev.map(card => 
+    setFlashcards(prev => prev.map(card =>
       card.id === updatedCard.id ? updatedCard : card
     ));
     
@@ -1163,10 +1163,10 @@ const Flashcards = () => {
         incorrectCount: 0,
         quality: 0,
         isActive: true,
+        nextReview: new Date(),
         subject: selectedSubject !== 'all' ? selectedSubject : card.subject,
         difficulty: studyMode === 'difficult' ? 'hard' : 
                    studyMode === 'new' ? 'easy' : card.difficulty,
-        nextReview: new Date()
       }));
       
       setGeneratedCards(processedCards);

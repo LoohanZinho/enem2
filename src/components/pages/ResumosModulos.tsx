@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,7 +90,7 @@ const ResumosModulos = () => {
     setIsAdmin(user?.role === 'admin');
   }, [user]);
 
-  const materiasData = useMemo(() => [
+  const materiasData = useMemo((): Materia[] => [
     {
       id: 'matematica',
       nome: 'Matemática',
@@ -142,7 +143,7 @@ const ResumosModulos = () => {
     }
   ], []);
 
-  const resumosData = useMemo(() => [
+  const resumosData = useMemo((): Resumo[] => [
     // MATEMÁTICA
     {
       id: '1',
@@ -252,7 +253,7 @@ const ResumosModulos = () => {
     }
   ], []);
 
-  const subMateriasData = useMemo(() => [
+  const subMateriasData = useMemo((): SubMateria[] => [
     {
       id: 'matematica-algebra',
       nome: 'Álgebra',
