@@ -372,5 +372,3 @@ const Planilha = () => {
 };
 
 export default Planilha;
-
-    
