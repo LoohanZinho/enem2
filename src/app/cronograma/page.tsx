@@ -150,7 +150,7 @@ const CronogramaEstudos = () => {
               type: "aula", duration: "2h", status: 'completed', priority: 'high', completedAt: new Date().toISOString()
             });
             activities.push({
-                id: `${weekNumber}-${i}-2`, time: "10:00", subject: "Português", topic: "Análise Sintática: Período Composto",
+                id: `${weekNumber}-${i}-2`, time: "08:55", subject: "Português", topic: "Funções",
                 type: "aula", duration: "1h", status: 'pending', priority: 'high'
             });
           }
@@ -334,17 +334,17 @@ const CronogramaEstudos = () => {
   const getTypeIcon = (type: string) => ({aula: <BookOpen className="h-4 w-4" />, exercicio: <Target className="h-4 w-4" />, redacao: <Edit className="h-4 w-4" />, resumo: <BookOpen className="h-4 w-4" />, revisao: <TrendingUp className="h-4 w-4" />, descanso: <Circle className="h-4 w-4" />}[type as 'aula'|'exercicio'|'redacao'|'resumo'|'revisao'|'descanso'] || <BookOpen className="h-4 w-4" />);
   
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
-    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col h-full">
-      <div className="flex-grow space-y-3">
+    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col">
+      <div className="flex-grow space-y-2">
         <div className="flex justify-between items-start gap-2">
           <p className="font-semibold text-sm break-words">{activity.subject}</p>
           <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0 whitespace-nowrap">{activity.type}</Badge>
         </div>
         <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
       </div>
-      <div className="text-xs text-muted-foreground mt-3">{activity.time} - {activity.duration}</div>
+      <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
   
-      <div className="grid grid-cols-2 gap-2 mt-4">
+      <div className="grid grid-cols-2 gap-2 mt-3">
         <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleStartActivity(activity)}>
           {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
           {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
@@ -432,13 +432,18 @@ const CronogramaEstudos = () => {
             opts={{
               align: "start",
               loop: false,
-              slidesPerView: 2.5
+              slidesPerView: 1.2,
+            }}
+            breakpoints={{
+                "(min-width: 768px)": { slidesPerView: 3.5 },
+                "(min-width: 1024px)": { slidesPerView: 4.5 },
+                "(min-width: 1280px)": { slidesPerView: 5.5 },
             }}
             className="w-full"
           >
-            <CarouselContent>
+            <CarouselContent className="-ml-2">
               {schedule.map((day, dayIndex) => (
-                <CarouselItem key={dayIndex} className="md:basis-1/3 lg:basis-1/4 xl:basis-1/5 pl-4">
+                <CarouselItem key={dayIndex} className="pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
                   <div className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg h-full flex flex-col">
                     <div className="text-center mb-4">
                       <p className="font-semibold">{day.day}</p>
