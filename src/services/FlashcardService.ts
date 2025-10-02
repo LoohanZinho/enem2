@@ -91,7 +91,7 @@ export class FlashcardService {
   // Carregar dados do usuário
   private loadUserData(): void {
     const userData = userDataService.loadUserData();
-    if (userData) {
+    if (userData && userData.flashcards && userData.flashcards.length > 0) {
       // Carregar flashcards
       this.flashcards.clear();
       userData.flashcards.forEach(card => {
@@ -104,21 +104,21 @@ export class FlashcardService {
       });
 
       // Carregar sessões de estudo
-      this.studySessions = userData.studySessions.map(session => ({
+      this.studySessions = (userData.studySessions || []).map(session => ({
         ...session,
         startedAt: new Date(session.startedAt),
         completedAt: session.completedAt ? new Date(session.completedAt) : undefined
       }));
 
       // Carregar planos de estudo
-      this.studyPlans = userData.goals.map(goal => ({
+      this.studyPlans = (userData.goals || []).map(goal => ({
         ...goal,
         startDate: new Date(goal.startDate),
         endDate: new Date(goal.endDate)
       }));
     } else {
-      // Se não há dados do usuário, inicializar com dados vazios
-      this.initializeEmptyData();
+      // Se não há dados do usuário, inicializar com dados de exemplo
+      this.initializeSampleData();
     }
   }
 
@@ -132,14 +132,6 @@ export class FlashcardService {
       studySessions: this.studySessions,
       goals
     });
-  }
-
-  // Inicializar dados vazios para novo usuário
-  private initializeEmptyData(): void {
-    // Usuário novo começa com dados vazios
-    this.flashcards.clear();
-    this.studySessions = [];
-    this.studyPlans = [];
   }
 
   // Inicializar dados de exemplo (apenas para demonstração)
@@ -235,6 +227,7 @@ export class FlashcardService {
     sampleCards.forEach(card => {
       this.flashcards.set(card.id, card);
     });
+    this.saveUserData();
   }
 
   // Obter flashcards por matéria

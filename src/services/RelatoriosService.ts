@@ -97,7 +97,7 @@ export class RelatoriosService {
   // Gerar relatório de evolução
   gerarRelatorioEvolucao(dataInicio: Date, dataFim: Date): RelatorioEvolucao {
     const redacoesPeriodo = this.redacoes.filter(r => 
-      r.dataCorrecao >= dataInicio && r.dataCorrecao <= dataFim
+      new Date(r.dataCorrecao) >= dataInicio && new Date(r.dataCorrecao) <= dataFim
     );
 
     const evolucaoCompetencias = this.calcularEvolucaoCompetencias(redacoesPeriodo);
@@ -213,7 +213,7 @@ export class RelatoriosService {
     const umMesAtras = new Date();
     umMesAtras.setMonth(umMesAtras.getMonth() - 1);
     
-    const redacoesUltimoMes = redacoes.filter(r => r.dataCorrecao >= umMesAtras);
+    const redacoesUltimoMes = redacoes.filter(r => new Date(r.dataCorrecao) >= umMesAtras);
     const mediaUltimoMes = redacoesUltimoMes.length > 0 
       ? Math.round(redacoesUltimoMes.reduce((soma, r) => soma + r.notaFinal, 0) / redacoesUltimoMes.length)
       : 0;
@@ -256,11 +256,11 @@ export class RelatoriosService {
   private calcularVelocidadeEvolucao(redacoes: CorrecaoRedacao[]): number {
     if (redacoes.length < 2) return 0;
 
-    const redacoesOrdenadas = redacoes.sort((a, b) => a.dataCorrecao.getTime() - b.dataCorrecao.getTime());
+    const redacoesOrdenadas = redacoes.sort((a, b) => new Date(a.dataCorrecao).getTime() - new Date(b.dataCorrecao).getTime());
     const primeira = redacoesOrdenadas[0];
     const ultima = redacoesOrdenadas[redacoesOrdenadas.length - 1];
 
-    const diferencaTempo = ultima.dataCorrecao.getTime() - primeira.dataCorrecao.getTime();
+    const diferencaTempo = new Date(ultima.dataCorrecao).getTime() - new Date(primeira.dataCorrecao).getTime();
     const semanas = diferencaTempo / (1000 * 60 * 60 * 24 * 7);
 
     if (semanas === 0) return 0;
@@ -409,7 +409,7 @@ export class RelatoriosService {
 
   // Obter histórico de redações
   obterHistoricoRedacoes(): CorrecaoRedacao[] {
-    return [...this.redacoes].sort((a, b) => b.dataCorrecao.getTime() - a.dataCorrecao.getTime());
+    return [...this.redacoes].sort((a, b) => new Date(b.dataCorrecao).getTime() - new Date(a.dataCorrecao).getTime());
   }
 
   // Obter estatísticas resumidas
@@ -428,7 +428,7 @@ export class RelatoriosService {
       ? Math.max(...this.redacoes.map(r => r.notaFinal))
       : 0;
     const ultimaRedacao = totalRedacoes > 0 
-      ? this.redacoes.sort((a, b) => b.dataCorrecao.getTime() - a.dataCorrecao.getTime())[0]
+      ? this.redacoes.sort((a, b) => new Date(b.dataCorrecao).getTime() - new Date(a.dataCorrecao).getTime())[0]
       : null;
     
     const tendencia = this.calcularTendencia(this.redacoes);
@@ -459,7 +459,7 @@ export class RelatoriosService {
     ];
 
     const rows = this.redacoes.map(redacao => [
-      redacao.dataCorrecao.toLocaleDateString('pt-BR'),
+      new Date(redacao.dataCorrecao).toLocaleDateString('pt-BR'),
       redacao.tema,
       redacao.notaFinal.toString(),
       redacao.competencias.find(c => c.competencia === 1)?.nota.toString() || '0',
@@ -481,6 +481,7 @@ export class RelatoriosService {
 
   // Salvar dados no localStorage
   private salvarDados(): void {
+    if (typeof window === 'undefined') return;
     try {
       userDataService.updateUserData({ 
         essays: this.redacoes,
@@ -493,15 +494,20 @@ export class RelatoriosService {
 
   // Carregar dados do localStorage
   carregarDados(): void {
+    if (typeof window === 'undefined') {
+      this.redacoes = [];
+      this.metas = [];
+      return;
+    }
     try {
       const userData = userDataService.loadUserData();
       if (userData) {
-        this.redacoes = userData.essays ? userData.essays.map((r: CorrecaoRedacao) => ({
+        this.redacoes = userData.essays ? userData.essays.map((r: any) => ({
           ...r,
           dataCorrecao: new Date(r.dataCorrecao)
         })) : [];
 
-        this.metas = userData.goals ? userData.goals.map((m: MetaEvolucao) => ({
+        this.metas = userData.goals ? userData.goals.map((m: any) => ({
           ...m,
           prazo: new Date(m.prazo)
         })) : [];

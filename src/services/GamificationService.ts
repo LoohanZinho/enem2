@@ -306,7 +306,12 @@ export class GamificationService {
     }
     const saved = localStorage.getItem('enem_pro_gamification');
     if (saved) {
-      this.userStats = JSON.parse(saved);
+      try {
+        this.userStats = JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse gamification data from localStorage", e);
+        this.userStats = this.initializeUserStats();
+      }
     } else {
       this.userStats = this.initializeUserStats();
     }

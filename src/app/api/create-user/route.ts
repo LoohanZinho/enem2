@@ -11,6 +11,17 @@ const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: numb
   'Produto Teste': { plan: 'anual', durationInMonths: 12 },
 };
 
+// --- Configuração do Nodemailer centralizada ---
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.SMTP_PORT || '587'),
+  secure: (process.env.SMTP_PORT || '587') === '465',
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
+  },
+});
+
 // Função para calcular a data de expiração
 const calculateExpirationDate = (startDate: Date, months: number): string => {
   const expirationDate = new Date(startDate);
@@ -20,44 +31,40 @@ const calculateExpirationDate = (startDate: Date, months: number): string => {
 
 // Função para enviar email de boas-vindas
 const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
+  // Validação para garantir que as credenciais SMTP estão configuradas
+  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+    console.error('Credenciais SMTP não configuradas. O e-mail de boas-vindas não será enviado.');
+    return;
+  }
+  
+  const mailOptions = {
+    from: `EnemPro <${process.env.EMAIL_FROM || 'noreply@enempro.com.br'}>`,
+    to: user.email,
+    subject: '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso',
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2>Olá, ${user.nome}!</h2>
+        <p>Seu pagamento foi confirmado e seu acesso à plataforma EnemPro foi liberado!</p>
+        <h3>Suas credenciais de acesso:</h3>
+        <ul>
+          <li><strong>Email:</strong> ${user.email}</li>
+          <li><strong>Senha:</strong> ${user.password}</li>
+        </ul>
+        <p>Você pode acessar a plataforma através do link abaixo:</p>
+        <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Acessar Plataforma</a>
+        <p>Recomendamos que você altere sua senha no primeiro acesso.</p>
+        <br>
+        <p>Atenciosamente,</p>
+        <p><strong>Equipe EnemPro</strong></p>
+      </div>
+    `,
+  };
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: (process.env.SMTP_PORT || '587') === '465',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
-
-    const mailOptions = {
-      from: `EnemPro <${process.env.EMAIL_FROM || 'noreply@enempro.com.br'}>`,
-      to: user.email,
-      subject: '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso',
-      html: `
-        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-          <h2>Olá, ${user.nome}!</h2>
-          <p>Seu pagamento foi confirmado e seu acesso à plataforma EnemPro foi liberado!</p>
-          <h3>Suas credenciais de acesso:</h3>
-          <ul>
-            <li><strong>Email:</strong> ${user.email}</li>
-            <li><strong>Senha:</strong> ${user.password}</li>
-          </ul>
-          <p>Você pode acessar a plataforma através do link abaixo:</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/login" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Acessar Plataforma</a>
-          <p>Recomendamos que você altere sua senha no primeiro acesso.</p>
-          <br>
-          <p>Atenciosamente,</p>
-          <p><strong>Equipe EnemPro</strong></p>
-        </div>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
-    console.log(`E-mail de boas-vindas enviado para ${user.email}`);
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`E-mail de boas-vindas enviado com sucesso para ${user.email}. Message ID: ${info.messageId}`);
   } catch (error) {
-    console.error(`Falha ao enviar e-mail para ${user.email}:`, error);
+    console.error(`Falha ao enviar e-mail de boas-vindas para ${user.email}:`, error);
     // Não impede a criação do usuário, apenas loga o erro
   }
 };

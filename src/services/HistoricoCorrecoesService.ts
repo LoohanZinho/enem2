@@ -19,6 +19,9 @@ export class HistoricoCorrecoesService {
 
   private constructor() {
     // A inicialização agora deve ser feita após a montagem do componente no lado do cliente
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
+    }
   }
 
   static getInstance(): HistoricoCorrecoesService {
@@ -36,8 +39,8 @@ export class HistoricoCorrecoesService {
     }
     try {
       const userData = userDataService.loadUserData();
-      if (userData && userData.essays) {
-        this.historico = userData.essays.map((c: CorrecaoRedacao) => ({
+      if (userData && userData.essays && Array.isArray(userData.essays)) {
+        this.historico = userData.essays.map((c: any) => ({
           ...c,
           dataCorrecao: new Date(c.dataCorrecao)
         }));
@@ -52,41 +55,40 @@ export class HistoricoCorrecoesService {
   
   // Salvar nova correção no histórico
   salvarCorrecao(correcao: CorrecaoRedacao): void {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
-    }
+    if (typeof window === 'undefined') return;
+    this.carregarHistorico(); // Garante que temos a lista mais recente
     this.historico.unshift(correcao); // Adiciona no início da lista
     this.salvarHistorico();
   }
 
   // Obter todas as correções
   obterHistorico(): CorrecaoRedacao[] {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
     return [...this.historico];
   }
 
   // Obter correção por ID
   obterCorrecaoPorId(id: string): CorrecaoRedacao | undefined {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
     return this.historico.find(correcao => correcao.id === id);
   }
 
   // Obter últimas N correções
   obterUltimasCorrecoes(quantidade: number = 10): CorrecaoRedacao[] {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
     return this.historico.slice(0, quantidade);
   }
 
   // Obter correções por tema
   obterCorrecoesPorTema(tema: string): CorrecaoRedacao[] {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
     return this.historico.filter(correcao => 
       correcao.tema.toLowerCase().includes(tema.toLowerCase())
@@ -95,16 +97,16 @@ export class HistoricoCorrecoesService {
 
   // Obter correções por nível
   obterCorrecoesPorNivel(nivel: string): CorrecaoRedacao[] {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
     return this.historico.filter(correcao => correcao.nivel === nivel);
   }
 
   // Obter estatísticas do histórico
   obterEstatisticas(): EstatisticasHistorico {
-    if (this.historico.length === 0) {
-        this.carregarHistorico();
+    if (typeof window !== 'undefined') {
+      this.carregarHistorico();
     }
 
     if (this.historico.length === 0) {
@@ -153,7 +155,7 @@ export class HistoricoCorrecoesService {
 
     // Tempo médio de correção
     const tempoMedioCorrecao = this.historico.reduce((sum, c) => 
-      sum + c.estatisticas.tempoCorrecao, 0
+      sum + (c.estatisticas?.tempoCorrecao || 0), 0
     ) / this.historico.length;
 
     return {
