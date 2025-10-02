@@ -9,9 +9,9 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  BookOpen, 
-  CheckCircle, 
+import {
+  BookOpen,
+  CheckCircle,
   Circle,
   Search,
   Filter,
@@ -84,7 +84,6 @@ const ResumosModulos = () => {
   const [materiaSelecionada, setMateriaSelecionada] = useState<Materia | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNivel, setSelectedNivel] = useState('Todos');
-  const [isFileManagerOpen, setIsFileManagerOpen] = useState(false);
   const [selectedSubMateria, setSelectedSubMateria] = useState<SubMateria | null>(null);
 
   useEffect(() => {
@@ -308,17 +307,15 @@ const ResumosModulos = () => {
       const subMateria = subMateriasData.find(sm => sm.id.startsWith(materia.id));
       if (subMateria) {
         setSelectedSubMateria(subMateria);
-        setIsFileManagerOpen(true);
       }
     } else {
-      alert('Apenas administradores podem gerenciar arquivos de resumos.');
+      setMateriaSelecionada(materia);
     }
   };
 
   const handleVoltar = () => {
     setMateriaSelecionada(null);
     setSelectedSubMateria(null);
-    setIsFileManagerOpen(false);
   };
 
   const getFileIcon = (tipoArquivo: string) => {
@@ -365,7 +362,7 @@ const ResumosModulos = () => {
               </p>
             </div>
             {isAdmin && (
-              <Button onClick={() => setIsFileManagerOpen(true)}>
+              <Button onClick={() => handleMateriaClick(materiaSelecionada)}>
                 <Plus className="h-4 w-4 mr-2" />
                 Gerenciar Arquivos
               </Button>
@@ -626,11 +623,11 @@ const ResumosModulos = () => {
         </Card>
 
         {/* File Manager Modal */}
-        {isAdmin && isFileManagerOpen && materiaSelecionada && selectedSubMateria && (
+        {isAdmin && materiaSelecionada && selectedSubMateria && (
             <FileManager
-              isOpen={isFileManagerOpen}
-              onClose={() => setIsFileManagerOpen(false)}
-              materia={materiaSelecionada.nome ?? ''}
+              isOpen={!!selectedSubMateria}
+              onClose={() => setSelectedSubMateria(null)}
+              materia={materiaSelecionada.nome}
               onFileUpload={(file) => {
                 console.log('Arquivo enviado:', file);
                 // Aqui você pode adicionar a lógica para salvar o arquivo
