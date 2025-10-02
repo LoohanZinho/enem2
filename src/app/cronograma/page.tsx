@@ -1,6 +1,6 @@
 
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+
 import { 
   Calendar, 
   Clock, 
@@ -86,6 +87,8 @@ const CronogramaEstudos = () => {
     status: 'pending',
     priority: 'medium'
   });
+  
+  const carouselApi = useRef<any>(null);
 
   useEffect(() => {
     const loadUserSchedule = async () => {
@@ -145,6 +148,10 @@ const CronogramaEstudos = () => {
             activities.push({
               id: `${weekNumber}-${i}-1`, time: "08:00", subject: "Matemática", topic: "Funções Quadráticas",
               type: "aula", duration: "2h", status: 'completed', priority: 'high', completedAt: new Date().toISOString()
+            });
+            activities.push({
+                id: `${weekNumber}-${i}-2`, time: "08:55", subject: "Português", topic: "Funções",
+                type: "aula", duration: "1h", status: 'pending', priority: 'high'
             });
           }
           if (i === 1) {
@@ -322,52 +329,47 @@ const CronogramaEstudos = () => {
   };
 
   const schedule = getCurrentWeek()?.days || [];
-  const today = new Date();
-  const dayOfWeek = today.getDay(); // Domingo = 0, Segunda = 1, ...
-  const currentDayName = schedule[dayOfWeek === 0 ? 6 : dayOfWeek - 1]?.day || schedule[0]?.day;
-
+  
   const getTypeColor = (type: string) => ({aula: "primary", exercicio: "success", redacao: "accent", resumo: "secondary", revisao: "outline", descanso: "outline"}[type as 'aula'|'exercicio'|'redacao'|'resumo'|'revisao'|'descanso'] || "outline");
   const getTypeIcon = (type: string) => ({aula: <BookOpen className="h-4 w-4" />, exercicio: <Target className="h-4 w-4" />, redacao: <Edit className="h-4 w-4" />, resumo: <BookOpen className="h-4 w-4" />, revisao: <TrendingUp className="h-4 w-4" />, descanso: <Circle className="h-4 w-4" />}[type as 'aula'|'exercicio'|'redacao'|'resumo'|'revisao'|'descanso'] || <BookOpen className="h-4 w-4" />);
-  const getStatusColor = (status: string) => ({completed: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400', in_progress: 'text-blue-600 bg-blue-100 dark:bg-blue-900/20 dark:text-blue-400', pending: 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400'}[status as 'completed'|'in_progress'|'pending'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
-  const getStatusIcon = (status: string) => ({completed: <CheckCircle className="h-4 w-4" />, in_progress: <Play className="h-4 w-4" />, pending: <Circle className="h-4 w-4" />}[status as 'completed'|'in_progress'|'pending'] || <Circle className="h-4 w-4" />);
-  const getPriorityColor = (priority: string) => ({high: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400', medium: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400', low: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'}[priority as 'high'|'medium'|'low'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
-
+  
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
-    <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col">
-      <div className="flex-grow space-y-2">
-        <div className="flex justify-between items-start">
-          <p className="font-semibold text-sm break-words">{activity.subject}</p>
-          <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0">{activity.type}</Badge>
+    <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col h-full">
+        <div className="flex-grow space-y-2">
+            <div className="flex justify-between items-start">
+                <p className="font-semibold text-sm break-words">{activity.subject}</p>
+                <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0">{activity.type}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
         </div>
-        <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
-      </div>
-      <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
-      
-      <div className="grid grid-cols-2 gap-2 mt-3">
-        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => handleStartActivity(activity)}>
-          {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
-          {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
-        </Button>
-        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-          <CheckCircle size={14} className="mr-1"/>
-          {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
-        </Button>
-        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
-          <Edit size={14} className="mr-1"/>
-          Editar
-        </Button>
-        <Button size="sm" variant="destructive" className="justify-start text-xs" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-          <Trash2 size={14} className="mr-1"/>
-          Excluir
-        </Button>
-      </div>
+        <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
 
-       {activeTimer === activity.id && <div className="text-sm font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
-       {activity.elapsedSeconds && activity.elapsedSeconds > 0 && activeTimer !== activity.id && (
-         <div className="text-xs text-muted-foreground mt-2">Tempo focado: {formatTime(activity.elapsedSeconds)}</div>
-       )}
+        <div className="grid grid-cols-2 gap-1 mt-3">
+            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleStartActivity(activity)}>
+                {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
+                {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
+            </Button>
+            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+                <CheckCircle size={14} className="mr-1"/>
+                {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
+            </Button>
+            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
+                <Edit size={14} className="mr-1"/>
+                Editar
+            </Button>
+            <Button size="sm" variant="destructive" className="justify-start text-xs h-8" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+                <Trash2 size={14} className="mr-1"/>
+                Excluir
+            </Button>
+        </div>
+        {(activeTimer === activity.id || (activity.elapsedSeconds && activity.elapsedSeconds > 0)) && (
+            <div className="text-xs font-semibold mt-2 text-primary">
+                {activeTimer === activity.id ? formatTime(timerSeconds) : `Focado: ${formatTime(activity.elapsedSeconds!)}`}
+            </div>
+        )}
     </Card>
-  );
+);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -426,64 +428,39 @@ const CronogramaEstudos = () => {
             </Button>
           </div>
 
-          <div className="hidden md:grid md:grid-cols-7 gap-4">
-            {schedule.map((day, dayIndex) => (
-              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg min-h-[200px]">
-                <div className="text-center mb-4">
-                  <p className="font-semibold">{day.day}</p>
-                  <p className="text-xs text-muted-foreground">{day.date}</p>
-                </div>
-                <div className="space-y-3">
-                  {day.activities.map((activity) => (
-                    <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
-                  ))}
-                  <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
-                    setSelectedDayIndex(dayIndex);
-                    setIsAddModalOpen(true);
-                  }}>
-                    <Plus size={14} className="mr-1" /> Adicionar
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="md:hidden">
-            <Tabs defaultValue={currentDayName} className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                {schedule.slice(0, 4).map((day) => (
-                  <TabsTrigger key={day.day} value={day.day}>{day.day.substring(0,3)}</TabsTrigger>
-                ))}
-              </TabsList>
-              <TabsList className="grid w-full grid-cols-3 mt-1">
-                {schedule.slice(4).map((day) => (
-                  <TabsTrigger key={day.day} value={day.day}>{day.day.substring(0,3)}</TabsTrigger>
-                ))}
-              </TabsList>
+          <Carousel
+            opts={{
+              align: "start",
+              loop: false,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
               {schedule.map((day, dayIndex) => (
-                <TabsContent key={day.day} value={day.day}>
-                  <Card className="mt-4">
-                    <CardHeader>
-                      <CardTitle>{day.day} - {day.date}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {day.activities.length > 0 ? day.activities.map((activity) => (
+                <CarouselItem key={dayIndex} className="basis-full md:basis-1/2 lg:basis-[40%] pl-4">
+                  <div className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg h-full flex flex-col">
+                    <div className="text-center mb-4">
+                      <p className="font-semibold">{day.day}</p>
+                      <p className="text-xs text-muted-foreground">{day.date}</p>
+                    </div>
+                    <div className="space-y-3 flex-grow">
+                      {day.activities.map((activity) => (
                         <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
-                      )) : (
-                        <p className="text-sm text-muted-foreground text-center py-4">Nenhuma atividade agendada.</p>
-                      )}
-                      <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
-                        setSelectedDayIndex(dayIndex);
-                        setIsAddModalOpen(true);
-                      }}>
-                        <Plus size={14} className="mr-1" /> Adicionar Atividade
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
+                      ))}
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => {
+                      setSelectedDayIndex(dayIndex);
+                      setIsAddModalOpen(true);
+                    }}>
+                      <Plus size={14} className="mr-1" /> Adicionar
+                    </Button>
+                  </div>
+                </CarouselItem>
               ))}
-            </Tabs>
-          </div>
+            </CarouselContent>
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
+          </Carousel>
         </div>
 
         <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
@@ -577,5 +554,3 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
-
-    
