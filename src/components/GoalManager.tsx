@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -21,6 +21,7 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { userDataService } from '@/services/UserDataService';
+import { Label } from "@/components/ui/label";
 
 interface Goal {
   id: string;
