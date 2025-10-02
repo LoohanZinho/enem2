@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +14,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from "@/components/ui/sheet";
+import {
   Bell,
   Menu,
   BookOpen,
@@ -25,7 +32,8 @@ import {
   Settings,
   LogOut,
   User as UserIcon,
-  ChevronDown
+  ChevronDown,
+  X
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from 'next/link';
@@ -48,6 +56,7 @@ const Header = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   
   const isActive = (path: string) => {
     if (path === '/') {
@@ -55,6 +64,17 @@ const Header = () => {
     }
     return pathname.startsWith(path);
   };
+
+  const navLinks = [
+    { href: "/cronograma", label: "Cronograma" },
+    { href: "/aulas", label: "Aulas" },
+    { href: "/resumos", label: "Resumos", icon: <FileText className="h-4 w-4 mr-2" /> },
+    { href: "/flashcards", label: "Flashcards", icon: <Brain className="h-4 w-4 mr-2" /> },
+    { href: "/redacao", label: "Redação" },
+    { href: "/calendario", label: "Calendário" },
+    { href: "/monitor-tarefas", label: "Tarefas", icon: <CheckSquare className="h-4 w-4 mr-1" /> },
+  ];
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -89,27 +109,19 @@ const Header = () => {
             )}
           </div>
           
-          <nav className="hidden md:flex items-center gap-6">
-            {[
-                { href: "/cronograma", label: "Cronograma" },
-                { href: "/aulas", label: "Aulas" },
-                { href: "/resumos", label: "Resumos", icon: <FileText className="h-4 w-4 mr-2" /> },
-                { href: "/flashcards", label: "Flashcards", icon: <Brain className="h-4 w-4 mr-2" /> },
-                { href: "/redacao", label: "Redação" },
-                { href: "/calendario", label: "Calendário" },
-                { href: "/monitor-tarefas", label: "Tarefas", icon: <CheckSquare className="h-4 w-4 mr-1" /> },
-            ].map(link => (
+          <nav className="hidden md:flex items-center gap-4">
+            {navLinks.map(link => (
               <div className="relative" key={link.href}>
                 <Button 
                   variant={isActive(link.href) ? "default" : "ghost"} 
                   size="sm" 
                   onClick={() => router.push(link.href)}
-                  className={isActive(link.href) ? "bg-primary text-primary-foreground" : ""}
+                  className={`transition-all duration-200 ${isActive(link.href) ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground"}`}
                 >
                   {link.icon}{link.label}
                 </Button>
                 {isActive(link.href) && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background animate-pulse"></div>
+                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-background animate-pulse"></div>
                 )}
               </div>
             ))}
@@ -117,7 +129,7 @@ const Header = () => {
         </div>
 
         {/* User Actions */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <ThemeToggle />
           
           <NotificationCenter />
@@ -207,9 +219,52 @@ const Header = () => {
             </div>
           )}
 
-          <Button variant="ghost" size="icon" className="md:hidden">
-            <Menu className="h-4 w-4" />
-          </Button>
+          <div className="md:hidden">
+            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="p-0 w-72">
+                <div className="flex h-full flex-col">
+                  <div className="p-6 border-b">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                         <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-lg">
+                           <BookOpen className="h-6 w-6 text-white" />
+                         </div>
+                         <span className="font-black text-2xl bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+                          EnemPro
+                        </span>
+                      </div>
+                       <SheetClose asChild>
+                        <Button variant="ghost" size="icon">
+                          <X className="h-5 w-5" />
+                        </Button>
+                      </SheetClose>
+                    </div>
+                  </div>
+                  <nav className="flex-1 p-6 space-y-3">
+                    {navLinks.map(link => (
+                      <SheetClose asChild key={link.href}>
+                        <Button 
+                          variant={isActive(link.href) ? "default" : "ghost"} 
+                          onClick={() => {
+                            router.push(link.href);
+                            setIsSheetOpen(false);
+                          }}
+                          className="w-full justify-start text-base py-6"
+                        >
+                          {link.icon}{link.label}
+                        </Button>
+                      </SheetClose>
+                    ))}
+                  </nav>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
