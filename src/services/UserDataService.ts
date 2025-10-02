@@ -240,6 +240,16 @@ export class UserDataService {
     await this.saveUserData(userData);
   }
 
+  // Métodos específicos para metas
+  async saveGoals(goals: any[]): Promise<void> {
+    await this.updateUserData({ goals });
+  }
+
+  async loadGoals(): Promise<any[]> {
+    const userData = await this.loadUserData();
+    return userData?.goals || [];
+  }
+
   // Obter estatísticas do usuário
   async getUserStats(): Promise<any> {
     const userData = await this.loadUserData();

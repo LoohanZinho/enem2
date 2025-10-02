@@ -48,6 +48,7 @@ interface Activity {
   notes?: string;
   completedAt?: string;
   startedAt?: string;
+  elapsedSeconds?: number;
 }
 
 interface DaySchedule {
@@ -218,14 +219,14 @@ const CronogramaEstudos = () => {
       duration: newActivity.duration || '1h',
       status: 'pending',
       priority: newActivity.priority as Activity['priority'],
-      notes: newActivity.notes
+      notes: newActivity.notes,
+      elapsedSeconds: 0
     };
     
     const updatedWeeks = [...weeks];
     updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
     updatedWeeks[currentWeek].days[selectedDayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
     setWeeks(updatedWeeks);
-    await userDataService.addActivity(currentWeek, selectedDayIndex, activity);
     
     setNewActivity({ time: '', subject: '', topic: '', type: 'aula', duration: '1h', status: 'pending', priority: 'medium' });
     setIsAddModalOpen(false);
@@ -243,7 +244,6 @@ const CronogramaEstudos = () => {
             newWeeks[currentWeek].days[dayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
             
             setWeeks(newWeeks);
-            await userDataService.updateActivity(currentWeek, dayIndex, editingActivity.id, editingActivity);
         }
     }
 
@@ -255,12 +255,26 @@ const CronogramaEstudos = () => {
     const newWeeks = [...weeks];
     newWeeks[currentWeek].days[dayIndex].activities = newWeeks[currentWeek].days[dayIndex].activities.filter(a => a.id !== activityId);
     setWeeks(newWeeks);
-    await userDataService.deleteActivity(currentWeek, dayIndex, activityId);
   };
 
-  const handleStartActivity = (activityId: string) => {
-    setTimerSeconds(0);
-    setActiveTimer(prev => (prev === activityId ? null : activityId));
+  const handleStartActivity = (activity: Activity) => {
+    if (activeTimer === activity.id) {
+      // Pause
+      const newWeeks = [...weeks];
+      const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === activity.id));
+      if (dayIndex > -1) {
+        const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activity.id);
+        if (activityIndex > -1) {
+          newWeeks[currentWeek].days[dayIndex].activities[activityIndex].elapsedSeconds = timerSeconds;
+          setWeeks(newWeeks);
+        }
+      }
+      setActiveTimer(null);
+    } else {
+      // Start
+      setActiveTimer(activity.id);
+      setTimerSeconds(activity.elapsedSeconds || 0);
+    }
   };
   
   const parseDurationToHours = (duration: string): number => {
@@ -297,7 +311,6 @@ const CronogramaEstudos = () => {
         newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = updatedActivity;
         
         setWeeks(newWeeks);
-        await userDataService.updateActivity(currentWeek, dayIndex, activityId, updatedActivity);
     }
   };
 
@@ -326,22 +339,28 @@ const CronogramaEstudos = () => {
           {getStatusIcon(activity.status)} <span className="ml-1">{activity.status}</span>
         </Badge>
       </div>
-      <div className="flex items-center gap-2 mt-4">
-        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleStartActivity(activity.id)}>
-          {activeTimer === activity.id ? <Pause size={16} /> : <Play size={16} />}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        <Button size="sm" variant="ghost" className="justify-start" onClick={() => handleStartActivity(activity)}>
+          {activeTimer === activity.id ? <Pause size={16} className="mr-2"/> : <Play size={16} className="mr-2"/>}
+          {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
         </Button>
-        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-          <CheckCircle size={16} />
+        <Button size="sm" variant="ghost" className="justify-start" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+          <CheckCircle size={16} className="mr-2"/>
+          {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
         </Button>
-        <div className="flex-grow" />
-        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
-          <Edit size={16} />
+        <Button size="sm" variant="ghost" className="justify-start" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
+          <Edit size={16} className="mr-2"/>
+          Editar
         </Button>
-        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-          <Trash2 size={16} />
+        <Button size="sm" variant="destructive" className="justify-start" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+          <Trash2 size={16} className="mr-2"/>
+          Excluir
         </Button>
       </div>
        {activeTimer === activity.id && <div className="text-base font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
+       {activity.elapsedSeconds && activity.elapsedSeconds > 0 && activeTimer !== activity.id && (
+         <div className="text-sm text-muted-foreground mt-2">Tempo focado: {formatTime(activity.elapsedSeconds)}</div>
+       )}
     </Card>
   );
 
@@ -553,5 +572,3 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
-
-    

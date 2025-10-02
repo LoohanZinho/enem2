@@ -101,12 +101,10 @@ class DatabaseService {
     const userDocRef = doc(this.db, 'user_data', userId);
     // Deep clone e converte todas as instâncias de Date para string ISO
     const serializableData = JSON.parse(JSON.stringify(data, (key, value) => {
-      if (value instanceof Date) {
-        return value.toISOString();
-      }
+      // Intentionally keep Date objects as they are for Firestore
       return value;
     }));
-    await setDoc(userDocRef, serializableData);
+    await setDoc(userDocRef, serializableData, { merge: true });
   }
 
   async getUserData(userId: string): Promise<DocumentData | null> {
