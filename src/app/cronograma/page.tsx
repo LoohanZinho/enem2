@@ -87,8 +87,8 @@ const CronogramaEstudos = () => {
   useEffect(() => {
     if (isDataLoaded) return;
 
-    const loadUserSchedule = () => {
-      const savedSchedule = userDataService.loadSchedule();
+    const loadUserSchedule = async () => {
+      const savedSchedule = await userDataService.loadSchedule();
       if (savedSchedule && savedSchedule.length > 0) {
         setWeeks(savedSchedule);
       } else {
