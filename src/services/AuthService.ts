@@ -41,10 +41,9 @@ class AuthService {
     if (this.didInitialize) return;
 
     if (typeof window !== 'undefined') {
-        const user = localStorage.getItem(this.CURRENT_USER_KEY);
+        const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
         try {
-            // Adicionado verificação para string não vazia antes do parse
-            this.currentUser = user ? JSON.parse(user) : null;
+            this.currentUser = userJson ? JSON.parse(userJson) : null;
         } catch (e) {
             console.error("Failed to parse user from localStorage", e);
             this.currentUser = null;
@@ -162,6 +161,26 @@ class AuthService {
     } catch (error) {
       console.error('Erro no login:', error);
       return { success: false, message: 'Erro ao fazer login.' };
+    }
+  }
+  
+    async getUserByEmail(email: string): Promise<User | null> {
+    await this.initialize();
+    if (!this.usersCollection) {
+      console.error('Firestore não inicializado.');
+      return null;
+    }
+    try {
+      const q = query(this.usersCollection, where('email', '==', email));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        const userDoc = querySnapshot.docs[0];
+        return { id: userDoc.id, ...userDoc.data() } as User;
+      }
+      return null;
+    } catch (error) {
+      console.error("Erro ao buscar usuário por email:", error);
+      return null;
     }
   }
 

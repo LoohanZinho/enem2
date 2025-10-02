@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
@@ -113,8 +114,7 @@ export async function POST(request: Request) {
       const expirationDate = calculateExpirationDate(paymentDate, durationInMonths);
       const defaultPassword = '123456';
 
-      const loginResult = await authService.login({email: customer.email, password: ''});
-      const existingUser = loginResult.success ? loginResult.user : null;
+      const existingUser = await authService.getUserByEmail(customer.email);
 
       if (existingUser) {
         console.log(`Usuário com email ${customer.email} já existe. Atualizando assinatura.`);

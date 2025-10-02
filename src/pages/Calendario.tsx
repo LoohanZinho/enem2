@@ -78,13 +78,21 @@ const Calendario = () => {
     prioridade: 'media' as Evento['prioridade'],
   });
 
-  // Carregar dados do localStorage apenas no lado do cliente
   useEffect(() => {
-    const userData = userDataService.loadUserData();
-    if (userData && userData.calendar) {
-      setEventos(userData.calendar);
-    }
-  }, []);
+    // Carregar dados do localStorage apenas no lado do cliente
+    const loadData = async () => {
+        try {
+            const userData = await userDataService.loadUserData();
+            if (userData && userData.calendar) {
+                setEventos(userData.calendar);
+            }
+        } catch (error) {
+            console.error("Failed to load calendar data:", error);
+        }
+    };
+    loadData();
+}, []);
+
 
   // Salvar dados no localStorage
   const saveToLocalStorage = (newEventos: Evento[]) => {
@@ -678,6 +686,7 @@ const Calendario = () => {
             </CardContent>
           </Card>
         ) : (
+          /* Calendário Semanal */
           <Card className="mb-8 border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3">

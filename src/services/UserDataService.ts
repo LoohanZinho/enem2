@@ -36,8 +36,15 @@ export class UserDataService {
   // Obter usuário atual
   private getCurrentUser(): User | null {
     if (typeof window === 'undefined') return null;
-    const user = localStorage.getItem(this.CURRENT_USER_KEY);
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem(this.CURRENT_USER_KEY);
+      // Garante que o parse só aconteça se a string for válida
+      return user ? JSON.parse(user) : null;
+    } catch (error) {
+      console.error("Erro ao ler usuário do localStorage:", error);
+      localStorage.removeItem(this.CURRENT_USER_KEY); // Limpa o dado corrompido
+      return null;
+    }
   }
   
   private async getUserId(): Promise<string | null> {

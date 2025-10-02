@@ -196,7 +196,6 @@ export class HistoricoCorrecoesService {
   importarHistorico(jsonData: string): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      // Adicionado verificação para string não vazia antes do parse
       if (jsonData) {
         const historico = JSON.parse(jsonData);
         if (Array.isArray(historico)) {
