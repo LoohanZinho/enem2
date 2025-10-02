@@ -198,14 +198,13 @@ function AulasContent() {
             </div>
           </>
         ) : (
-          <div className="space-y-8">
-            {/* Player de Vídeo Principal - Tela Cheia */}
-            <div className="mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Player de Vídeo Principal */}
+            <div className="lg:col-span-2">
               <Card className="overflow-hidden shadow-2xl border-0">
                 <CardContent className="p-0">
                   <div className="relative">
-                    {/* Player Container */}
-                    <div className="aspect-[16/9] bg-slate-900 relative">
+                    <div className="w-full aspect-video bg-slate-900">
                       {selectedMateriaData && (
                         <YouTubePlaylistPlayer
                           playlistId={selectedMateriaData.playlistId}
@@ -218,6 +217,11 @@ function AulasContent() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Playlist e Detalhes */}
+            <div className="lg:col-span-1">
+                {/* Aqui você pode adicionar a lista de vídeos da playlist, se desejar */}
             </div>
           </div>
         )}
