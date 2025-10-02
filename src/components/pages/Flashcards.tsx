@@ -351,7 +351,6 @@ const Flashcards = () => {
   const [currentGameCard, setCurrentGameCard] = useState(0);
   const [gameScore, setGameScore] = useState({ correct: 0, total: 0 });
   const [showAnswer, setShowAnswer] = useState(false);
-  const [gameCards, setGameCards] = useState<Flashcard[]>([]);
   const [isFlipped, setIsFlipped] = useState(false);
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -459,6 +458,7 @@ const Flashcards = () => {
         tags: ['equação', 'segundo grau', 'fórmula'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -481,6 +481,7 @@ const Flashcards = () => {
         tags: ['discriminante', 'equação', 'segundo grau'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -503,6 +504,7 @@ const Flashcards = () => {
         tags: ['bhaskara', 'fórmula', 'equação'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -526,6 +528,7 @@ const Flashcards = () => {
         tags: ['área', 'triângulo', 'geometria'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -548,6 +551,7 @@ const Flashcards = () => {
         tags: ['área', 'círculo', 'pi'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -571,6 +575,7 @@ const Flashcards = () => {
         tags: ['figura de linguagem', 'metáfora'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -593,6 +598,7 @@ const Flashcards = () => {
         tags: ['figura de linguagem', 'metonímia'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -616,6 +622,7 @@ const Flashcards = () => {
         tags: ['newton', 'força', 'aceleração'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -638,6 +645,7 @@ const Flashcards = () => {
         tags: ['energia', 'cinética', 'velocidade'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -661,6 +669,7 @@ const Flashcards = () => {
         tags: ['ácido', 'arrhenius', 'íons'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -684,6 +693,7 @@ const Flashcards = () => {
         tags: ['mitocôndria', 'respiração', 'organela'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -707,6 +717,7 @@ const Flashcards = () => {
         tags: ['independência', '1822', 'imperial'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -730,6 +741,7 @@ const Flashcards = () => {
         tags: ['amazônia', 'bioma', 'brasil'],
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -1287,6 +1299,7 @@ const Flashcards = () => {
         tags: line.split(' ').filter(word => word.length > 3).slice(0, 3),
         createdAt: new Date(),
         lastReviewed: null,
+        nextReview: new Date(),
         reviewCount: 0,
         correctCount: 0,
         incorrectCount: 0,
@@ -1645,5 +1658,3 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
-
-    
