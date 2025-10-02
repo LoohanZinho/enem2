@@ -306,34 +306,34 @@ const CronogramaEstudos = () => {
   const getPriorityColor = (priority: string) => ({high: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400', medium: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400', low: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'}[priority as 'high'|'medium'|'low'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
 
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
-    <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow">
+    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow">
       <div className="flex justify-between items-start mb-2">
-        <Badge variant={getTypeColor(activity.type) as any} className="text-xs">{activity.type}</Badge>
-        <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>{activity.priority}</Badge>
+        <Badge variant={getTypeColor(activity.type) as any}>{activity.type}</Badge>
+        <Badge className={getPriorityColor(activity.priority)}>{activity.priority}</Badge>
       </div>
-      <p className="font-semibold text-sm">{activity.subject}</p>
-      <p className="text-xs text-muted-foreground mb-2">{activity.topic}</p>
-      <div className="flex justify-between items-center text-xs text-muted-foreground">
+      <p className="font-semibold text-base">{activity.subject}</p>
+      <p className="text-sm text-muted-foreground mb-3">{activity.topic}</p>
+      <div className="flex justify-between items-center text-sm text-muted-foreground mb-3">
         <span>{activity.time} - {activity.duration}</span>
         <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
           {getStatusIcon(activity.status)} <span className="ml-1">{activity.status}</span>
         </Badge>
       </div>
-      <div className="flex gap-1 mt-3">
-        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleStartActivity(activity.id)}>
-          {activeTimer === activity.id ? <Pause size={14} /> : <Play size={14} />}
+      <div className="flex gap-2 mt-4">
+        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleStartActivity(activity.id)}>
+          {activeTimer === activity.id ? <Pause size={16} /> : <Play size={16} />}
         </Button>
-        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-          <CheckCircle size={14} />
+        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+          <CheckCircle size={16} />
         </Button>
-        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
-          <Edit size={14} />
+        <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
+          <Edit size={16} />
         </Button>
-        <Button size="icon" variant="destructive" className="h-7 w-7" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-          <Trash2 size={14} />
+        <Button size="icon" variant="destructive" className="h-8 w-8" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+          <Trash2 size={16} />
         </Button>
       </div>
-       {activeTimer === activity.id && <div className="text-sm font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
+       {activeTimer === activity.id && <div className="text-base font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
     </Card>
   );
 
@@ -396,12 +396,12 @@ const CronogramaEstudos = () => {
 
           <div className="hidden md:grid md:grid-cols-7 gap-4">
             {schedule.map((day, dayIndex) => (
-              <Card key={dayIndex} className="bg-card/50 dark:bg-slate-800/50">
-                <CardHeader className="text-center">
-                  <CardTitle className="text-base">{day.day}</CardTitle>
+              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg">
+                <div className="text-center mb-4">
+                  <p className="font-semibold">{day.day}</p>
                   <p className="text-xs text-muted-foreground">{day.date}</p>
-                </CardHeader>
-                <CardContent className="space-y-2 p-2">
+                </div>
+                <div className="space-y-3">
                   {day.activities.map((activity) => (
                     <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
                   ))}
@@ -411,8 +411,8 @@ const CronogramaEstudos = () => {
                   }}>
                     <Plus size={14} className="mr-1" /> Adicionar
                   </Button>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
