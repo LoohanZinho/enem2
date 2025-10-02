@@ -37,12 +37,12 @@ export class UserDataService {
   private getCurrentUser(): User | null {
     if (typeof window === 'undefined') return null;
     try {
-      const user = localStorage.getItem(this.CURRENT_USER_KEY);
-      // Garante que o parse só aconteça se a string for válida
-      return user ? JSON.parse(user) : null;
+      const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
+      if (!userJson || userJson === 'undefined') return null;
+      return JSON.parse(userJson);
     } catch (error) {
       console.error("Erro ao ler usuário do localStorage:", error);
-      localStorage.removeItem(this.CURRENT_USER_KEY); // Limpa o dado corrompido
+      localStorage.removeItem(this.CURRENT_USER_KEY);
       return null;
     }
   }
