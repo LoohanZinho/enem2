@@ -333,42 +333,38 @@ const CronogramaEstudos = () => {
   const getPriorityColor = (priority: string) => ({high: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400', medium: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400', low: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'}[priority as 'high'|'medium'|'low'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
 
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
-    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-        <Badge variant={getTypeColor(activity.type) as any} className="text-xs">{activity.type}</Badge>
-        <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>{activity.priority}</Badge>
+    <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col">
+      <div className="flex-grow space-y-2">
+        <div className="flex justify-between items-start">
+          <p className="font-semibold text-sm break-words">{activity.subject}</p>
+          <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0">{activity.type}</Badge>
+        </div>
+        <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
       </div>
-      <div className="flex-grow">
-          <p className="font-semibold text-base break-words">{activity.subject}</p>
-          <p className="text-sm text-muted-foreground mb-3 break-words">{activity.topic}</p>
-      </div>
-      <div className="flex flex-wrap items-center justify-between text-sm text-muted-foreground mb-3">
-        <span>{activity.time} - {activity.duration}</span>
-        <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
-          {getStatusIcon(activity.status)} <span className="ml-1">{activity.status}</span>
-        </Badge>
-      </div>
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        <Button size="sm" variant="ghost" className="justify-start" onClick={() => handleStartActivity(activity)}>
-          {activeTimer === activity.id ? <Pause size={16} className="mr-2"/> : <Play size={16} className="mr-2"/>}
+      <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
+      
+      <div className="grid grid-cols-2 gap-2 mt-3">
+        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => handleStartActivity(activity)}>
+          {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
           {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
         </Button>
-        <Button size="sm" variant="ghost" className="justify-start" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-          <CheckCircle size={16} className="mr-2"/>
+        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+          <CheckCircle size={14} className="mr-1"/>
           {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
         </Button>
-        <Button size="sm" variant="ghost" className="justify-start" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
-          <Edit size={16} className="mr-2"/>
+        <Button size="sm" variant="ghost" className="justify-start text-xs" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
+          <Edit size={14} className="mr-1"/>
           Editar
         </Button>
-        <Button size="sm" variant="destructive" className="justify-start" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-          <Trash2 size={16} className="mr-2"/>
+        <Button size="sm" variant="destructive" className="justify-start text-xs" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+          <Trash2 size={14} className="mr-1"/>
           Excluir
         </Button>
       </div>
-       {activeTimer === activity.id && <div className="text-base font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
+
+       {activeTimer === activity.id && <div className="text-sm font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
        {activity.elapsedSeconds && activity.elapsedSeconds > 0 && activeTimer !== activity.id && (
-         <div className="text-sm text-muted-foreground mt-2">Tempo focado: {formatTime(activity.elapsedSeconds)}</div>
+         <div className="text-xs text-muted-foreground mt-2">Tempo focado: {formatTime(activity.elapsedSeconds)}</div>
        )}
     </Card>
   );
@@ -379,7 +375,7 @@ const CronogramaEstudos = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Cronograma de Estudos</h1>
-          <Button onClick={() => { setSelectedDayIndex(new Date().getDay() -1); setIsAddModalOpen(true); }}>
+          <Button onClick={() => { setSelectedDayIndex(new Date().getDay() === 0 ? 6 : new Date().getDay() -1); setIsAddModalOpen(true); }}>
             <Plus className="mr-2 h-4 w-4" /> Nova Atividade
           </Button>
         </div>
@@ -581,3 +577,5 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
+
+    
