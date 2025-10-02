@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
-import { userDataService } from "@/services/UserDataService";
+import { userDataService, UserData } from "@/services/UserDataService";
 
 interface Evento {
   id: string;
@@ -42,6 +42,12 @@ interface Evento {
   duracao: number; // em minutos
   concluido: boolean;
   prioridade: 'baixa' | 'media' | 'alta';
+}
+
+interface DiaCalendario {
+  data: Date;
+  eventos: Evento[];
+  isCurrentMonth?: boolean;
 }
 
 const tiposEvento = [
@@ -79,14 +85,19 @@ const Calendario = () => {
   });
 
   useEffect(() => {
-    // Carregar dados do localStorage apenas no lado do cliente
-    const userData = userDataService.loadUserData();
-    if (userData && userData.calendar) {
-      setEventos(userData.calendar);
-    }
+    const loadData = async () => {
+      try {
+        const userData = await userDataService.loadUserData();
+        if (userData && userData.calendar) {
+          setEventos(userData.calendar);
+        }
+      } catch (error) {
+        console.error("Failed to load calendar data:", error);
+      }
+    };
+    loadData();
   }, []);
 
-  // Salvar dados no localStorage
   const saveToLocalStorage = (newEventos: Evento[]) => {
     userDataService.updateUserData({ calendar: newEventos });
     setEventos(newEventos);
@@ -185,11 +196,11 @@ const Calendario = () => {
     return eventos.filter(e => e.data === dataStr);
   };
 
-  const getEventosDaSemana = () => {
+  const getEventosDaSemana = (): DiaCalendario[] => {
     const inicioSemana = new Date(dataAtual);
     inicioSemana.setDate(dataAtual.getDate() - dataAtual.getDay());
     
-    const eventosSemana = [];
+    const eventosSemana: DiaCalendario[] = [];
     for (let i = 0; i < 7; i++) {
       const data = new Date(inicioSemana);
       data.setDate(inicioSemana.getDate() + i);
@@ -201,15 +212,14 @@ const Calendario = () => {
     return eventosSemana;
   };
 
-  const getEventosDoMes = () => {
+  const getEventosDoMes = (): DiaCalendario[] => {
     const primeiroDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), 1);
     const ultimoDia = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, 0);
     const primeiroDiaSemana = primeiroDia.getDay();
     const diasNoMes = ultimoDia.getDate();
     
-    const dias = [];
+    const dias: DiaCalendario[] = [];
     
-    // Adicionar dias do mês anterior
     for (let i = primeiroDiaSemana - 1; i >= 0; i--) {
       const data = new Date(primeiroDia);
       data.setDate(data.getDate() - i - 1);
@@ -220,7 +230,6 @@ const Calendario = () => {
       });
     }
     
-    // Adicionar dias do mês atual
     for (let i = 1; i <= diasNoMes; i++) {
       const data = new Date(dataAtual.getFullYear(), dataAtual.getMonth(), i);
       dias.push({
@@ -230,7 +239,6 @@ const Calendario = () => {
       });
     }
     
-    // Adicionar dias do próximo mês para completar a grade
     const diasRestantes = 42 - dias.length;
     for (let i = 1; i <= diasRestantes; i++) {
       const data = new Date(dataAtual.getFullYear(), dataAtual.getMonth() + 1, i);

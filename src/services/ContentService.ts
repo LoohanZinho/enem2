@@ -238,7 +238,7 @@ class ContentService {
     schedules?: Schedule[];
     notes?: Note[];
   }): Promise<void> {
-    const promises = [];
+    const promises: Promise<any>[] = [];
 
     if (data.essays) {
       promises.push(...data.essays.map(essay => 

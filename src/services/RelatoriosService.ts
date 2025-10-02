@@ -1,7 +1,7 @@
 // Serviço de Relatórios e Métricas de Evolução
 // Sistema completo de análise de progresso e estatísticas
 
-import { userDataService } from './UserDataService';
+import { userDataService, UserData } from './UserDataService';
 
 export interface RelatorioEvolucao {
   id: string;
@@ -44,6 +44,11 @@ export interface CorrecaoRedacao {
   dataCorrecao: Date;
   avaliadores: number;
   discrepancia: boolean;
+  estatisticas?: { // making it optional
+    totalPalavras: number;
+    totalParagrafos: number;
+    tempoCorrecao: number;
+  }
 }
 
 export interface PontuacaoCompetencia {
@@ -89,9 +94,9 @@ export class RelatoriosService {
   }
 
   // Adicionar nova redação ao histórico
-  adicionarRedacao(redacao: CorrecaoRedacao): void {
+  async adicionarRedacao(redacao: CorrecaoRedacao): Promise<void> {
     this.redacoes.push(redacao);
-    this.salvarDados();
+    await this.salvarDados();
   }
 
   // Gerar relatório de evolução
@@ -480,10 +485,10 @@ export class RelatoriosService {
   }
 
   // Salvar dados no localStorage
-  private salvarDados(): void {
+  private async salvarDados(): Promise<void> {
     if (typeof window === 'undefined') return;
     try {
-      userDataService.updateUserData({ 
+      await userDataService.updateUserData({ 
         essays: this.redacoes,
         goals: this.metas 
       });
@@ -493,14 +498,14 @@ export class RelatoriosService {
   }
 
   // Carregar dados do localStorage
-  carregarDados(): void {
+  async carregarDados(): Promise<void> {
     if (typeof window === 'undefined') {
       this.redacoes = [];
       this.metas = [];
       return;
     }
     try {
-      const userData = userDataService.loadUserData();
+      const userData = await userDataService.loadUserData();
       if (userData) {
         this.redacoes = userData.essays ? userData.essays.map((r: any) => ({
           ...r,

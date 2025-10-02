@@ -181,7 +181,7 @@ export class AdvancedOCRService {
         const idx = (y * width + x) * 4;
         
         for (let c = 0; c < 3; c++) {
-          const values = [];
+          const values: number[] = [];
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
               const neighborIdx = ((y + dy) * width + (x + dx)) * 4 + c;
@@ -357,17 +357,14 @@ export class AdvancedOCRService {
   private estimateScore(text: string, wordCount: number): number {
     let score = 0;
     
-    // Pontuação baseada no tamanho
     if (wordCount >= 300) score += 20;
     else if (wordCount >= 200) score += 15;
     else if (wordCount >= 100) score += 10;
     
-    // Pontuação baseada na estrutura
     const paragraphs = this.countParagraphs(text);
     if (paragraphs >= 4) score += 15;
     else if (paragraphs >= 3) score += 10;
     
-    // Pontuação baseada em conectivos
     const connectives = text.match(/\b(portanto|assim|dessa forma|além disso|por outro lado|contudo|entretanto|no entanto)\b/gi);
     if (connectives && connectives.length >= 3) score += 10;
     

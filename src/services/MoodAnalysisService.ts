@@ -1,7 +1,7 @@
 // Sistema de Análise de Sentimento e Motivação para ENEM Pro
 // Monitoramento do estado emocional e psicológico do estudante
 
-import { userDataService } from './UserDataService';
+import { userDataService, UserData } from './UserDataService';
 
 export interface MoodEntry {
   id: string;
@@ -83,7 +83,6 @@ export class MoodAnalysisService {
   }
 
   constructor() {
-    // Perfil de motivação padrão
     this.motivationProfile = {
       primaryMotivators: ['achievement', 'learning', 'future_goals'],
       learningStyle: 'visual',
@@ -105,9 +104,7 @@ export class MoodAnalysisService {
     this.initializeData();
   }
 
-  // Inicializar dados
-  private initializeData(): void {
-    // Recomendações padrão
+  private async initializeData(): Promise<void> {
     this.recommendations = [
       {
         id: 'rec1',
@@ -143,10 +140,9 @@ export class MoodAnalysisService {
         isCompleted: false
       }
     ];
-    this.loadFromLocalStorage();
+    await this.loadFromLocalStorage();
   }
 
-  // Registrar entrada de humor
   recordMoodEntry(entry: Omit<MoodEntry, 'id' | 'timestamp'>): MoodEntry {
     const newEntry: MoodEntry = {
       ...entry,
@@ -162,18 +158,15 @@ export class MoodAnalysisService {
     return newEntry;
   }
 
-  // Analisar padrões de humor
   private analyzeMoodPatterns(): void {
     if (this.moodEntries.length < 3) return;
 
-    const recentEntries = this.moodEntries.slice(-7); // Últimos 7 dias
+    const recentEntries = this.moodEntries.slice(-7); 
     const trends = this.calculateTrends(recentEntries);
     
-    // Atualizar recomendações baseadas nas tendências
     this.updateRecommendationsBasedOnTrends(trends);
   }
 
-  // Calcular tendências
   private calculateTrends(entries: MoodEntry[]): {
     mood: number;
     energy: number;
@@ -200,9 +193,7 @@ export class MoodAnalysisService {
     return averages;
   }
 
-  // Atualizar recomendações baseadas em tendências
   private updateRecommendationsBasedOnTrends(trends: any): void {
-    // Se estresse alto, adicionar recomendações de relaxamento
     if (trends.stress > 3.5) {
       this.addRecommendation({
         type: 'stress',
@@ -215,7 +206,6 @@ export class MoodAnalysisService {
       });
     }
 
-    // Se motivação baixa, adicionar recomendações motivacionais
     if (trends.motivation < 3) {
       this.addRecommendation({
         type: 'motivation',
@@ -228,7 +218,6 @@ export class MoodAnalysisService {
       });
     }
 
-    // Se confiança baixa, adicionar recomendações de autoestima
     if (trends.confidence < 3) {
       this.addRecommendation({
         type: 'motivation',
@@ -242,7 +231,6 @@ export class MoodAnalysisService {
     }
   }
 
-  // Adicionar recomendação
   private addRecommendation(rec: Omit<WellbeingRecommendation, 'id' | 'isCompleted'>): void {
     const newRec: WellbeingRecommendation = {
       ...rec,
@@ -250,7 +238,6 @@ export class MoodAnalysisService {
       isCompleted: false
     };
 
-    // Verificar se já existe recomendação similar
     const exists = this.recommendations.some(r => 
       r.title === newRec.title && r.type === newRec.type
     );
@@ -260,18 +247,15 @@ export class MoodAnalysisService {
     }
   }
 
-  // Gerar recomendações personalizadas
   generateRecommendations(): WellbeingRecommendation[] {
     const activeRecommendations = this.recommendations.filter(rec => !rec.isCompleted);
     
-    // Ordenar por prioridade e relevância
     return activeRecommendations.sort((a, b) => {
       const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
       return priorityOrder[b.priority] - priorityOrder[a.priority];
     });
   }
 
-  // Obter tendências de humor
   getMoodTrends(period: 'day' | 'week' | 'month' = 'week'): MoodTrend {
     const now = new Date();
     let startDate: Date;
@@ -291,13 +275,10 @@ export class MoodAnalysisService {
     const periodEntries = this.moodEntries.filter(entry => new Date(entry.timestamp) >= startDate);
     const trends = this.calculateTrends(periodEntries);
 
-    // Determinar tendência geral
     const overallTrend = this.determineOverallTrend(periodEntries);
     
-    // Gerar insights
     const insights = this.generateInsights(trends, periodEntries);
     
-    // Gerar recomendações
     const recommendations = this.generateTrendRecommendations(trends, overallTrend);
 
     return {
@@ -313,7 +294,6 @@ export class MoodAnalysisService {
     };
   }
 
-  // Determinar tendência geral
   private determineOverallTrend(entries: MoodEntry[]): 'improving' | 'stable' | 'declining' {
     if (entries.length < 2) return 'stable';
 
@@ -334,7 +314,6 @@ export class MoodAnalysisService {
     return 'stable';
   }
 
-  // Gerar insights
   private generateInsights(trends: any, entries: MoodEntry[]): string[] {
     const insights: string[] = [];
 
@@ -356,10 +335,8 @@ export class MoodAnalysisService {
       insights.push('Sua motivação está baixa. Lembre-se dos seus objetivos e por que você está estudando.');
     }
 
-    // Análise de padrões
     const morningEntries = entries.filter(e => new Date(e.timestamp).getHours() < 12);
     const afternoonEntries = entries.filter(e => new Date(e.timestamp).getHours() >= 12 && new Date(e.timestamp).getHours() < 18);
-    const eveningEntries = entries.filter(e => new Date(e.timestamp).getHours() >= 18);
 
     if (morningEntries.length > 0 && afternoonEntries.length > 0) {
       const morningMood = this.calculateTrends(morningEntries).mood;
@@ -375,7 +352,6 @@ export class MoodAnalysisService {
     return insights;
   }
 
-  // Gerar recomendações baseadas em tendências
   private generateTrendRecommendations(trends: any, overallTrend: string): string[] {
     const recommendations: string[] = [];
 
@@ -403,7 +379,6 @@ export class MoodAnalysisService {
     return recommendations;
   }
 
-  // Avaliar estresse
   assessStress(): StressIndicator {
     const recentEntries = this.moodEntries.slice(-7);
     if(recentEntries.length === 0) {
@@ -441,7 +416,6 @@ export class MoodAnalysisService {
     };
   }
 
-  // Identificar sintomas de estresse
   private identifyStressSymptoms(entries: MoodEntry[]): string[] {
     const symptoms: string[] = [];
     
@@ -462,11 +436,9 @@ export class MoodAnalysisService {
     return symptoms;
   }
 
-  // Identificar causas de estresse
   private identifyStressCauses(entries: MoodEntry[]): string[] {
     const causes: string[] = [];
     
-    // Análise baseada em triggers mencionados
     const allTriggers = entries.flatMap(e => e.triggers || []);
     const triggerCounts = allTriggers.reduce((acc, trigger) => {
       acc[trigger] = (acc[trigger] || 0) + 1;
@@ -479,7 +451,6 @@ export class MoodAnalysisService {
       }
     });
 
-    // Causas comuns se não houver triggers específicos
     if (causes.length === 0) {
       causes.push('Pressão acadêmica', 'Gestão de tempo', 'Expectativas altas');
     }
@@ -487,7 +458,6 @@ export class MoodAnalysisService {
     return causes;
   }
 
-  // Gerar recomendações para estresse
   private generateStressRecommendations(level: string, symptoms: string[], causes: string[]): string[] {
     const recommendations: string[] = [];
 
@@ -507,12 +477,10 @@ export class MoodAnalysisService {
     return recommendations;
   }
 
-  // Obter perfil de motivação
   getMotivationProfile(): MotivationProfile | null {
     return this.motivationProfile;
   }
 
-  // Atualizar perfil de motivação
   updateMotivationProfile(updates: Partial<MotivationProfile>): void {
     if (this.motivationProfile) {
       this.motivationProfile = { ...this.motivationProfile, ...updates };
@@ -520,7 +488,6 @@ export class MoodAnalysisService {
     }
   }
 
-  // Marcar recomendação como concluída
   completeRecommendation(recommendationId: string): void {
     const rec = this.recommendations.find(r => r.id === recommendationId);
     if (rec) {
@@ -530,7 +497,6 @@ export class MoodAnalysisService {
     }
   }
 
-  // Obter entradas de humor recentes
   getRecentMoodEntries(days: number = 7): MoodEntry[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
@@ -538,7 +504,6 @@ export class MoodAnalysisService {
     return this.moodEntries.filter(entry => new Date(entry.timestamp) >= cutoffDate);
   }
 
-  // Salvar no localStorage
   private saveToLocalStorage(): void {
     userDataService.updateUserData({
       moodEntries: this.moodEntries,
@@ -546,9 +511,8 @@ export class MoodAnalysisService {
     });
   }
 
-  // Carregar do localStorage
-  private loadFromLocalStorage(): void {
-    const userData = userDataService.loadUserData();
+  private async loadFromLocalStorage(): Promise<void> {
+    const userData = await userDataService.loadUserData();
     if (userData) {
       this.moodEntries = userData.moodEntries ? userData.moodEntries.map((entry: any) => ({
         ...entry,
@@ -557,7 +521,7 @@ export class MoodAnalysisService {
 
       if (userData.analytics && userData.analytics.length > 0) {
         this.motivationProfile = userData.analytics[0] || this.motivationProfile;
-        this.recommendations = userData.analytics.slice(1).map((rec: any) => ({
+        this.recommendations = (userData.analytics.slice(1) || []).map((rec: any) => ({
           ...rec,
           completedAt: rec.completedAt ? new Date(rec.completedAt) : undefined
         }));

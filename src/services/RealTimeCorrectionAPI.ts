@@ -194,9 +194,13 @@ export class RealTimeCorrectionAPI {
           } else if (data.type === 'partial') {
             onPartialResult(data.result);
           } else if (data.type === 'complete') {
-            finalResult = data.result;
+            finalResult = data.result as CorrectionResponse;
             eventSource.close();
-            resolve(finalResult);
+            if(finalResult){
+              resolve(finalResult);
+            } else {
+              reject(new Error("Correction failed: final result is null."));
+            }
           } else if (data.type === 'error') {
             eventSource.close();
             reject(new Error(data.message));

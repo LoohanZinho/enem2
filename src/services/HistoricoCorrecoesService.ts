@@ -1,6 +1,6 @@
 // Serviço para gerenciar histórico de correções de redação
 import { CorrecaoRedacao } from './RedacaoAIService';
-import { userDataService } from './UserDataService';
+import { userDataService, UserData } from './UserDataService';
 
 export interface EstatisticasHistorico {
   totalCorrecoes: number;
@@ -18,7 +18,6 @@ export class HistoricoCorrecoesService {
   private historico: CorrecaoRedacao[] = [];
 
   private constructor() {
-    // A inicialização agora deve ser feita após a montagem do componente no lado do cliente
     if (typeof window !== 'undefined') {
       this.carregarHistorico();
     }
@@ -31,14 +30,13 @@ export class HistoricoCorrecoesService {
     return HistoricoCorrecoesService.instance;
   }
 
-  // Carregar histórico do localStorage (deve ser chamado no lado do cliente)
-  private carregarHistorico(): void {
+  private async carregarHistorico(): Promise<void> {
     if (typeof window === 'undefined') {
       this.historico = [];
       return;
     }
     try {
-      const userData = userDataService.loadUserData();
+      const userData = await userDataService.loadUserData();
       if (userData && userData.essays && Array.isArray(userData.essays)) {
         this.historico = userData.essays.map((c: any) => ({
           ...c,
@@ -53,60 +51,53 @@ export class HistoricoCorrecoesService {
     }
   }
   
-  // Salvar nova correção no histórico
-  salvarCorrecao(correcao: CorrecaoRedacao): void {
+  async salvarCorrecao(correcao: CorrecaoRedacao): Promise<void> {
     if (typeof window === 'undefined') return;
-    this.carregarHistorico(); // Garante que temos a lista mais recente
+    await this.carregarHistorico(); // Garante que temos a lista mais recente
     this.historico.unshift(correcao); // Adiciona no início da lista
-    this.salvarHistorico();
+    await this.salvarHistorico();
   }
 
-  // Obter todas as correções
-  obterHistorico(): CorrecaoRedacao[] {
+  async obterHistorico(): Promise<CorrecaoRedacao[]> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
     return [...this.historico];
   }
 
-  // Obter correção por ID
-  obterCorrecaoPorId(id: string): CorrecaoRedacao | undefined {
+  async obterCorrecaoPorId(id: string): Promise<CorrecaoRedacao | undefined> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
     return this.historico.find(correcao => correcao.id === id);
   }
 
-  // Obter últimas N correções
-  obterUltimasCorrecoes(quantidade: number = 10): CorrecaoRedacao[] {
+  async obterUltimasCorrecoes(quantidade: number = 10): Promise<CorrecaoRedacao[]> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
     return this.historico.slice(0, quantidade);
   }
 
-  // Obter correções por tema
-  obterCorrecoesPorTema(tema: string): CorrecaoRedacao[] {
+  async obterCorrecoesPorTema(tema: string): Promise<CorrecaoRedacao[]> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
     return this.historico.filter(correcao => 
       correcao.tema.toLowerCase().includes(tema.toLowerCase())
     );
   }
 
-  // Obter correções por nível
-  obterCorrecoesPorNivel(nivel: string): CorrecaoRedacao[] {
+  async obterCorrecoesPorNivel(nivel: string): Promise<CorrecaoRedacao[]> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
     return this.historico.filter(correcao => correcao.nivel === nivel);
   }
 
-  // Obter estatísticas do histórico
-  obterEstatisticas(): EstatisticasHistorico {
+  async obterEstatisticas(): Promise<EstatisticasHistorico> {
     if (typeof window !== 'undefined') {
-      this.carregarHistorico();
+      await this.carregarHistorico();
     }
 
     if (this.historico.length === 0) {
@@ -127,7 +118,6 @@ export class HistoricoCorrecoesService {
     const melhorNota = Math.max(...notas);
     const piorNota = Math.min(...notas);
 
-    // Evolução por competência
     const evolucaoCompetencias: { [key: number]: number[] } = {};
     for (let i = 1; i <= 5; i++) {
       evolucaoCompetencias[i] = this.historico.map(c => 
@@ -135,7 +125,6 @@ export class HistoricoCorrecoesService {
       );
     }
 
-    // Temas mais frequentes
     const temasCount: { [key: string]: number } = {};
     this.historico.forEach(correcao => {
       temasCount[correcao.tema] = (temasCount[correcao.tema] || 0) + 1;
@@ -145,7 +134,6 @@ export class HistoricoCorrecoesService {
       .sort((a, b) => b.quantidade - a.quantidade)
       .slice(0, 5);
 
-    // Nível mais comum
     const niveisCount: { [key: string]: number } = {};
     this.historico.forEach(correcao => {
       niveisCount[correcao.nivel] = (niveisCount[correcao.nivel] || 0) + 1;
@@ -153,7 +141,6 @@ export class HistoricoCorrecoesService {
     const nivelMaisComum = Object.entries(niveisCount)
       .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Nenhum';
 
-    // Tempo médio de correção
     const tempoMedioCorrecao = this.historico.reduce((sum, c) => 
       sum + (c.estatisticas?.tempoCorrecao || 0), 0
     ) / this.historico.length;
@@ -170,37 +157,33 @@ export class HistoricoCorrecoesService {
     };
   }
 
-  // Remover correção do histórico
-  removerCorrecao(id: string): boolean {
+  async removerCorrecao(id: string): Promise<boolean> {
     const index = this.historico.findIndex(correcao => correcao.id === id);
     if (index !== -1) {
       this.historico.splice(index, 1);
-      this.salvarHistorico();
+      await this.salvarHistorico();
       return true;
     }
     return false;
   }
 
-  // Limpar todo o histórico
-  limparHistorico(): void {
+  async limparHistorico(): Promise<void> {
     this.historico = [];
-    this.salvarHistorico();
+    await this.salvarHistorico();
   }
 
-  // Exportar histórico para JSON
   exportarHistorico(): string {
     return JSON.stringify(this.historico, null, 2);
   }
 
-  // Importar histórico de JSON
-  importarHistorico(jsonData: string): boolean {
+  async importarHistorico(jsonData: string): Promise<boolean> {
     if (typeof window === 'undefined') return false;
     try {
       if (jsonData) {
         const historico = JSON.parse(jsonData);
         if (Array.isArray(historico)) {
           this.historico = historico;
-          this.salvarHistorico();
+          await this.salvarHistorico();
           return true;
         }
       }
@@ -210,11 +193,10 @@ export class HistoricoCorrecoesService {
     return false;
   }
 
-  // Salvar histórico no localStorage
-  private salvarHistorico(): void {
+  private async salvarHistorico(): Promise<void> {
     if (typeof window === 'undefined') return;
     try {
-      userDataService.updateUserData({ essays: this.historico });
+      await userDataService.updateUserData({ essays: this.historico });
     } catch (error) {
       console.error('Erro ao salvar histórico:', error);
     }

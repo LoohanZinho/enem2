@@ -27,6 +27,12 @@ interface User {
   lastSeen: Date;
 }
 
+interface CellData {
+  value: string | number;
+  type: 'text' | 'number' | 'formula';
+  formula?: string;
+}
+
 interface SpreadsheetTemplate {
   id: string;
   name: string;

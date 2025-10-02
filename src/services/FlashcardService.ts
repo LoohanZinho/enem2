@@ -1,7 +1,7 @@
 // Sistema de Flashcards Inteligentes para ENEM Pro
 // Algoritmo de repetição espaçada e personalização baseada em performance
 
-import { userDataService } from './UserDataService';
+import { userDataService, UserData } from './UserDataService';
 
 export interface Flashcard {
   id: string;
@@ -89,8 +89,8 @@ export class FlashcardService {
   }
 
   // Carregar dados do usuário
-  private loadUserData(): void {
-    const userData = userDataService.loadUserData();
+  private async loadUserData(): Promise<void> {
+    const userData = await userDataService.loadUserData();
     if (userData && userData.flashcards && userData.flashcards.length > 0) {
       // Carregar flashcards
       this.flashcards.clear();

@@ -1,7 +1,7 @@
 // Sistema de Metas Personalizadas com IA para ENEM Pro
 // Criação e acompanhamento inteligente de objetivos de estudo
 
-import { userDataService } from './UserDataService';
+import { userDataService, UserData } from './UserDataService';
 
 export interface Goal {
   id: string;
@@ -102,6 +102,7 @@ export class AIGoalService {
   constructor() {
     this.initializeTemplates();
     this.loadUserProfile();
+    this.loadFromLocalStorage();
   }
 
   // Inicializar templates de metas
@@ -159,19 +160,10 @@ export class AIGoalService {
   }
 
   // Carregar perfil do usuário
-  private loadUserProfile(): void {
+  private async loadUserProfile(): Promise<void> {
     if (typeof window === 'undefined') return;
-    const saved = localStorage.getItem('enem_pro_user_profile');
-    if (saved) {
-      try {
-        this.userProfile = JSON.parse(saved);
-      } catch (e) {
-        console.error("Failed to parse user profile from localStorage", e);
-        this.userProfile = this.getDefaultUserProfile();
-      }
-    } else {
-      this.userProfile = this.getDefaultUserProfile();
-    }
+    const userData = await userDataService.loadUserData();
+    this.userProfile = userData?.analytics ? userData.analytics[0] : this.getDefaultUserProfile();
   }
 
   private getDefaultUserProfile(): any {
@@ -260,14 +252,13 @@ export class AIGoalService {
         break;
     }
 
-    // Recomendações baseadas no perfil do usuário
-    if (this.userProfile.learningStyle === 'visual') {
+    if (this.userProfile?.learningStyle === 'visual') {
       recommendations.push('Use mapas mentais e diagramas para estudar');
-    } else if (this.userProfile.learningStyle === 'auditory') {
+    } else if (this.userProfile?.learningStyle === 'auditory') {
       recommendations.push('Grave áudios explicando os conceitos');
     }
 
-    if (this.userProfile.motivation === 'low') {
+    if (this.userProfile?.motivation === 'low') {
       recommendations.push('Defina recompensas pequenas para cada conquista');
       recommendations.push('Estude com amigos ou em grupo');
     }
@@ -282,7 +273,6 @@ export class AIGoalService {
     const deadline = this.calculateDeadline(template, preferences);
     const duration = Math.ceil((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 
-    // Criar marcos baseados na duração
     if (duration >= 7) {
       const quarterTarget = Math.floor(totalTarget * 0.25);
       const halfTarget = Math.floor(totalTarget * 0.5);
@@ -329,7 +319,6 @@ export class AIGoalService {
   private generateGoalTitle(template: GoalTemplate, preferences: any): string {
     const baseTitle = template.name;
     
-    // Personalizar baseado nas preferências
     if (preferences.subject) {
       return `${baseTitle} - ${preferences.subject}`;
     }
@@ -360,18 +349,17 @@ export class AIGoalService {
   private calculateTarget(template: GoalTemplate, preferences: any): number {
     const baseTarget = this.getBaseTarget(template.type);
     
-    // Ajustar baseado no perfil do usuário
     let multiplier = 1;
     
-    if (this.userProfile.experience === 'beginner') {
+    if (this.userProfile?.experience === 'beginner') {
       multiplier = 0.7;
-    } else if (this.userProfile.experience === 'advanced') {
+    } else if (this.userProfile?.experience === 'advanced') {
       multiplier = 1.3;
     }
     
-    if (this.userProfile.motivation === 'high') {
+    if (this.userProfile?.motivation === 'high') {
       multiplier *= 1.2;
-    } else if (this.userProfile.motivation === 'low') {
+    } else if (this.userProfile?.motivation === 'low') {
       multiplier *= 0.8;
     }
     
@@ -431,17 +419,14 @@ export class AIGoalService {
     goal.current = Math.min(progress, goal.target);
     goal.updatedAt = new Date();
 
-    // Adicionar entrada no histórico
     goal.progressHistory.push({
       date: new Date(),
       value: goal.current,
       notes
     });
 
-    // Verificar marcos
     this.checkMilestones(goal);
 
-    // Verificar se a meta foi concluída
     if (goal.current >= goal.target && goal.status === 'active') {
       goal.status = 'completed';
       goal.completedAt = new Date();
@@ -653,7 +638,7 @@ export class AIGoalService {
       aiGenerated: true,
       difficulty: preferences.difficulty || 'intermediate',
       estimatedHours: preferences.estimatedHours || 100,
-      subjects: preferences.subjects || this.userProfile.subjects
+      subjects: preferences.subjects || this.userProfile?.subjects
     };
 
     this.studyPlans.push(studyPlan);
@@ -665,25 +650,21 @@ export class AIGoalService {
   private generateGoalsForStudyPlan(preferences: any): Goal[] {
     const goals: Goal[] = [];
     
-    // Meta de tempo de estudo
     const studyTimeGoal = this.createPersonalizedGoal('study_time', 'daily', preferences);
     goals.push(studyTimeGoal);
     
-    // Meta de simulados
     const simuladoGoal = this.createPersonalizedGoal('simulados', 'weekly', preferences);
     goals.push(simuladoGoal);
     
-    // Meta de redações
     const redacaoGoal = this.createPersonalizedGoal('redacoes', 'weekly', preferences);
     goals.push(redacaoGoal);
     
-    // Metas por matéria fraca
-    if (this.userProfile.weakSubjects) {
+    if (this.userProfile?.weakSubjects) {
       this.userProfile.weakSubjects.forEach((subject: string) => {
         const subjectGoal = this.createPersonalizedGoal('performance', 'monthly', {
           ...preferences,
           subject,
-          target: 700 // nota mínima
+          target: 700
         });
         goals.push(subjectGoal);
       });
@@ -696,13 +677,13 @@ export class AIGoalService {
   private saveToLocalStorage(): void {
     userDataService.updateUserData({
       goals: Array.from(this.goals.values()),
-      analytics: this.studyPlans
+      analytics: [this.userProfile, ...this.studyPlans]
     });
   }
 
   // Carregar do localStorage
-  private loadFromLocalStorage(): void {
-    const userData = userDataService.loadUserData();
+  private async loadFromLocalStorage(): Promise<void> {
+    const userData = await userDataService.loadUserData();
     if (userData) {
       if (userData.goals) {
         this.goals = new Map(userData.goals.map((goal: any) => [
@@ -727,7 +708,7 @@ export class AIGoalService {
       }
 
       if (userData.analytics) {
-        this.studyPlans = userData.analytics.map((plan: any) => ({
+        this.studyPlans = (userData.analytics.slice(1) || []).map((plan: any) => ({
           ...plan,
           startDate: new Date(plan.startDate),
           endDate: new Date(plan.endDate)
@@ -744,7 +725,6 @@ export class AIGoalService {
   }
 }
 
-// Função auxiliar
 function daysSinceCreation(goal: Goal): number {
   return (Date.now() - goal.createdAt.getTime()) / (1000 * 60 * 60 * 24);
 }
