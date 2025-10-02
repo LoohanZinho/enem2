@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -396,7 +397,7 @@ const CronogramaEstudos = () => {
 
           <div className="hidden md:grid md:grid-cols-7 gap-4">
             {schedule.map((day, dayIndex) => (
-              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg">
+              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-6 rounded-lg min-h-[200px]">
                 <div className="text-center mb-4">
                   <p className="font-semibold">{day.day}</p>
                   <p className="text-xs text-muted-foreground">{day.date}</p>
@@ -545,3 +546,5 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
+
+    
