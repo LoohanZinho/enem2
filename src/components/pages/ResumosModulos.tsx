@@ -626,7 +626,7 @@ const ResumosModulos = () => {
         </Card>
 
         {/* File Manager Modal */}
-        {isFileManagerOpen && selectedSubMateria && materiaSelecionada && (
+        {isAdmin && isFileManagerOpen && materiaSelecionada !== null && (
             <FileManager
               isOpen={isFileManagerOpen}
               onClose={() => setIsFileManagerOpen(false)}
@@ -643,5 +643,3 @@ const ResumosModulos = () => {
 };
 
 export default ResumosModulos;
-
-    
