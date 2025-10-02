@@ -41,7 +41,7 @@ interface Activity {
   subject: string;
   topic: string;
   type: 'aula' | 'exercicio' | 'redacao' | 'resumo' | 'revisao' | 'descanso';
-  duration: string;
+  duration: string; // duration in format '1h', '30min'
   status: 'pending' | 'in_progress' | 'completed';
   priority: 'low' | 'medium' | 'high';
   notes?: string;
@@ -66,7 +66,8 @@ interface WeekSchedule {
 
 const CronogramaEstudos = () => {
   const [currentWeek, setCurrentWeek] = useState(0);
-  const [isAddingActivity, setIsAddingActivity] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [activeTimer, setActiveTimer] = useState<string | null>(null);
@@ -110,7 +111,7 @@ const CronogramaEstudos = () => {
     const defaultWeeks = generateWeeks(true);
     setWeeks(defaultWeeks);
   };
-
+  
   const generateWeeks = (includeExamples: boolean = true) => {
     const weeks: WeekSchedule[] = [];
     const today = new Date();
@@ -202,8 +203,8 @@ const CronogramaEstudos = () => {
   
   const getTotalStudyHours = () => weeks.reduce((acc, week) => acc + week.totalHours, 0);
   const getCompletedStudyHours = () => weeks.reduce((acc, week) => acc + week.completedHours, 0);
-  const getStudyProgress = () => (getCompletedStudyHours() / (getTotalStudyHours() || 1)) * 100;
-
+  const getStudyProgress = () => (getTotalStudyHours() > 0 ? (getCompletedStudyHours() / getTotalStudyHours()) * 100 : 0);
+  
   const handleAddActivity = () => {
     if (!newActivity.time || !newActivity.subject || !newActivity.topic) return;
     
@@ -219,27 +220,33 @@ const CronogramaEstudos = () => {
       notes: newActivity.notes
     };
     
-    const updatedWeeks = [...weeks];
-    updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
-    setWeeks(updatedWeeks);
+    setWeeks(prevWeeks => {
+      const updatedWeeks = [...prevWeeks];
+      updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
+      updatedWeeks[currentWeek].days[selectedDayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
+      return updatedWeeks;
+    });
     
     setNewActivity({ time: '', subject: '', topic: '', type: 'aula', duration: '1h', status: 'pending', priority: 'medium' });
-    setIsAddingActivity(false);
+    setIsAddModalOpen(false);
   };
 
-  const handleEditActivity = (activityId: string, dayIndex: number, updatedActivity: Partial<Activity>) => {
+  const handleEditActivity = () => {
+    if(!editingActivity) return;
     setWeeks(prevWeeks => {
         const newWeeks = [...prevWeeks];
-        const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activityId);
-        if (activityIndex > -1) {
-            newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = {
-                ...newWeeks[currentWeek].days[dayIndex].activities[activityIndex],
-                ...updatedActivity
-            };
+        const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === editingActivity.id));
+        if (dayIndex > -1) {
+            const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === editingActivity!.id);
+            if (activityIndex > -1) {
+                newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = editingActivity;
+                newWeeks[currentWeek].days[dayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
+            }
         }
         return newWeeks;
     });
     setEditingActivity(null);
+    setIsEditModalOpen(false);
   };
 
   const handleDeleteActivity = (activityId: string, dayIndex: number) => {
@@ -251,8 +258,22 @@ const CronogramaEstudos = () => {
   };
 
   const handleStartActivity = (activityId: string) => {
-    setActiveTimer(prev => (prev === activityId ? null : activityId));
     setTimerSeconds(0);
+    setActiveTimer(prev => (prev === activityId ? null : activityId));
+  };
+  
+  const parseDurationToHours = (duration: string): number => {
+    if (duration.includes('h') && duration.includes('min')) {
+        const parts = duration.split('h');
+        const hours = parseFloat(parts[0]);
+        const minutes = parseFloat(parts[1].replace('min', ''));
+        return hours + minutes / 60;
+    } else if (duration.includes('h')) {
+        return parseFloat(duration.replace('h', ''));
+    } else if (duration.includes('min')) {
+        return parseFloat(duration.replace('min', '')) / 60;
+    }
+    return 0;
   };
 
   const handleCompleteActivity = (activityId: string, dayIndex: number) => {
@@ -260,15 +281,16 @@ const CronogramaEstudos = () => {
         const newWeeks = [...prevWeeks];
         const activity = newWeeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
         if (activity) {
-            const durationHours = parseFloat(activity.duration.replace('h', ''));
+            const durationHours = parseDurationToHours(activity.duration);
+            const currentWeekData = newWeeks[currentWeek];
             if (activity.status === 'completed') {
                 activity.status = 'pending';
                 activity.completedAt = undefined;
-                newWeeks[currentWeek].completedHours -= durationHours;
+                currentWeekData.completedHours = Math.max(0, currentWeekData.completedHours - durationHours);
             } else {
                 activity.status = 'completed';
                 activity.completedAt = new Date().toISOString();
-                newWeeks[currentWeek].completedHours += durationHours;
+                currentWeekData.completedHours += durationHours;
             }
         }
         return newWeeks;
@@ -304,13 +326,14 @@ const CronogramaEstudos = () => {
         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
           <CheckCircle size={14} />
         </Button>
-        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingActivity(activity)}>
+        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
           <Edit size={14} />
         </Button>
         <Button size="icon" variant="destructive" className="h-7 w-7" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
           <Trash2 size={14} />
         </Button>
       </div>
+       {activeTimer === activity.id && <div className="text-sm font-semibold mt-2 text-primary">{formatTime(timerSeconds)}</div>}
     </Card>
   );
 
@@ -320,7 +343,7 @@ const CronogramaEstudos = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Cronograma de Estudos</h1>
-          <Button onClick={() => setIsAddingActivity(true)}>
+          <Button onClick={() => { setSelectedDayIndex(new Date().getDay() -1); setIsAddModalOpen(true); }}>
             <Plus className="mr-2 h-4 w-4" /> Nova Atividade
           </Button>
         </div>
@@ -333,7 +356,7 @@ const CronogramaEstudos = () => {
             <CardContent>
               <Progress value={getStudyProgress()} className="mb-2" />
               <p className="text-sm text-muted-foreground">
-                {getCompletedStudyHours()}h de {getTotalStudyHours()}h concluídas
+                {getCompletedStudyHours().toFixed(1)}h de {getTotalStudyHours()}h concluídas
               </p>
             </CardContent>
           </Card>
@@ -366,12 +389,11 @@ const CronogramaEstudos = () => {
               <h2 className="text-xl font-semibold">Semana {getCurrentWeek()?.weekNumber}</h2>
               <p className="text-sm text-muted-foreground">{getCurrentWeek()?.startDate} - {getCurrentWeek()?.endDate}</p>
             </div>
-            <Button onClick={goToNextWeek} disabled={currentWeek === weeks.length - 1}>
+            <Button onClick={goToNextWeek} disabled={!weeks || currentWeek === weeks.length - 1}>
               Próxima <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
 
-          {/* Desktop View: Grid */}
           <div className="hidden md:grid md:grid-cols-7 gap-4">
             {schedule.map((day, dayIndex) => (
               <Card key={dayIndex} className="bg-card/50 dark:bg-slate-800/50">
@@ -385,7 +407,7 @@ const CronogramaEstudos = () => {
                   ))}
                   <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
                     setSelectedDayIndex(dayIndex);
-                    setIsAddingActivity(true);
+                    setIsAddModalOpen(true);
                   }}>
                     <Plus size={14} className="mr-1" /> Adicionar
                   </Button>
@@ -394,7 +416,6 @@ const CronogramaEstudos = () => {
             ))}
           </div>
 
-          {/* Mobile View: Tabs */}
           <div className="md:hidden">
             <Tabs defaultValue={schedule[new Date().getDay() -1]?.day || schedule[0]?.day} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
@@ -421,7 +442,7 @@ const CronogramaEstudos = () => {
                       )}
                       <Button variant="outline" size="sm" className="w-full mt-2" onClick={() => {
                         setSelectedDayIndex(dayIndex);
-setIsAddingActivity(true);
+                        setIsAddModalOpen(true);
                       }}>
                         <Plus size={14} className="mr-1" /> Adicionar Atividade
                       </Button>
@@ -433,8 +454,89 @@ setIsAddingActivity(true);
           </div>
         </div>
 
-        <GoalManager />
+        <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Adicionar Nova Atividade</DialogTitle>
+                </DialogHeader>
+                 <div className="space-y-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="new-time">Horário</Label>
+                            <Input id="new-time" type="time" value={newActivity.time} onChange={(e) => setNewActivity({...newActivity, time: e.target.value})} />
+                        </div>
+                        <div>
+                            <Label htmlFor="new-duration">Duração</Label>
+                            <Select value={newActivity.duration} onValueChange={(v) => setNewActivity({...newActivity, duration: v})}>
+                                <SelectTrigger id="new-duration"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="30min">30 min</SelectItem>
+                                    <SelectItem value="1h">1 hora</SelectItem>
+                                    <SelectItem value="1h30min">1h 30min</SelectItem>
+                                    <SelectItem value="2h">2 horas</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <div>
+                        <Label htmlFor="new-subject">Matéria</Label>
+                        <Input id="new-subject" value={newActivity.subject} onChange={(e) => setNewActivity({...newActivity, subject: e.target.value})} placeholder="Ex: Matemática" />
+                    </div>
+                    <div>
+                        <Label htmlFor="new-topic">Tópico</Label>
+                        <Input id="new-topic" value={newActivity.topic} onChange={(e) => setNewActivity({...newActivity, topic: e.target.value})} placeholder="Ex: Funções Quadráticas" />
+                    </div>
+                     <div className="flex justify-end gap-2">
+                        <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>Cancelar</Button>
+                        <Button onClick={handleAddActivity}>Adicionar</Button>
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+        
+        <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Editar Atividade</DialogTitle>
+                </DialogHeader>
+                {editingActivity && (
+                     <div className="space-y-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="edit-time">Horário</Label>
+                                <Input id="edit-time" type="time" value={editingActivity.time} onChange={(e) => setEditingActivity({...editingActivity, time: e.target.value})} />
+                            </div>
+                            <div>
+                                <Label htmlFor="edit-duration">Duração</Label>
+                                <Select value={editingActivity.duration} onValueChange={(v) => setEditingActivity({...editingActivity, duration: v})}>
+                                    <SelectTrigger id="edit-duration"><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="30min">30 min</SelectItem>
+                                        <SelectItem value="1h">1 hora</SelectItem>
+                                        <SelectItem value="1h30min">1h 30min</SelectItem>
+                                        <SelectItem value="2h">2 horas</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-subject">Matéria</Label>
+                            <Input id="edit-subject" value={editingActivity.subject} onChange={(e) => setEditingActivity({...editingActivity, subject: e.target.value})} />
+                        </div>
+                        <div>
+                            <Label htmlFor="edit-topic">Tópico</Label>
+                            <Input id="edit-topic" value={editingActivity.topic} onChange={(e) => setEditingActivity({...editingActivity, topic: e.target.value})} />
+                        </div>
+                         <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>Cancelar</Button>
+                            <Button onClick={handleEditActivity}>Salvar</Button>
+                        </div>
+                    </div>
+                )}
+            </DialogContent>
+        </Dialog>
 
+        <GoalManager />
       </main>
     </div>
   );
