@@ -626,11 +626,11 @@ const ResumosModulos = () => {
         </Card>
 
         {/* File Manager Modal */}
-        {isFileManagerOpen && selectedSubMateria && (
+        {isFileManagerOpen && selectedSubMateria && materiaSelecionada && (
             <FileManager
               isOpen={isFileManagerOpen}
               onClose={() => setIsFileManagerOpen(false)}
-              materia={materiaSelecionada?.nome ?? ''}
+              materia={materiaSelecionada.nome}
               onFileUpload={(file) => {
                 console.log('Arquivo enviado:', file);
                 // Aqui você pode adicionar a lógica para salvar o arquivo
@@ -643,3 +643,5 @@ const ResumosModulos = () => {
 };
 
 export default ResumosModulos;
+
+    
