@@ -5,5 +5,7 @@ export interface CellData {
 }
 
 export interface RowData {
-    [key: string]: CellData | string | number; // Allow simple values for easier creation
+    [key: string]: CellData;
 }
+
+    

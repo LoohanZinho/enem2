@@ -185,11 +185,13 @@ export class AdvancedOCRService {
           for (let dy = -1; dy <= 1; dy++) {
             for (let dx = -1; dx <= 1; dx++) {
               const neighborIdx = ((y + dy) * width + (x + dx)) * 4 + c;
-              values.push(data[neighborIdx]);
+              if (data[neighborIdx] !== undefined) {
+                values.push(data[neighborIdx]);
+              }
             }
           }
           values.sort((a, b) => a - b);
-          newData[idx + c] = values[4]; // Mediana
+          newData[idx + c] = values[Math.floor(values.length / 2)];
         }
       }
     }
@@ -406,3 +408,5 @@ export class AdvancedOCRService {
 }
 
 export default AdvancedOCRService;
+
+    

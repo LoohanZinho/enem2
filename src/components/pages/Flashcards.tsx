@@ -53,33 +53,12 @@ import {
 import Header from '@/components/Header';
 import BackButton from '@/components/BackButton';
 import FlashcardAIService from '@/services/FlashcardAIService';
+import type { FlashcardData } from '@/services/FlashcardAIService';
 
-interface Flashcard {
-  id: string;
-  front: string;
-  back: string;
-  subject: string;
-  module: string;
-  subModule: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  category: string;
-  tags: string[];
-  createdAt: Date;
-  lastReviewed: Date | null;
-  reviewCount: number;
-  correctCount: number;
+interface Flashcard extends FlashcardData {
   incorrectCount: number;
-  easeFactor: number;
-  interval: number;
-  quality: number; // 0-5 scale
+  quality: number;
   isActive: boolean;
-  isNew?: boolean;
-  streak?: number;
-  media?: {
-    type: 'image' | 'audio' | 'video';
-    url: string;
-    alt?: string;
-  }[];
 }
 
 interface StudySession {
@@ -183,11 +162,11 @@ const FlashcardCard = ({ card, onAnswer, isStudyMode = false }: FlashcardCardPro
         className={`relative w-full h-full transform-style-preserve-3d transition-all duration-1000 ease-in-out cursor-pointer hover:scale-105 hover:shadow-2xl ${
           isFlipped ? 'rotate-y-180' : ''
         }`}
-        onClick={handleFlip}
         style={{
           transformStyle: 'preserve-3d',
           transition: 'transform 1s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s ease-in-out'
         }}
+        onClick={handleFlip}
       >
         {/* Frente da Carta */}
         <div 
@@ -1163,8 +1142,11 @@ const Flashcards = () => {
       const cards = await FlashcardAIService.generateFlashcards(inputText);
       
       // Aplicar matéria selecionada se não for "all"
-      const processedCards = cards.map(card => ({
+      const processedCards: Flashcard[] = cards.map(card => ({
         ...card,
+        incorrectCount: 0,
+        quality: 0,
+        isActive: true,
         subject: selectedSubject !== 'all' ? selectedSubject : card.subject,
         difficulty: studyMode === 'difficult' ? 'hard' : 
                    studyMode === 'new' ? 'easy' : card.difficulty
@@ -1663,3 +1645,5 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
+
+    

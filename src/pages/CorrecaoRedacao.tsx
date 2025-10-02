@@ -28,6 +28,154 @@ import type { CorrecaoRedacao as CorrecaoRedacaoType } from "@/services/RedacaoA
 import { RedacaoAIService, COMPETENCIAS_ENEM } from "@/services/RedacaoAIService";
 import { HistoricoCorrecoesService } from "@/services/HistoricoCorrecoesService";
 
+// Componente para adicionar modelo de redação
+interface AdicionarModeloFormProps {
+  onSubmit: (modelo: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => void;
+  onCancel: () => void;
+}
+
+const AdicionarModeloForm = ({ onSubmit, onCancel }: AdicionarModeloFormProps) => {
+  const [formData, setFormData] = useState({
+    titulo: '',
+    tema: '',
+    categoria: '',
+    dificuldade: 'Médio' as 'Fácil' | 'Médio' | 'Difícil',
+    texto: '',
+    observacoes: ''
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (formData.titulo && formData.tema && formData.texto) {
+      onSubmit(formData);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="titulo">Título do Modelo</Label>
+          <Input
+            id="titulo"
+            value={formData.titulo}
+            onChange={(e) => setFormData(prev => ({ ...prev, titulo: e.target.value }))}
+            placeholder="Ex: Modelo Dissertativo-Argumentativo"
+            required
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="tema">Tema</Label>
+          <Input
+            id="tema"
+            value={formData.tema}
+            onChange={(e) => setFormData(prev => ({ ...prev, tema: e.target.value }))}
+            placeholder="Ex: Desafios da educação digital"
+            required
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="categoria">Categoria</Label>
+          <Input
+            id="categoria"
+            value={formData.categoria}
+            onChange={(e) => setFormData(prev => ({ ...prev, categoria: e.target.value }))}
+            placeholder="Ex: Educação, Meio Ambiente, Sociedade"
+            required
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="dificuldade">Dificuldade</Label>
+          <Select value={formData.dificuldade} onValueChange={(value: 'Fácil' | 'Médio' | 'Difícil') => 
+            setFormData(prev => ({ ...prev, dificuldade: value }))
+          }>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Fácil">Fácil</SelectItem>
+              <SelectItem value="Médio">Médio</SelectItem>
+              <SelectItem value="Difícil">Difícil</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="texto">Texto do Modelo</Label>
+        <Textarea
+          id="texto"
+          value={formData.texto}
+          onChange={(e) => setFormData(prev => ({ ...prev, texto: e.target.value }))}
+          placeholder="Cole aqui o texto completo do modelo de redação..."
+          className="min-h-64"
+          required
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="observacoes">Observações</Label>
+        <Textarea
+          id="observacoes"
+          value={formData.observacoes}
+          onChange={(e) => setFormData(prev => ({ ...prev, observacoes: e.target.value }))}
+          placeholder="Adicione observações sobre o modelo, dicas de uso, etc."
+          className="min-h-20"
+        />
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancelar
+        </Button>
+        <Button type="submit">
+          Adicionar Modelo
+        </Button>
+      </div>
+    </form>
+  );
+};
+
+interface Competencia {
+  id: string;
+  nome: string;
+  descricao: string;
+  peso: number;
+  nota: number;
+  feedback: string;
+  sugestoes: string[];
+}
+
+interface CorrecaoRedacao {
+  id: string;
+  tema: string;
+  texto: string;
+  data: string;
+  competencias: Competencia[];
+  notaFinal: number;
+  feedbackGeral: string;
+  palavras: number;
+  paragrafos: number;
+  status: 'corrigindo' | 'corrigida' | 'erro';
+}
+
+interface ModeloRedacao {
+  id: string;
+  titulo: string;
+  tema: string;
+  categoria: string;
+  dificuldade: 'Fácil' | 'Médio' | 'Difícil';
+  texto: string;
+  observacoes: string;
+  dataCriacao: string;
+  autor: string;
+}
+
 const CorrecaoRedacao = () => {
   const [texto, setTexto] = useState("");
   const [tema, setTema] = useState("");
@@ -43,8 +191,8 @@ const CorrecaoRedacao = () => {
   const redacaoService = RedacaoAIService.getInstance();
   const historicoService = HistoricoCorrecoesService.getInstance();
 
-  const carregarHistorico = useCallback(() => {
-    const historicoData = historicoService.obterHistorico();
+  const carregarHistorico = useCallback(async () => {
+    const historicoData = await historicoService.obterHistorico();
     setHistorico(historicoData);
   }, [historicoService]);
 
@@ -67,8 +215,8 @@ const CorrecaoRedacao = () => {
       const resultado = await redacaoService.corrigirRedacao(texto, tema);
       setCorrecao(resultado);
       // Salvar no histórico
-      historicoService.salvarCorrecao(resultado);
-      carregarHistorico();
+      await historicoService.salvarCorrecao(resultado);
+      await carregarHistorico();
     } catch (err) {
       setError("Erro ao processar a redação. Tente novamente.");
       console.error(err);
@@ -91,8 +239,8 @@ const CorrecaoRedacao = () => {
       const resultado = await redacaoService.corrigirRedacaoDupla(texto, tema);
       setCorrecao(resultado);
       // Salvar no histórico
-      historicoService.salvarCorrecao(resultado);
-      carregarHistorico();
+      await historicoService.salvarCorrecao(resultado);
+      await carregarHistorico();
     } catch (err) {
       setError("Erro ao processar a redação. Tente novamente.");
       console.error(err);
@@ -536,11 +684,13 @@ const CorrecaoRedacao = () => {
                             ))}
                           </div>
 
-                          <div className="flex justify-between items-center text-sm text-muted-foreground">
-                            <span>{correcaoItem.estatisticas.totalPalavras} palavras</span>
-                            <span>{correcaoItem.estatisticas.totalParagrafos} parágrafos</span>
-                            <span>{correcaoItem.estatisticas.tempoCorrecao}s</span>
-                          </div>
+                          {correcaoItem.estatisticas && (
+                            <div className="flex justify-between items-center text-sm text-muted-foreground">
+                              <span>{correcaoItem.estatisticas.totalPalavras} palavras</span>
+                              <span>{correcaoItem.estatisticas.totalParagrafos} parágrafos</span>
+                              <span>{correcaoItem.estatisticas.tempoCorrecao}s</span>
+                            </div>
+                          )}
                         </CardContent>
                       </Card>
                     ))}
@@ -646,3 +796,5 @@ const CorrecaoRedacao = () => {
 };
 
 export default CorrecaoRedacao;
+
+    

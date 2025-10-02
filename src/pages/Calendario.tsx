@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
-import { userDataService } from "@/services/UserDataService";
+import { userDataService, UserData } from "@/services/UserDataService";
 
 interface Evento {
   id: string;
@@ -42,6 +42,12 @@ interface Evento {
   duracao: number; // em minutos
   concluido: boolean;
   prioridade: 'baixa' | 'media' | 'alta';
+}
+
+interface DiaCalendario {
+  data: Date;
+  eventos: Evento[];
+  isCurrentMonth?: boolean;
 }
 
 const tiposEvento = [
@@ -197,7 +203,7 @@ const Calendario = () => {
     const inicioSemana = new Date(dataAtual);
     inicioSemana.setDate(dataAtual.getDate() - dataAtual.getDay());
     
-    const eventosSemana = [];
+    const eventosSemana: DiaCalendario[] = [];
     for (let i = 0; i < 7; i++) {
       const data = new Date(inicioSemana);
       data.setDate(inicioSemana.getDate() + i);
@@ -215,7 +221,7 @@ const Calendario = () => {
     const primeiroDiaSemana = primeiroDia.getDay();
     const diasNoMes = ultimoDia.getDate();
     
-    const dias = [];
+    const dias: DiaCalendario[] = [];
     
     // Adicionar dias do mês anterior
     for (let i = primeiroDiaSemana - 1; i >= 0; i--) {
@@ -916,3 +922,5 @@ const Calendario = () => {
 };
 
 export default Calendario;
+
+    

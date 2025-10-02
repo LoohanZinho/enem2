@@ -282,8 +282,10 @@ export class RealTimeCorrectionAPI {
       });
 
       // Adicionar tempo de processamento
-      response.processingTime = Date.now() - startTime;
-      response.timestamp = new Date();
+      if(response) {
+        response.processingTime = Date.now() - startTime;
+        response.timestamp = new Date();
+      }
 
       return response;
     } catch (error) {
@@ -556,3 +558,5 @@ export class RealTimeCorrectionAPI {
 }
 
 export default RealTimeCorrectionAPI;
+
+    

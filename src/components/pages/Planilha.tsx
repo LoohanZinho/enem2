@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import InteractiveSpreadsheet from "@/components/InteractiveSpreadsheet";
-import type { RowData } from "@/types/Spreadsheet";
+import type { RowData } from "@/services/DatabaseService";
 
 
 interface User {
@@ -210,7 +210,7 @@ const Planilha = () => {
 
             <InteractiveSpreadsheet
               title={selectedTemplate?.name || 'Planilha Padrão'}
-              initialData={selectedTemplate?.data}
+              initialData={selectedTemplate?.data as any}
               users={users}
               currentUser={currentUser}
               onDataChange={handleDataChange}
@@ -371,3 +371,5 @@ const Planilha = () => {
 };
 
 export default Planilha;
+
+    

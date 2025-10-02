@@ -241,49 +241,49 @@ class ContentService {
     const promises: Promise<any>[] = [];
 
     if (data.essays) {
-      promises.push(...data.essays.map(essay => 
-        this.db.createEssay(userId, {
+      data.essays.forEach(essay => {
+        promises.push(this.db.createEssay(userId, {
           title: essay.title,
           content: essay.content,
           subject: essay.subject,
           grade: essay.grade,
           feedback: essay.feedback
-        })
-      ));
+        }));
+      });
     }
 
     if (data.flashcards) {
-      promises.push(...data.flashcards.map(flashcard => 
-        this.db.createFlashcard(userId, {
+      data.flashcards.forEach(flashcard => {
+        promises.push(this.db.createFlashcard(userId, {
           front: flashcard.front,
           back: flashcard.back,
           subject: flashcard.subject,
           difficulty: flashcard.difficulty
-        })
-      ));
+        }));
+      });
     }
 
     if (data.schedules) {
-      promises.push(...data.schedules.map(schedule => 
-        this.db.createSchedule(userId, {
+      data.schedules.forEach(schedule => {
+        promises.push(this.db.createSchedule(userId, {
           title: schedule.title,
           description: schedule.description,
           date: schedule.date,
           time: schedule.time,
           subject: schedule.subject,
           completed: schedule.completed
-        })
-      ));
+        }));
+      });
     }
 
     if (data.notes) {
-      promises.push(...data.notes.map(note => 
-        this.db.createNote(userId, {
+      data.notes.forEach(note => {
+        promises.push(this.db.createNote(userId, {
           title: note.title,
           content: note.content,
           subject: note.subject
-        })
-      ));
+        }));
+      });
     }
 
     await Promise.all(promises);
@@ -291,3 +291,5 @@ class ContentService {
 }
 
 export default ContentService;
+
+    
