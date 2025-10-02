@@ -58,6 +58,12 @@ export interface RelatorioEvolucao {
     melhorNota: number;
     piorNota: number;
   };
+  insights: {
+    competenciaMaisForte: number;
+    competenciaMaisFraca: number;
+    sugestoes: string[];
+    metas: MetaEvolucao[];
+  };
 }
 
 // Matriz de Referência Oficial do ENEM

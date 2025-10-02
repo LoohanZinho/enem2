@@ -82,7 +82,15 @@ export const useAuth = (): AuthContextType => {
 
   const updateUser = async (updates: Partial<User>): Promise<boolean> => {
     if (!user) return false;
-    // This is a placeholder as updateUser is not fully implemented in AuthService yet.
+    
+    const result = await authService.updateUser(user.id, updates);
+    if(result.success) {
+      const updatedUser = await authService.getUserById(user.id);
+      if (updatedUser) {
+        setUser(updatedUser);
+      }
+      return true;
+    }
     return false;
   };
 

@@ -187,6 +187,8 @@ export class MoodAnalysisService {
     const motivationValues = { very_high: 5, high: 4, medium: 3, low: 2, very_low: 1 };
     const confidenceValues = { very_high: 5, high: 4, medium: 3, low: 2, very_low: 1 };
 
+    if (entries.length === 0) return { mood: 3, energy: 3, stress: 3, motivation: 3, confidence: 3 };
+
     const averages = {
       mood: entries.reduce((sum, entry) => sum + moodValues[entry.mood], 0) / entries.length,
       energy: entries.reduce((sum, entry) => sum + energyValues[entry.energy], 0) / entries.length,
@@ -286,7 +288,7 @@ export class MoodAnalysisService {
         break;
     }
 
-    const periodEntries = this.moodEntries.filter(entry => entry.timestamp >= startDate);
+    const periodEntries = this.moodEntries.filter(entry => new Date(entry.timestamp) >= startDate);
     const trends = this.calculateTrends(periodEntries);
 
     // Determinar tendência geral
@@ -355,9 +357,9 @@ export class MoodAnalysisService {
     }
 
     // Análise de padrões
-    const morningEntries = entries.filter(e => e.timestamp.getHours() < 12);
-    const afternoonEntries = entries.filter(e => e.timestamp.getHours() >= 12 && e.timestamp.getHours() < 18);
-    const eveningEntries = entries.filter(e => e.timestamp.getHours() >= 18);
+    const morningEntries = entries.filter(e => new Date(e.timestamp).getHours() < 12);
+    const afternoonEntries = entries.filter(e => new Date(e.timestamp).getHours() >= 12 && new Date(e.timestamp).getHours() < 18);
+    const eveningEntries = entries.filter(e => new Date(e.timestamp).getHours() >= 18);
 
     if (morningEntries.length > 0 && afternoonEntries.length > 0) {
       const morningMood = this.calculateTrends(morningEntries).mood;
@@ -404,6 +406,15 @@ export class MoodAnalysisService {
   // Avaliar estresse
   assessStress(): StressIndicator {
     const recentEntries = this.moodEntries.slice(-7);
+    if(recentEntries.length === 0) {
+      return {
+        level: 'low',
+        symptoms: [],
+        causes: [],
+        recommendations: ['Registre seu humor para uma análise de estresse.'],
+        lastAssessment: new Date()
+      };
+    }
     const stressLevels = recentEntries.map(entry => {
       const stressValues = { very_low: 1, low: 2, medium: 3, high: 4, very_high: 5 };
       return stressValues[entry.stress];
@@ -524,7 +535,7 @@ export class MoodAnalysisService {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - days);
     
-    return this.moodEntries.filter(entry => entry.timestamp >= cutoffDate);
+    return this.moodEntries.filter(entry => new Date(entry.timestamp) >= cutoffDate);
   }
 
   // Salvar no localStorage

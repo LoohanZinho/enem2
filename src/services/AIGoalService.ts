@@ -160,24 +160,34 @@ export class AIGoalService {
 
   // Carregar perfil do usuário
   private loadUserProfile(): void {
+    if (typeof window === 'undefined') return;
     const saved = localStorage.getItem('enem_pro_user_profile');
     if (saved) {
-      this.userProfile = JSON.parse(saved);
+      try {
+        this.userProfile = JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse user profile from localStorage", e);
+        this.userProfile = this.getDefaultUserProfile();
+      }
     } else {
-      this.userProfile = {
-        studyTime: 2, // horas por dia
-        subjects: ['Matemática', 'Português', 'Física', 'Química', 'Biologia', 'História', 'Geografia'],
-        weakSubjects: ['Matemática', 'Física'],
-        strongSubjects: ['Português', 'História'],
-        availableTime: {
-          weekdays: 3, // horas
-          weekends: 6 // horas
-        },
-        learningStyle: 'visual',
-        motivation: 'high',
-        experience: 'intermediate'
-      };
+      this.userProfile = this.getDefaultUserProfile();
     }
+  }
+
+  private getDefaultUserProfile(): any {
+    return {
+      studyTime: 2, // horas por dia
+      subjects: ['Matemática', 'Português', 'Física', 'Química', 'Biologia', 'História', 'Geografia'],
+      weakSubjects: ['Matemática', 'Física'],
+      strongSubjects: ['Português', 'História'],
+      availableTime: {
+        weekdays: 3, // horas
+        weekends: 6 // horas
+      },
+      learningStyle: 'visual',
+      motivation: 'high',
+      experience: 'intermediate'
+    };
   }
 
   // Criar meta personalizada com IA

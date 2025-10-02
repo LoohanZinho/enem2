@@ -196,11 +196,14 @@ export class HistoricoCorrecoesService {
   importarHistorico(jsonData: string): boolean {
     if (typeof window === 'undefined') return false;
     try {
-      const historico = JSON.parse(jsonData);
-      if (Array.isArray(historico)) {
-        this.historico = historico;
-        this.salvarHistorico();
-        return true;
+      // Adicionado verificação para string não vazia antes do parse
+      if (jsonData) {
+        const historico = JSON.parse(jsonData);
+        if (Array.isArray(historico)) {
+          this.historico = historico;
+          this.salvarHistorico();
+          return true;
+        }
       }
     } catch (error) {
       console.error('Erro ao importar histórico:', error);

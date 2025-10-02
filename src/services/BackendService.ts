@@ -5,6 +5,27 @@
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001/api';
 
+// Função auxiliar para fetch com retentativas
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        return response;
+      }
+      // Se a resposta não for OK, mas não for um erro de rede, não adianta tentar novamente
+      if (response.status < 500) {
+        return response;
+      }
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(res => setTimeout(res, delay * (i + 1)));
+    }
+  }
+  throw new Error('Falha na requisição após múltiplas tentativas');
+}
+
+
 export interface User {
   id: string;
   email: string;
@@ -33,9 +54,11 @@ export interface LoginData {
 }
 
 class BackendService {
+  private baseURL: string;
   private token: string | null = null;
 
   constructor() {
+    this.baseURL = BACKEND_URL;
     // Recuperar token do localStorage apenas no lado do cliente
     if (typeof window !== 'undefined') {
       this.token = localStorage.getItem('enem_pro_auth_token');
@@ -69,27 +92,42 @@ class BackendService {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const url = `${BACKEND_URL}${endpoint}`;
+    const url = `${this.baseURL}${endpoint}`;
     
-    const headers = new Headers(options.headers || {});
-    headers.set('Content-Type', 'application/json');
-
-    if (this.token) {
-      headers.set('Authorization', `Bearer ${this.token}`);
-    }
-
-    const response = await fetch(url, {
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...options.headers,
+      },
       ...options,
-      headers,
-    });
+    };
 
-    const data = await response.json();
+    try {
+      const response = await fetchWithRetry(url, config);
+      const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Erro na requisição');
+      if (!response.ok) {
+        // Se o token expirou, limpar o localStorage
+        if (response.status === 401) {
+          this.setAuthToken(null as any);
+          window.location.href = '/login';
+        }
+        
+        throw new Error(data.message || 'Erro na requisição');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro na API:', error);
+      
+      // Se for erro de rede, mostrar mensagem mais amigável
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
+      }
+      
+      throw error;
     }
-
-    return data;
   }
 
 

@@ -43,6 +43,7 @@ class AuthService {
     if (typeof window !== 'undefined') {
         const user = localStorage.getItem(this.CURRENT_USER_KEY);
         try {
+            // Adicionado verificação para string não vazia antes do parse
             this.currentUser = user ? JSON.parse(user) : null;
         } catch (e) {
             console.error("Failed to parse user from localStorage", e);
