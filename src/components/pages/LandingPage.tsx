@@ -349,7 +349,7 @@ const LandingPage = () => {
                 </ul>
                 
             <Button
-                  onClick={() => window.open('https://pay.cakto.com.br/6q9cd6n_589724', '_blank')}
+                  onClick={() => window.open('https://pay.cakto.com.br/y2g9mxy_589725', '_blank')}
                   className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 text-white py-3 rounded-xl font-bold text-sm transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden group border border-purple-500/50 hover:border-purple-400"
                 >
                   {/* Efeito de brilho sutil */}
@@ -481,7 +481,7 @@ const LandingPage = () => {
                 </div>
                 
                 <Button
-                  onClick={() => window.open('https://pay.cakto.com.br/6q9cd6n_589724', '_blank')}
+                  onClick={() => window.open('https://pay.cakto.com.br/o518o7d_589726', '_blank')}
                   className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:via-green-700 hover:to-teal-700 text-white py-3 rounded-xl font-black text-sm transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden group border-2 border-emerald-400/60 hover:border-emerald-300"
                 >
                   {/* Efeito de brilho premium */}

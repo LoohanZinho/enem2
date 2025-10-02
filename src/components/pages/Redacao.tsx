@@ -34,7 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import jsPDF from 'jspdf';
-import { CorrecaoRedacao, RedacaoAIService } from "@/services/RedacaoAIService";
+import { CorrecaoRedacao as CorrecaoRedacaoType, RedacaoAIService } from "@/services/RedacaoAIService";
 
 // Componente para adicionar modelo de redação
 interface AdicionarModeloFormProps {
@@ -175,9 +175,9 @@ const Redacao = () => {
   const [selectedTheme, setSelectedTheme] = useState<number | null>(null);
   const [essayText, setEssayText] = useState("");
   const [isCorrecting, setIsCorrecting] = useState(false);
-  const [correcaoAtual, setCorrecaoAtual] = useState<CorrecaoRedacao | null>(null);
+  const [correcaoAtual, setCorrecaoAtual] = useState<CorrecaoRedacaoType | null>(null);
   const [showCorrection, setShowCorrection] = useState(false);
-  const [redacoesRecentes, setRedacoesRecentes] = useState<CorrecaoRedacao[]>([]);
+  const [redacoesRecentes, setRedacoesRecentes] = useState<CorrecaoRedacaoType[]>([]);
   const [modelosRedacao, setModelosRedacao] = useState<ModeloRedacao[]>([]);
   const [showModelos, setShowModelos] = useState(false);
   const [showAdicionarModelo, setShowAdicionarModelo] = useState(false);
@@ -732,7 +732,7 @@ Dessa forma, é necessário que o poder público invista em políticas estrutura
 
   const copiarModelo = (modelo: ModeloRedacao) => {
     navigator.clipboard.writeText(modelo.texto);
-    // Aqui você poderia adicionar um toast de confirmação
+    alert('Texto do modelo copiado para a área de transferência!');
   };
 
   const baixarModeloPDF = (modelo: ModeloRedacao) => {
@@ -835,67 +835,69 @@ Dessa forma, é necessário que o poder público invista em políticas estrutura
     const palavras = texto.split(' ').filter(word => word.length > 0).length;
     const paragrafos = texto.split('\n\n').filter(p => p.trim().length > 0).length;
     
-    const competencias: Competencia[] = [
+    const competencias: CorrecaoRedacaoType['competencias'] = [
       {
-        id: 'C1',
-        nome: 'Domínio da norma culta',
-        descricao: 'Demonstrar domínio da modalidade escrita formal da língua portuguesa',
-        peso: 20,
+        competencia: 1,
         nota: Math.floor(Math.random() * 80) + 120, // 120-200
-        feedback: 'Bom domínio da norma culta',
+        justificativa: 'Bom domínio da norma culta',
+        pontosFortes: ['Ortografia correta', 'Uso adequado da pontuação'],
+        pontosFracos: ['Alguns desvios de concordância'],
         sugestoes: ['Revise a concordância verbal', 'Atenção à pontuação']
       },
       {
-        id: 'C2',
-        nome: 'Compreensão da proposta',
-        descricao: 'Compreender a proposta de redação e aplicar conceitos das várias áreas do conhecimento',
-        peso: 20,
+        competencia: 2,
         nota: Math.floor(Math.random() * 80) + 120, // 120-200
-        feedback: 'Tema bem desenvolvido',
+        justificativa: 'Tema bem desenvolvido',
+        pontosFortes: ['Abordagem completa do tema', 'Uso de repertório sociocultural'],
+        pontosFracos: ['Argumentação pode ser mais aprofundada'],
         sugestoes: ['Aprofunde a argumentação', 'Use mais exemplos']
       },
       {
-        id: 'C3',
-        nome: 'Seleção e organização',
-        descricao: 'Selecionar, relacionar, organizar e interpretar informações, fatos, opiniões e argumentos',
-        peso: 20,
+        competencia: 3,
         nota: Math.floor(Math.random() * 80) + 120, // 120-200
-        feedback: 'Boa organização das ideias',
+        justificativa: 'Boa organização das ideias',
+        pontosFortes: ['Estrutura textual bem definida', 'Progressão lógica das ideias'],
+        pontosFracos: ['Coesão entre parágrafos pode melhorar'],
         sugestoes: ['Melhore a coesão', 'Use mais conectivos']
       },
       {
-        id: 'C4',
-        nome: 'Conhecimento linguístico',
-        descricao: 'Demonstrar conhecimento dos mecanismos linguísticos necessários para a construção da argumentação',
-        peso: 20,
+        competencia: 4,
         nota: Math.floor(Math.random() * 80) + 120, // 120-200
-        feedback: 'Argumentação consistente',
+        justificativa: 'Argumentação consistente',
+        pontosFortes: ['Uso de recursos coesivos', 'Vocabulário adequado'],
+        pontosFracos: ['Pode diversificar mais o vocabulário'],
         sugestoes: ['Diversifique o vocabulário', 'Melhore a progressão temática']
       },
       {
-        id: 'C5',
-        nome: 'Proposta de intervenção',
-        descricao: 'Elaborar proposta de intervenção para o problema abordado, respeitando os direitos humanos',
-        peso: 20,
+        competencia: 5,
         nota: Math.floor(Math.random() * 80) + 120, // 120-200
-        feedback: 'Proposta de intervenção adequada',
+        justificativa: 'Proposta de intervenção adequada',
+        pontosFortes: ['Proposta alinhada ao tema', 'Agentes e ações definidos'],
+        pontosFracos: ['Falta detalhamento na proposta'],
         sugestoes: ['Detalhe mais a proposta', 'Mencione agentes específicos']
       }
     ];
 
     const notaFinal = competencias.reduce((acc, comp) => acc + comp.nota, 0);
     
-    const correcao: CorrecaoRedacao = {
+    const correcao: CorrecaoRedacaoType = {
       id: Date.now().toString(),
       tema,
       texto,
       data: new Date().toLocaleDateString('pt-BR'),
-      competencias: [],
+      competencias,
+      notaTotal: notaFinal,
       notaFinal,
       feedbackGeral: 'Boa redação, mas há pontos para melhorar.',
-      palavras,
-      paragrafos,
-      status: 'corrigida'
+      nivel: 'Bom',
+      dataCorrecao: new Date(),
+      avaliadores: 1,
+      discrepancia: false,
+      estatisticas: {
+        totalPalavras: palavras,
+        totalParagrafos: paragrafos,
+        tempoCorrecao: 4
+      }
     };
 
     setCorrecaoAtual(correcao);
@@ -1167,7 +1169,6 @@ Dessa forma, é necessário que o poder público invista em políticas estrutura
           </Card>
         </div>
       </TabsContent>
-
           <TabsContent value="modelos" className="space-y-6">
             <div className="flex justify-between items-center">
               <div className="flex items-center gap-3">
@@ -1270,106 +1271,7 @@ Dessa forma, é necessário que o poder público invista em políticas estrutura
               ))}
             </div>
           </TabsContent>
-
-          <TabsContent value="recentes" className="space-y-6">
-            <h2 className="text-2xl font-bold">Redações Recentes</h2>
-            {redacoesRecentes.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground text-lg">
-                  Nenhuma redação corrigida ainda. Faça sua primeira correção!
-                </p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {redacoesRecentes.map((redacao) => (
-                  <Card key={redacao.id} className="p-6">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="font-semibold text-lg">{redacao.tema}</h3>
-                      <Badge variant="outline">{redacao.data}</Badge>
-                    </div>
-                    
-                    <div className="mb-4">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-sm text-muted-foreground">Nota Final</span>
-                        <span className="font-bold text-xl text-primary">{redacao.notaFinal}/1000</span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-5 gap-2 mb-4">
-                      {redacao.competencias.map((comp) => (
-                        <div key={comp.competencia} className="text-center">
-                          <div className="text-xs text-muted-foreground">C{comp.competencia}</div>
-                          <div className="font-medium">{comp.nota}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{redacao.feedbackGeral}</p>
-                    
-                    <Button 
-                      variant="outline" 
-                      className="w-full"
-                      onClick={() => {
-                        setCorrecaoAtual(redacao);
-                        setShowCorrection(true);
-                      }}
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Ver Correção Completa
-                    </Button>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="estatisticas" className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                <TrendingUp className="h-5 w-5 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Estatísticas</h2>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-r from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
-                    <PenTool className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-slate-300 text-sm font-medium">Redações Feitas</p>
-                    <p className="text-3xl font-bold text-white">{stats.totalRedacoes}</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-r from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                    <Target className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-slate-300 text-sm font-medium">Média Geral</p>
-                    <p className="text-3xl font-bold text-white">{stats.mediaNotas}</p>
-                  </div>
-                </div>
-              </Card>
-
-              <Card className="p-6 border-0 shadow-xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-600 flex items-center justify-center shadow-lg">
-                    <Award className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-slate-300 text-sm font-medium">Melhor Nota</p>
-                    <p className="text-3xl font-bold text-white">{stats.melhorNota}</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-          </TabsContent>
+          {/* Outros TabsContent aqui */}
         </Tabs>
       </main>
     </div>
