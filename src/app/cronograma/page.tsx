@@ -63,8 +63,6 @@ interface WeekSchedule {
   startDate: string;
   endDate: string;
   days: DaySchedule[];
-  totalHours: number;
-  completedHours: number;
 }
 
 const CronogramaEstudos = () => {
@@ -176,8 +174,6 @@ const CronogramaEstudos = () => {
         startDate: weekStart.toLocaleDateString('pt-BR'),
         endDate: weekEnd.toLocaleDateString('pt-BR'),
         days,
-        totalHours: 40,
-        completedHours: weekNumber === 1 ? 2 : 0
       });
       
       currentDate.setDate(currentDate.getDate() + 7);
@@ -205,14 +201,55 @@ const CronogramaEstudos = () => {
   };
 
   const getCurrentWeek = () => weeks[currentWeek] || weeks[0];
+
+  const parseDurationToHours = (duration: string): number => {
+    let hours = 0;
+    if (duration.includes('h')) {
+      hours += parseFloat(duration.split('h')[0]);
+    }
+    if (duration.includes('min')) {
+      const minPart = duration.split('h').length > 1 ? duration.split('h')[1] : duration;
+      hours += parseFloat(minPart.replace('min', '')) / 60;
+    }
+    return hours;
+  };
+
+  const calculateTotalHours = (week: WeekSchedule) => {
+    if (!week || !week.days) return 0;
+    return week.days.reduce((total, day) => {
+      return total + day.activities.reduce((dayTotal, activity) => {
+        return dayTotal + parseDurationToHours(activity.duration);
+      }, 0);
+    }, 0);
+  };
+  
+  const calculateCompletedHours = (week: WeekSchedule) => {
+    if (!week || !week.days) return 0;
+    return week.days.reduce((total, day) => {
+      return total + day.activities
+        .filter(act => act.status === 'completed')
+        .reduce((dayTotal, activity) => {
+          return dayTotal + parseDurationToHours(activity.duration);
+        }, 0);
+    }, 0);
+  };
+  
+  const getTotalStudyHours = () => {
+    return weeks.reduce((acc, week) => acc + calculateTotalHours(week), 0);
+  };
+  const getCompletedStudyHours = () => {
+    return weeks.reduce((acc, week) => acc + calculateCompletedHours(week), 0);
+  };
+
+  const getStudyProgress = () => {
+    const total = getTotalStudyHours();
+    if (total === 0) return 0;
+    return (getCompletedStudyHours() / total) * 100;
+  };
   
   const goToPreviousWeek = () => setCurrentWeek(prev => Math.max(0, prev - 1));
   const goToNextWeek = () => setCurrentWeek(prev => Math.min(weeks.length - 1, prev + 1));
-  
-  const getTotalStudyHours = () => weeks.reduce((acc, week) => acc + week.totalHours, 0);
-  const getCompletedStudyHours = () => weeks.reduce((acc, week) => acc + week.completedHours, 0);
-  const getStudyProgress = () => (getTotalStudyHours() > 0 ? (getCompletedStudyHours() / getTotalStudyHours()) * 100 : 0);
-  
+    
   const handleAddActivity = async () => {
     if (!newActivity.time || !newActivity.subject || !newActivity.topic) return;
     
@@ -289,27 +326,12 @@ const CronogramaEstudos = () => {
       setTimerSeconds(activity.elapsedSeconds || 0);
     }
   };
-  
-  const parseDurationToHours = (duration: string): number => {
-    if (duration.includes('h') && duration.includes('min')) {
-        const parts = duration.split('h');
-        const hours = parseFloat(parts[0]);
-        const minutes = parseFloat(parts[1].replace('min', ''));
-        return hours + minutes / 60;
-    } else if (duration.includes('h')) {
-        return parseFloat(duration.replace('h', ''));
-    } else if (duration.includes('min')) {
-        return parseFloat(duration.replace('min', '')) / 60;
-    }
-    return 0;
-  };
 
   const handleCompleteActivity = async (activityId: string, dayIndex: number) => {
     const activity = weeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
     if (activity) {
         const durationHours = parseDurationToHours(activity.duration);
         const newStatus = activity.status === 'completed' ? 'pending' : 'completed';
-        const completedHoursUpdate = newStatus === 'completed' ? durationHours : -durationHours;
         
         const updatedActivity: Activity = { 
             ...activity, 
@@ -322,8 +344,7 @@ const CronogramaEstudos = () => {
         const newWeeks = [...weeks];
         const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activityId);
         newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = updatedActivity;
-        newWeeks[currentWeek].completedHours = Math.max(0, (newWeeks[currentWeek].completedHours || 0) + completedHoursUpdate);
-
+        
         setWeeks(newWeeks);
     }
   };
@@ -370,7 +391,6 @@ const CronogramaEstudos = () => {
     </Card>
   );
 
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -390,7 +410,7 @@ const CronogramaEstudos = () => {
             <CardContent>
               <Progress value={getStudyProgress()} className="mb-2" />
               <p className="text-sm text-muted-foreground">
-                {getCompletedStudyHours().toFixed(1)}h de {getTotalStudyHours()}h concluídas
+                {getCompletedStudyHours().toFixed(1)}h de {getTotalStudyHours().toFixed(1)}h concluídas
               </p>
             </CardContent>
           </Card>
@@ -400,7 +420,9 @@ const CronogramaEstudos = () => {
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold">{studyGoal} horas</p>
-              <p className="text-sm text-muted-foreground">de estudo por semana</p>
+              <p className="text-sm text-muted-foreground">
+                {calculateCompletedHours(getCurrentWeek()).toFixed(1)}h de {calculateTotalHours(getCurrentWeek()).toFixed(1)}h esta semana
+              </p>
             </CardContent>
           </Card>
           <Card>
@@ -432,18 +454,13 @@ const CronogramaEstudos = () => {
             opts={{
               align: "start",
               loop: false,
-              slidesPerView: 1.2,
             }}
-            breakpoints={{
-                "(min-width: 768px)": { slidesPerView: 3.5 },
-                "(min-width: 1024px)": { slidesPerView: 4.5 },
-                "(min-width: 1280px)": { slidesPerView: 5.5 },
-            }}
+            setApi={carouselApi}
             className="w-full"
           >
-            <CarouselContent className="-ml-2">
+            <CarouselContent>
               {schedule.map((day, dayIndex) => (
-                <CarouselItem key={dayIndex} className="pl-4 md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
+                <CarouselItem key={dayIndex} className="md:basis-1/3 lg:basis-1/4 xl:basis-1/5">
                   <div className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg h-full flex flex-col">
                     <div className="text-center mb-4">
                       <p className="font-semibold">{day.day}</p>
