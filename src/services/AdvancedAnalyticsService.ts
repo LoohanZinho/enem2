@@ -1,3 +1,4 @@
+
 // Sistema de Relatórios e Métricas Avançadas para ENEM Pro
 // Análise profunda de performance e insights personalizados
 
@@ -222,7 +223,7 @@ export class AdvancedAnalyticsService {
 
   // Gerar sessões de estudo simuladas
   private generateStudySessions(startDate: Date, endDate: Date): any[] {
-    const sessions = [];
+    const sessions: {date: Date, duration: number, subject: string, questions: number, correct: number}[] = [];
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     
     for (let i = 0; i < days; i++) {
@@ -265,7 +266,7 @@ export class AdvancedAnalyticsService {
 
   // Gerar dados de humor
   private generateMoodData(startDate: Date, endDate: Date): any[] {
-    const moodData = [];
+    const moodData: {date: Date, mood: number, energy: number, stress: number, motivation: number}[] = [];
     const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     
     for (let i = 0; i < days; i++) {
@@ -398,7 +399,7 @@ export class AdvancedAnalyticsService {
 
   // Gerar recomendações
   private generateRecommendations(data: any): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
     
     if (data.accuracyRate < 0.6) {
       recommendations.push('Foque em revisar conceitos básicos');
@@ -476,7 +477,7 @@ export class AdvancedAnalyticsService {
 
   // Identificar lacunas de conhecimento
   private identifyKnowledgeGaps(metrics: PerformanceMetrics): { subject: string; topic: string; severity: 'low' | 'medium' | 'high'; impact: number }[] {
-    const gaps = [];
+    const gaps: { subject: string; topic: string; severity: 'low' | 'medium' | 'high'; impact: number }[] = [];
     
     metrics.subjectBreakdown.forEach((subjectMetrics, subject) => {
       if (subjectMetrics.accuracyRate < 0.6) {
@@ -621,7 +622,7 @@ export class AdvancedAnalyticsService {
   // Gerar dados de evolução da pontuação
   private generateScoreEvolutionData(metrics: PerformanceMetrics): any {
     const days = Math.ceil((metrics.endDate.getTime() - metrics.startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const data = [];
+    const data: {date: Date, score: number}[] = [];
     
     for (let i = 0; i < days; i++) {
       data.push({
@@ -654,7 +655,7 @@ export class AdvancedAnalyticsService {
 
   // Gerar insights do relatório
   private generateReportInsights(type: string, metrics: PerformanceMetrics, insights: LearningInsights): string[] {
-    const insights_list = [];
+    const insights_list: string[] = [];
     
     if (type === 'performance') {
       insights_list.push(`Sua pontuação geral é ${metrics.overallScore} pontos`);
@@ -673,7 +674,7 @@ export class AdvancedAnalyticsService {
 
   // Gerar recomendações do relatório
   private generateReportRecommendations(type: string, metrics: PerformanceMetrics, insights: LearningInsights): string[] {
-    const recommendations = [];
+    const recommendations: string[] = [];
     
     if (metrics.accuracyRate < 0.7) {
       recommendations.push('Foque em revisar conceitos fundamentais');
@@ -779,7 +780,7 @@ export class AdvancedAnalyticsService {
   }
 
   private generateMilestones(currentScore: number, targetScore: number): any[] {
-    const milestones = [];
+    const milestones: {date: Date, expectedScore: number, description: string}[] = [];
     const steps = 4;
     const increment = (targetScore - currentScore) / steps;
     
@@ -870,3 +871,5 @@ export class AdvancedAnalyticsService {
 }
 
 export default AdvancedAnalyticsService;
+
+    

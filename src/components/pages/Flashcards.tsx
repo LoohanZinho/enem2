@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -59,6 +60,8 @@ interface Flashcard extends FlashcardData {
   incorrectCount: number;
   quality: number;
   isActive: boolean;
+  nextReview: Date | null;
+  isNew: boolean;
 }
 
 interface StudySession {
@@ -348,6 +351,7 @@ const Flashcards = () => {
   const [showProgress, setShowProgress] = useState(false);
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
   const [gameMode, setGameMode] = useState(false);
+  const [gameCards, setGameCards] = useState<Flashcard[]>([]);
   const [currentGameCard, setCurrentGameCard] = useState(0);
   const [gameScore, setGameScore] = useState({ correct: 0, total: 0 });
   const [showAnswer, setShowAnswer] = useState(false);
@@ -1161,7 +1165,8 @@ const Flashcards = () => {
         isActive: true,
         subject: selectedSubject !== 'all' ? selectedSubject : card.subject,
         difficulty: studyMode === 'difficult' ? 'hard' : 
-                   studyMode === 'new' ? 'easy' : card.difficulty
+                   studyMode === 'new' ? 'easy' : card.difficulty,
+        nextReview: new Date()
       }));
       
       setGeneratedCards(processedCards);
@@ -1658,3 +1663,5 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
+
+    

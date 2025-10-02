@@ -1,3 +1,4 @@
+
 export interface CellData {
     value: string | number;
     type: 'text' | 'number' | 'formula';
@@ -5,7 +6,7 @@ export interface CellData {
 }
 
 export interface RowData {
-    [key: string]: CellData;
+    [key: string]: string | number | CellData;
 }
 
     

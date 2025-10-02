@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import InteractiveSpreadsheet from "@/components/InteractiveSpreadsheet";
-import type { RowData } from "@/services/DatabaseService";
+import type { RowData } from "@/types/Spreadsheet";
 
 
 interface User {
@@ -210,7 +211,7 @@ const Planilha = () => {
 
             <InteractiveSpreadsheet
               title={selectedTemplate?.name || 'Planilha Padrão'}
-              initialData={selectedTemplate?.data as any}
+              initialData={selectedTemplate?.data}
               users={users}
               currentUser={currentUser}
               onDataChange={handleDataChange}
