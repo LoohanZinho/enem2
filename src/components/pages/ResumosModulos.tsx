@@ -630,7 +630,7 @@ const ResumosModulos = () => {
             <FileManager
               isOpen={isFileManagerOpen}
               onClose={() => setIsFileManagerOpen(false)}
-              materia={materiaSelecionada.nome}
+              materia={materiaSelecionada.nome ?? ''}
               onFileUpload={(file) => {
                 console.log('Arquivo enviado:', file);
                 // Aqui você pode adicionar a lógica para salvar o arquivo
