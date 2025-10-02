@@ -34,7 +34,7 @@ import {
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import GoalManager from "@/components/GoalManager";
-import { userDataService } from "@/services/UserDataService";
+import { userDataService, UserData } from "@/services/UserDataService";
 
 interface Activity {
   id: string;
@@ -88,9 +88,8 @@ const CronogramaEstudos = () => {
   });
 
   useEffect(() => {
-    if (isDataLoaded) return;
-
     const loadUserSchedule = async () => {
+      if (isDataLoaded) return;
       const savedSchedule = await userDataService.loadSchedule();
       if (savedSchedule && savedSchedule.length > 0) {
         setWeeks(savedSchedule);
@@ -223,7 +222,12 @@ const CronogramaEstudos = () => {
       elapsedSeconds: 0
     };
     
+    await userDataService.addActivity(currentWeek, selectedDayIndex, activity);
+    
     const updatedWeeks = [...weeks];
+    if (!updatedWeeks[currentWeek].days[selectedDayIndex].activities) {
+        updatedWeeks[currentWeek].days[selectedDayIndex].activities = [];
+    }
     updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
     updatedWeeks[currentWeek].days[selectedDayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
     setWeeks(updatedWeeks);
@@ -235,14 +239,14 @@ const CronogramaEstudos = () => {
   const handleEditActivity = async () => {
     if(!editingActivity) return;
     
-    const newWeeks = [...weeks];
-    const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === editingActivity.id));
+    const dayIndex = weeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === editingActivity.id));
     if (dayIndex > -1) {
+        await userDataService.updateActivity(currentWeek, dayIndex, editingActivity.id, editingActivity);
+        const newWeeks = [...weeks];
         const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === editingActivity!.id);
         if (activityIndex > -1) {
             newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = editingActivity;
             newWeeks[currentWeek].days[dayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
-            
             setWeeks(newWeeks);
         }
     }
@@ -252,26 +256,28 @@ const CronogramaEstudos = () => {
   };
 
   const handleDeleteActivity = async (activityId: string, dayIndex: number) => {
+    await userDataService.deleteActivity(currentWeek, dayIndex, activityId);
     const newWeeks = [...weeks];
     newWeeks[currentWeek].days[dayIndex].activities = newWeeks[currentWeek].days[dayIndex].activities.filter(a => a.id !== activityId);
     setWeeks(newWeeks);
   };
 
   const handleStartActivity = (activity: Activity) => {
-    if (activeTimer === activity.id) {
-      // Pause
-      const newWeeks = [...weeks];
-      const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === activity.id));
+    if (activeTimer === activity.id) { // Pausing
+      setActiveTimer(null);
+      const dayIndex = weeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === activity.id));
       if (dayIndex > -1) {
+        const updatedActivity = { ...activity, elapsedSeconds: timerSeconds };
+        userDataService.updateActivity(currentWeek, dayIndex, activity.id, updatedActivity);
+        
+        const newWeeks = [...weeks];
         const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activity.id);
         if (activityIndex > -1) {
-          newWeeks[currentWeek].days[dayIndex].activities[activityIndex].elapsedSeconds = timerSeconds;
-          setWeeks(newWeeks);
+            newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = updatedActivity;
+            setWeeks(newWeeks);
         }
       }
-      setActiveTimer(null);
-    } else {
-      // Start
+    } else { // Starting
       setActiveTimer(activity.id);
       setTimerSeconds(activity.elapsedSeconds || 0);
     }
@@ -292,24 +298,25 @@ const CronogramaEstudos = () => {
   };
 
   const handleCompleteActivity = async (activityId: string, dayIndex: number) => {
-    const newWeeks = [...weeks];
-    const activity = newWeeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
+    const activity = weeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
     if (activity) {
         const durationHours = parseDurationToHours(activity.duration);
-        const currentWeekData = newWeeks[currentWeek];
+        const newStatus = activity.status === 'completed' ? 'pending' : 'completed';
+        const completedHoursUpdate = newStatus === 'completed' ? durationHours : -durationHours;
         
-        let updatedActivity: Activity;
-        if (activity.status === 'completed') {
-            updatedActivity = { ...activity, status: 'pending', completedAt: undefined };
-            currentWeekData.completedHours = Math.max(0, currentWeekData.completedHours - durationHours);
-        } else {
-            updatedActivity = { ...activity, status: 'completed', completedAt: new Date().toISOString() };
-            currentWeekData.completedHours += durationHours;
-        }
-
+        const updatedActivity: Activity = { 
+            ...activity, 
+            status: newStatus, 
+            completedAt: newStatus === 'completed' ? new Date().toISOString() : undefined 
+        };
+        
+        await userDataService.updateActivity(currentWeek, dayIndex, activityId, updatedActivity);
+        
+        const newWeeks = [...weeks];
         const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activityId);
         newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = updatedActivity;
-        
+        newWeeks[currentWeek].completedHours = Math.max(0, (newWeeks[currentWeek].completedHours || 0) + completedHoursUpdate);
+
         setWeeks(newWeeks);
     }
   };
@@ -326,13 +333,15 @@ const CronogramaEstudos = () => {
   const getPriorityColor = (priority: string) => ({high: 'text-red-600 bg-red-100 dark:bg-red-900/20 dark:text-red-400', medium: 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400', low: 'text-green-600 bg-green-100 dark:bg-green-900/20 dark:text-green-400'}[priority as 'high'|'medium'|'low'] || 'text-gray-600 bg-gray-100 dark:bg-gray-900/20 dark:text-gray-400');
 
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
-    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow">
+    <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col">
       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
         <Badge variant={getTypeColor(activity.type) as any} className="text-xs">{activity.type}</Badge>
         <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>{activity.priority}</Badge>
       </div>
-      <p className="font-semibold text-base break-words">{activity.subject}</p>
-      <p className="text-sm text-muted-foreground mb-3 break-words">{activity.topic}</p>
+      <div className="flex-grow">
+          <p className="font-semibold text-base break-words">{activity.subject}</p>
+          <p className="text-sm text-muted-foreground mb-3 break-words">{activity.topic}</p>
+      </div>
       <div className="flex flex-wrap items-center justify-between text-sm text-muted-foreground mb-3">
         <span>{activity.time} - {activity.duration}</span>
         <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
@@ -535,7 +544,7 @@ const CronogramaEstudos = () => {
                             </div>
                             <div>
                                 <Label htmlFor="edit-duration">Duração</Label>
-                                <Select value={editingActivity.duration} onValueChange={(v) => setEditingActivity({...editingActivity, duration: v})}>
+                                <Select value={editingActivity.duration} onValueChange={(v) => setEditingActivity({...editingActivity!, duration: v})}>
                                     <SelectTrigger id="edit-duration"><SelectValue /></SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="30min">30 min</SelectItem>
