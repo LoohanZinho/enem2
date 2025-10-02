@@ -214,6 +214,7 @@ class AuthService {
       const userDocRef = doc(this.db, 'users', userId);
       await updateDoc(userDocRef, {
         ...updates,
+        role: updates.role || 'user', // Garante que o role seja mantido ou definido
         updatedAt: new Date().toISOString(),
       });
       return { success: true, message: 'Usuário atualizado com sucesso!' };
