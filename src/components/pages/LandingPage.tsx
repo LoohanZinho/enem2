@@ -6,13 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import YouTubeVideo from "@/components/YouTubeVideo";
-// Ícones removidos conforme solicitado
+import { Play } from "lucide-react";
 
 const LandingPage = () => {
   const router = useRouter();
-
-  // Funções de botões removidas conforme solicitado
-
 
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
