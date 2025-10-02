@@ -1,4 +1,5 @@
 
+
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi } from "@/components/ui/carousel";
 
 import { 
   Calendar, 
@@ -86,7 +87,7 @@ const CronogramaEstudos = () => {
     priority: 'medium'
   });
   
-  const carouselApi = useRef<any>(null);
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>()
 
   useEffect(() => {
     const loadUserSchedule = async () => {
@@ -455,7 +456,7 @@ const CronogramaEstudos = () => {
               align: "start",
               loop: false,
             }}
-            setApi={carouselApi}
+            setApi={setCarouselApi}
             className="w-full"
           >
             <CarouselContent>
