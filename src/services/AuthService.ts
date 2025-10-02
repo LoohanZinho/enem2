@@ -32,26 +32,28 @@ class AuthService {
 
   private async initialize() {
     if (this.db) return;
-    // Since this is an async method, it will only be called when one of the service methods is called,
-    // which is a client-side action. So, it's safe to initialize Firebase here.
     const firebaseServices = initializeFirebase();
     this.db = getFirestore(firebaseServices.firebaseApp);
     this.usersCollection = collection(this.db, 'users');
   }
 
   private ensureInitialized() {
-    // This logic is now moved to getCurrentUser to be lazy-loaded.
     if (this.didInitialize) return;
 
     if (typeof window !== 'undefined') {
         const user = localStorage.getItem(this.CURRENT_USER_KEY);
-        this.currentUser = user ? JSON.parse(user) : null;
+        try {
+            this.currentUser = user ? JSON.parse(user) : null;
+        } catch (e) {
+            console.error("Failed to parse user from localStorage", e);
+            this.currentUser = null;
+            localStorage.removeItem(this.CURRENT_USER_KEY);
+        }
     }
     this.didInitialize = true;
   }
 
   getCurrentUser(): User | null {
-    // Lazy initialization of currentUser from localStorage
     if (!this.didInitialize) {
         this.ensureInitialized();
     }
@@ -60,12 +62,13 @@ class AuthService {
 
   private setCurrentUser(user: User | null): void {
     this.currentUser = user;
-    this.didInitialize = true; // Mark as initialized once a user is set
-    if (typeof window === 'undefined') return;
-    if (user) {
-      localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(this.CURRENT_USER_KEY);
+    this.didInitialize = true;
+    if (typeof window !== 'undefined') {
+      if (user) {
+        localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(this.CURRENT_USER_KEY);
+      }
     }
   }
 
@@ -136,14 +139,14 @@ class AuthService {
       if (!user.isActive) {
         return {
           success: false,
-          message: 'Conta desativada. Entre em contato com o suporte.',
+          message: 'Sua conta está desativada. Entre em contato com o suporte para mais informações.',
         };
       }
 
       if (user.planExpiresAt && new Date(user.planExpiresAt) < new Date()) {
         return {
           success: false,
-          message: 'Sua assinatura expirou. Por favor, renove seu plano para continuar.',
+          message: 'Sua assinatura expirou. Por favor, renove seu plano para continuar acessando a plataforma.',
         };
       }
 
