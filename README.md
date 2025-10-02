@@ -1,67 +1,45 @@
-# EnemPro - Plataforma de Estudos para o ENEM
+# EnemPro: Sua Aprovação no ENEM Começa Aqui
 
-Uma plataforma moderna e intuitiva para estudantes que se preparam para o ENEM, oferecendo uma experiência de aprendizado completa e eficiente.
+Você se sente perdido na imensidão de matérias para o ENEM? Cansado de escrever redações sem saber se está no caminho certo? Acha difícil memorizar tantas fórmulas e datas?
 
-## 🎯 Características
+Nós entendemos. A jornada para o ENEM é cheia de desafios: desorganização, falta de feedback e a monotonia de estudar sozinho. É fácil se sentir sobrecarregado e desmotivado.
 
-### ✨ Interface Moderna
-- Design inspirado nas melhores plataformas educacionais
-- Sistema de cores profissional com gradientes elegantes
-- Animações sutis para melhor experiência do usuário
-- Totalmente responsiva para desktop e mobile
+**É por isso que criamos o EnemPro.**
 
-### 📚 Módulos de Estudo
-- **Matemática**: Álgebra, geometria, estatística e funções
-- **Linguagens**: Português, literatura, artes e inglês  
-- **Ciências da Natureza**: Física, química e biologia integradas
-- **Ciências Humanas**: História, geografia, filosofia e sociologia
-- **Redação**: Técnicas de escrita e argumentação
+O EnemPro não é apenas mais uma plataforma de estudos. É o seu **parceiro de aprovação**, uma ferramenta inteligente projetada para resolver os seus maiores problemas e transformar sua preparação.
 
-### 📊 Acompanhamento de Progresso
-- Dashboard personalizado com estatísticas detalhadas
-- Sistema de sequência de estudos (streaks)
-- Progresso visual por matéria
-- Cronograma de estudos diário
-- Ranking entre estudantes
+## 🎯 Resolvendo Seus Maiores Desafios
 
-### 🎬 Recursos de Aprendizagem
-- Vídeo-aulas organizadas por módulo
-- Resumos otimizados para revisão
-- Simulados semanais com correção
-- Sistema de metas e conquistas
+### Problema: Desorganização e Falta de Foco
+**Nossa Solução: Cronograma de Estudos Inteligente**
+Organize toda sua rotina, planeje atividades, desde aulas a revisões, e use o cronômetro de foco integrado para otimizar cada minuto. Saiba exatamente o que precisa ser feito e quando.
 
-## 🚀 Tecnologias Utilizadas
+### Problema: Incerteza na Redação
+**Nossa Solução: Correção de Redação com Inteligência Artificial**
+Dê adeus ao "achismo". Escreva sua redação ou simplesmente tire uma foto do seu rascunho. Nossa IA, treinada nas competências oficiais do ENEM, fornece um feedback completo e instantâneo, mostrando o caminho para a nota 1000.
+
+### Problema: Dificuldade de Memorização
+**Nossa Solução: Flashcards Inteligentes com Repetição Espaçada**
+Utilize um método cientificamente comprovado para fixar o conhecimento. Crie seus próprios cards ou deixe nossa IA gerá-los a partir de qualquer texto, transformando resumos em poderosas ferramentas de memorização.
+
+### Problema: Falta de Visão sobre o Progresso
+**Nossa Solução: Dashboard de Performance e Relatórios Avançados**
+Tenha uma visão clara da sua evolução. Identifique suas matérias mais fortes e fracas, acompanhe o progresso em cada competência e receba insights para direcionar seus esforços de forma estratégica.
+
+## ✨ Recursos Completos em um Só Lugar
+
+- **Interface Moderna e Intuitiva:** Design responsivo, rápido e agradável para longas sessões de estudo.
+- **Módulos de Estudo Completos:** Aulas em vídeo e resumos para todas as áreas do conhecimento: Matemática, Linguagens, Ciências da Natureza, Ciências Humanas e Redação.
+- **Acompanhamento de Progresso:** Dashboard com estatísticas, sistema de *streaks* (sequência de estudos) e ranking.
+- **Gamificação:** Mantenha-se motivado com um sistema de pontos, níveis e badges que recompensam sua dedicação.
+
+## 🚀 Tecnologias de Ponta
 
 - **Framework**: Next.js 14+ (App Router)
 - **Frontend**: React 18 + TypeScript
-- **Styling**: Tailwind CSS com sistema de design personalizado
-- **Componentes**: Shadcn/ui (Radix UI)
-- **Ícones**: Lucide React
-
-## 🎨 Design System
-
-O projeto implementa um sistema de design robusto com:
-
-- **Cores temáticas**: Azul educacional, verde de progresso, roxo de destaque
-- **Gradientes dinâmicos**: Para elementos visuais impactantes
-- **Sombras elegantes**: Para profundidade e hierarquia visual
-- **Transições suaves**: Para interações fluidas
-- **Tipografia**: Família Inter para máxima legibilidade
-
-## 📱 Responsividade
-
-A interface se adapta perfeitamente a diferentes tamanhos de tela:
-- Desktop (1200px+)
-- Tablet (768px - 1199px) 
-- Mobile (até 767px)
-
-## ⚡ Performance
-
-- Renderização no Servidor (SSR) e Geração Estática (SSG) com Next.js
-- Otimização de imagens com `next/image`
-- Code splitting automático por rota
-- Componentes otimizados com React
-- CSS minificado em produção
+- **Styling**: Tailwind CSS e Shadcn/ui para componentes elegantes e funcionais.
+- **Inteligência Artificial**: Genkit para correção de redações e geração de flashcards.
+- **Ícones**: Lucide React para uma interface limpa e moderna.
 
 ## 🔧 Instalação e Desenvolvimento
 
@@ -79,55 +57,8 @@ npm install
 npm run dev
 ```
 
-## 🌟 Funcionalidades Principais
-
-### Dashboard Inteligente
-- Visão geral do progresso em todas as matérias
-- Estatísticas de desempenho
-- Cronograma personalizado
-- Lembretes e notificações
-
-### Sistema de Estudos
-- Cards interativos para cada matéria
-- Progresso visual com barras e percentuais
-- Acesso direto a vídeos, resumos e simulados
-- Organização por dificuldade e relevância
-
-### Experiência do Usuário
-- Interface limpa e intuitiva
-- Navegação fluida entre seções
-- Feedback visual em todas as interações
-- Design otimizado para longas sessões de estudo
-
-## 📈 Métricas e Acompanhamento
-
-A plataforma oferece métricas detalhadas para o estudante:
-
-- **Tempo de estudo**: Controle diário e semanal
-- **Sequência (Streak)**: Dias consecutivos estudando
-- **Performance**: Notas e evolução nos simulados
-- **Metas**: Definição e acompanhamento de objetivos
-
-## 🎯 Público-Alvo
-
-- **Estudantes do Ensino Médio** preparando-se para o ENEM
-- **Vestibulandos** em busca de organização e eficiência
-- **Professores** que querem acompanhar o progresso dos alunos
-- **Pais** interessados no desenvolvimento acadêmico dos filhos
-
-## 🔮 Próximas Funcionalidades
-
-- Integração com plataformas de vídeo
-- Sistema de gamificação completo
-- Chat com tutores especializados
-- Simulados adaptativos com IA
-- Aplicativo mobile nativo
-- Integração com redes sociais
-
-## 📄 Licença
-
-Este projeto é desenvolvido para fins educacionais e de demonstração.
-
 ---
 
-Desenvolvido com ❤️ para ajudar estudantes a conquistarem seus sonhos no ENEM 2025!
+O EnemPro não te entrega apenas conteúdo; ele te entrega **clareza, organização e confiança**. Pare de se sentir sobrecarregado e comece a estudar de forma inteligente.
+
+**Sua aprovação no ENEM 2025 começa agora.**
