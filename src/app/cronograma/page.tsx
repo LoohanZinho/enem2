@@ -308,25 +308,26 @@ const CronogramaEstudos = () => {
 
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
     <Card className="p-4 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow">
-      <div className="flex justify-between items-start mb-2">
-        <Badge variant={getTypeColor(activity.type) as any}>{activity.type}</Badge>
-        <Badge className={getPriorityColor(activity.priority)}>{activity.priority}</Badge>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+        <Badge variant={getTypeColor(activity.type) as any} className="text-xs">{activity.type}</Badge>
+        <Badge className={`text-xs ${getPriorityColor(activity.priority)}`}>{activity.priority}</Badge>
       </div>
-      <p className="font-semibold text-base">{activity.subject}</p>
-      <p className="text-sm text-muted-foreground mb-3">{activity.topic}</p>
-      <div className="flex justify-between items-center text-sm text-muted-foreground mb-3">
+      <p className="font-semibold text-base break-words">{activity.subject}</p>
+      <p className="text-sm text-muted-foreground mb-3 break-words">{activity.topic}</p>
+      <div className="flex flex-wrap items-center justify-between text-sm text-muted-foreground mb-3">
         <span>{activity.time} - {activity.duration}</span>
         <Badge className={`text-xs ${getStatusColor(activity.status)}`}>
           {getStatusIcon(activity.status)} <span className="ml-1">{activity.status}</span>
         </Badge>
       </div>
-      <div className="flex gap-2 mt-4">
+      <div className="flex items-center gap-2 mt-4">
         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleStartActivity(activity.id)}>
           {activeTimer === activity.id ? <Pause size={16} /> : <Play size={16} />}
         </Button>
         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
           <CheckCircle size={16} />
         </Button>
+        <div className="flex-grow" />
         <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
           <Edit size={16} />
         </Button>
@@ -546,5 +547,3 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
-
-    
