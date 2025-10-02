@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import FileManager from "@/components/FileManager";
-// import { useAuth } from "@/contexts/AuthContext"; // Removido - sistema sem autenticação
+import { useAuth } from "@/hooks/useAuth";
 
 interface Resumo {
   id: string;
@@ -77,8 +77,7 @@ interface SubMateria {
 
 const ResumosModulos = () => {
   const searchParams = useSearchParams();
-  // const { user } = useAuth(); // Removido - sistema sem autenticação
-  const user = null; // Mock para funcionar sem autenticação
+  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(user?.role === 'admin');
   const [materiaSelecionada, setMateriaSelecionada] = useState<Materia | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -623,15 +622,17 @@ const ResumosModulos = () => {
         </Card>
 
         {/* File Manager Modal */}
-        <FileManager
-          isOpen={isFileManagerOpen}
-          onClose={() => setIsFileManagerOpen(false)}
-          materia={materiaSelecionada?.nome || ''}
-          onFileUpload={(file) => {
-            console.log('Arquivo enviado:', file);
-            // Aqui você pode adicionar a lógica para salvar o arquivo
-          }}
-        />
+        {isFileManagerOpen && selectedSubMateria && (
+            <FileManager
+              isOpen={isFileManagerOpen}
+              onClose={() => setIsFileManagerOpen(false)}
+              materia={materiaSelecionada?.nome ?? ''}
+              onFileUpload={(file) => {
+                console.log('Arquivo enviado:', file);
+                // Aqui você pode adicionar a lógica para salvar o arquivo
+              }}
+            />
+        )}
       </main>
     </div>
   );

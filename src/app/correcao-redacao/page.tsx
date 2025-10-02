@@ -1,6 +1,6 @@
 "use client";
-import CorrecaoRedacao from "@/components/pages/CorrecaoRedacao";
+import Redacao from "@/components/pages/Redacao";
 
 export default function CorrecaoRedacaoPage() {
-  return <CorrecaoRedacao />;
+  return <Redacao />;
 }

@@ -15,7 +15,9 @@ import {
   RefreshCw
 } from "lucide-react";
 import Header from "@/components/Header";
-import InteractiveSpreadsheet, { RowData } from "@/components/InteractiveSpreadsheet";
+import InteractiveSpreadsheet from "@/components/InteractiveSpreadsheet";
+import type { RowData } from "@/components/InteractiveSpreadsheet";
+
 
 interface User {
   id: string;

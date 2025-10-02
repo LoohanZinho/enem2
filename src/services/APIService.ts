@@ -1,524 +1,448 @@
-// Serviço de API para correção de redações em tempo real
-// Endpoints para integração com sistemas externos
+/**
+ * Serviço de comunicação com a API
+ * Gerencia todas as requisições HTTP para o backend
+ */
 
-export interface APIResponse<T> {
+const API_BASE_URL = 'http://localhost:3001/api';
+
+// Função auxiliar para fetch com retentativas
+async function fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        return response;
+      }
+      // Se a resposta não for OK, mas não for um erro de rede, não adianta tentar novamente
+      if (response.status < 500) {
+        return response;
+      }
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      await new Promise(res => setTimeout(res, delay * (i + 1)));
+    }
+  }
+  throw new Error('Falha na requisição após múltiplas tentativas');
+}
+
+
+interface ApiResponse<T = any> {
   success: boolean;
+  message?: string;
   data?: T;
-  error?: string;
-  timestamp: string;
-  requestId: string;
+  errors?: string[];
 }
 
-export interface CorrecaoRequest {
-  texto: string;
-  tema: string;
-  duplaCorrecao?: boolean;
-  configuracao?: {
-    idioma?: 'pt' | 'en' | 'es';
-    nivel?: 'basico' | 'intermediario' | 'avancado';
-    focoCompetencias?: number[];
-  };
+interface PaginationData {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
 }
 
-export interface CorrecaoResponse {
+interface User {
   id: string;
-  texto: string;
-  tema: string;
-  competencias: PontuacaoCompetencia[];
-  notaTotal: number;
-  notaFinal: number;
-  feedbackGeral: string;
-  nivel: string;
-  dataCorrecao: string;
-  avaliadores: number;
-  discrepancia: boolean;
-  tempoProcessamento: number;
-  confianca: number;
+  nome: string;
+  email: string;
+  criado_em: string;
+  role: 'user' | 'admin';
+  phone?: string;
 }
 
-export interface PontuacaoCompetencia {
-  competencia: number;
-  nota: number;
-  justificativa: string;
-  pontosFortes: string[];
-  pontosFracos: string[];
-  sugestoes: string[];
+interface Essay {
+  id: string;
+  titulo: string;
+  conteudo: string;
+  criado_em: string;
+  atualizado_em: string;
+  resumo?: string;
 }
 
-export interface BatchCorrecaoRequest {
-  redacoes: CorrecaoRequest[];
-  callbackUrl?: string;
-  notificarEmail?: string;
+interface Flashcard {
+  id: string;
+  frente: string;
+  verso: string;
+  criado_em: string;
+  atualizado_em: string;
 }
 
-export interface BatchCorrecaoResponse {
-  batchId: string;
-  totalRedacoes: number;
-  redacoesProcessadas: number;
-  status: 'processing' | 'completed' | 'failed';
-  resultados?: CorrecaoResponse[];
-  erro?: string;
+interface Note {
+  id: string;
+  conteudo: string;
+  criado_em: string;
+  atualizado_em: string;
+  resumo?: string;
 }
 
-export interface EstatisticasAPI {
-  totalRedacoes: number;
-  mediaGeral: number;
-  melhorNota: number;
-  piorNota: number;
-  competencias: {
-    [key: number]: {
-      media: number;
-      total: number;
-      tendencia: 'crescimento' | 'estagnacao' | 'declinio';
-    };
-  };
-  ultimaAtualizacao: string;
+interface LoginData {
+  email: string;
+  senha: string;
 }
 
-export class APIService {
-  private static instance: APIService;
-  private baseUrl: string;
-  private apiKey: string;
-  private rateLimit: Map<string, number> = new Map();
-  private maxRequestsPerMinute = 60;
+
+interface UpdateProfileData {
+  nome?: string;
+  email?: string;
+}
+
+interface ChangePasswordData {
+  senhaAtual: string;
+  novaSenha: string;
+}
+
+class ApiService {
+  private baseURL: string;
+  private token: string | null = null;
 
   constructor() {
-    this.baseUrl = 'https://api.enem-pro.com';
-    this.apiKey = 'demo-key';
-  }
-
-  public static getInstance(): APIService {
-    if (!APIService.instance) {
-      APIService.instance = new APIService();
-    }
-    return APIService.instance;
-  }
-
-  // Endpoint: POST /api/corrigir
-  async corrigirRedacao(request: CorrecaoRequest): Promise<APIResponse<CorrecaoResponse>> {
-    try {
-      this.verificarRateLimit();
-      
-      const response = await fetch(`${this.baseUrl}/api/corrigir`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        },
-        body: JSON.stringify(request)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
+    this.baseURL = API_BASE_URL;
+    if (typeof window !== 'undefined') {
+      this.token = localStorage.getItem('auth_token');
     }
   }
 
-  // Endpoint: POST /api/corrigir-batch
-  async corrigirRedacoesEmLote(request: BatchCorrecaoRequest): Promise<APIResponse<BatchCorrecaoResponse>> {
-    try {
-      this.verificarRateLimit();
-      
-      const response = await fetch(`${this.baseUrl}/api/corrigir-batch`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        },
-        body: JSON.stringify(request)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: GET /api/corrigir-batch/{batchId}
-  async obterStatusBatch(batchId: string): Promise<APIResponse<BatchCorrecaoResponse>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/corrigir-batch/${batchId}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: GET /api/estatisticas
-  async obterEstatisticas(): Promise<APIResponse<EstatisticasAPI>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/estatisticas`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: GET /api/redacoes/{id}
-  async obterRedacao(id: string): Promise<APIResponse<CorrecaoResponse>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/redacoes/${id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: GET /api/redacoes
-  async listarRedacoes(filtros?: {
-    dataInicio?: string;
-    dataFim?: string;
-    tema?: string;
-    notaMinima?: number;
-    notaMaxima?: number;
-    competencia?: number;
-    limit?: number;
-    offset?: number;
-  }): Promise<APIResponse<{
-    redacoes: CorrecaoResponse[];
-    total: number;
-    pagina: number;
-    totalPaginas: number;
-  }>> {
-    try {
-      const params = new URLSearchParams();
-      if (filtros) {
-        Object.entries(filtros).forEach(([key, value]) => {
-          if (value !== undefined) {
-            params.append(key, value.toString());
-          }
-        });
-      }
-
-      const response = await fetch(`${this.baseUrl}/api/redacoes?${params.toString()}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: DELETE /api/redacoes/{id}
-  async excluirRedacao(id: string): Promise<APIResponse<void>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/redacoes/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      return {
-        success: true,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // Endpoint: GET /api/health
-  async verificarSaude(): Promise<APIResponse<{
-    status: 'healthy' | 'degraded' | 'unhealthy';
-    version: string;
-    uptime: number;
-    services: {
-      database: 'up' | 'down';
-      ai: 'up' | 'down';
-      storage: 'up' | 'down';
-    };
-  }>> {
-    try {
-      const response = await fetch(`${this.baseUrl}/api/health`, {
-        method: 'GET',
-        headers: {
-          'X-Request-ID': this.gerarRequestId()
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return {
-        success: true,
-        data,
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
-        timestamp: new Date().toISOString(),
-        requestId: this.gerarRequestId()
-      };
-    }
-  }
-
-  // WebSocket para correções em tempo real
-  conectarWebSocket(callbacks: {
-    onCorrecaoCompleta: (data: CorrecaoResponse) => void;
-    onErro: (error: string) => void;
-    onStatus: (status: string) => void;
-  }): WebSocket | null {
-    try {
-      const wsUrl = this.baseUrl.replace('http', 'ws') + '/ws/corrigir';
-      const ws = new WebSocket(`${wsUrl}?token=${this.apiKey}`);
-
-      ws.onopen = () => {
-        console.log('WebSocket conectado');
-        callbacks.onStatus('Conectado');
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          
-          if (data.type === 'correcao_completa') {
-            callbacks.onCorrecaoCompleta(data.data);
-          } else if (data.type === 'erro') {
-            callbacks.onErro(data.message);
-          } else if (data.type === 'status') {
-            callbacks.onStatus(data.message);
-          }
-        } catch (error) {
-          callbacks.onErro('Erro ao processar mensagem do WebSocket');
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('WebSocket desconectado');
-        callbacks.onStatus('Desconectado');
-      };
-
-      ws.onerror = (error) => {
-        console.error('Erro no WebSocket:', error);
-        callbacks.onErro('Erro na conexão WebSocket');
-      };
-
-      return ws;
-    } catch (error) {
-      callbacks.onErro('Erro ao conectar WebSocket');
-      return null;
-    }
-  }
-
-  // Enviar redação via WebSocket
-  enviarRedacaoWebSocket(ws: WebSocket, request: CorrecaoRequest): void {
-    if (ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({
-        type: 'corrigir',
-        data: request
-      }));
+  /**
+   * Definir token de autenticação
+   */
+  setToken(token: string | null) {
+    this.token = token;
+    if (token) {
+      localStorage.setItem('auth_token', token);
     } else {
-      throw new Error('WebSocket não está conectado');
+      localStorage.removeItem('auth_token');
     }
   }
 
-  // Verificar rate limit
-  private verificarRateLimit(): void {
-    const now = Date.now();
-    const minute = Math.floor(now / 60000);
-    const key = `rate_limit_${minute}`;
-    
-    const currentCount = this.rateLimit.get(key) || 0;
-    
-    if (currentCount >= this.maxRequestsPerMinute) {
-      throw new Error('Rate limit excedido. Tente novamente em alguns minutos.');
-    }
-    
-    this.rateLimit.set(key, currentCount + 1);
-    
-    // Limpar entradas antigas
-    this.limparRateLimitAntigo();
+  /**
+   * Obter token atual
+   */
+  getToken(): string | null {
+    return this.token;
   }
 
-  // Limpar rate limit antigo
-  private limparRateLimitAntigo(): void {
-    const now = Date.now();
-    const currentMinute = Math.floor(now / 60000);
+  /**
+   * Fazer requisição HTTP
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<ApiResponse<T>> {
+    const url = `${this.baseURL}${endpoint}`;
     
-    for (const [key] of this.rateLimit) {
-      const minute = parseInt(key.split('_')[2]);
-      if (minute < currentMinute - 5) { // Manter apenas últimos 5 minutos
-        this.rateLimit.delete(key);
-      }
-    }
-  }
-
-  // Gerar ID único para requisição
-  private gerarRequestId(): string {
-    return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  // Configurar API
-  configurar(config: {
-    baseUrl?: string;
-    apiKey?: string;
-    maxRequestsPerMinute?: number;
-  }): void {
-    if (config.baseUrl) this.baseUrl = config.baseUrl;
-    if (config.apiKey) this.apiKey = config.apiKey;
-    if (config.maxRequestsPerMinute) this.maxRequestsPerMinute = config.maxRequestsPerMinute;
-  }
-
-  // Obter configuração atual
-  obterConfiguracao(): {
-    baseUrl: string;
-    maxRequestsPerMinute: number;
-  } {
-    return {
-      baseUrl: this.baseUrl,
-      maxRequestsPerMinute: this.maxRequestsPerMinute
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...(this.token && { Authorization: `Bearer ${this.token}` }),
+        ...options.headers,
+      },
+      ...options,
     };
+
+    try {
+      const response = await fetchWithRetry(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Se o token expirou, limpar o localStorage
+        if (response.status === 401) {
+          this.setToken(null);
+          window.location.href = '/login';
+        }
+        
+        throw new Error(data.message || 'Erro na requisição');
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro na API:', error);
+      
+      // Se for erro de rede, mostrar mensagem mais amigável
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Erro de conexão. Verifique sua internet e tente novamente.');
+      }
+      
+      throw error;
+    }
+  }
+
+  // ===== AUTENTICAÇÃO =====
+
+
+  /**
+   * Fazer login
+   */
+  async login(data: LoginData): Promise<ApiResponse<{ user: User; token: string }>> {
+    const response = await this.request<any>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+
+    if (response.success && response.data?.token) {
+      this.setToken(response.data.token);
+    }
+
+    return response;
+  }
+
+  /**
+   * Obter perfil do usuário
+   */
+  async getProfile(): Promise<ApiResponse<{ user: User }>> {
+    return this.request('/auth/profile');
+  }
+
+  /**
+   * Atualizar perfil
+   */
+  async updateProfile(data: UpdateProfileData): Promise<ApiResponse<{ user: User }>> {
+    return this.request('/auth/profile', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Alterar senha
+   */
+  async changePassword(data: ChangePasswordData): Promise<ApiResponse<any>> {
+    return this.request('/auth/change-password', {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Fazer logout
+   */
+  logout() {
+    this.setToken(null);
+  }
+
+  // ===== REDAÇÕES =====
+
+  /**
+   * Listar redações
+   */
+  async getEssays(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<ApiResponse<{ essays: Essay[]; pagination: PaginationData }>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const queryString = queryParams.toString();
+    return this.request(`/essays${queryString ? `?${queryString}` : ''}`);
+  }
+
+  /**
+   * Obter redação por ID
+   */
+  async getEssay(id: string): Promise<ApiResponse<{ essay: Essay }>> {
+    return this.request(`/essays/${id}`);
+  }
+
+  /**
+   * Criar redação
+   */
+  async createEssay(data: { titulo: string; conteudo: string }): Promise<ApiResponse<{ essay: Essay }>> {
+    return this.request('/essays', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Atualizar redação
+   */
+  async updateEssay(id: string, data: { titulo: string; conteudo: string }): Promise<ApiResponse<{ essay: Essay }>> {
+    return this.request(`/essays/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Excluir redação
+   */
+  async deleteEssay(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/essays/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Obter estatísticas das redações
+   */
+  async getEssayStats(): Promise<ApiResponse<{ stats: any }>> {
+    return this.request('/essays/stats');
+  }
+
+  // ===== FLASHCARDS =====
+
+  /**
+   * Listar flashcards
+   */
+  async getFlashcards(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<ApiResponse<{ flashcards: Flashcard[]; pagination: PaginationData }>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const queryString = queryParams.toString();
+    return this.request(`/flashcards${queryString ? `?${queryString}` : ''}`);
+  }
+
+  /**
+   * Obter flashcard por ID
+   */
+  async getFlashcard(id: string): Promise<ApiResponse<{ flashcard: Flashcard }>> {
+    return this.request(`/flashcards/${id}`);
+  }
+
+  /**
+   * Criar flashcard
+   */
+  async createFlashcard(data: { frente: string; verso: string }): Promise<ApiResponse<{ flashcard: Flashcard }>> {
+    return this.request('/flashcards', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Criar múltiplos flashcards
+   */
+  async createBatchFlashcards(data: { flashcards: Array<{ frente: string; verso: string }> }): Promise<ApiResponse<{ flashcards: Flashcard[] }>> {
+    return this.request('/flashcards/batch', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Atualizar flashcard
+   */
+  async updateFlashcard(id: string, data: { frente: string; verso: string }): Promise<ApiResponse<{ flashcard: Flashcard }>> {
+    return this.request(`/flashcards/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Excluir flashcard
+   */
+  async deleteFlashcard(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/flashcards/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Obter estatísticas dos flashcards
+   */
+  async getFlashcardStats(): Promise<ApiResponse<{ stats: any }>> {
+    return this.request('/flashcards/stats');
+  }
+
+  // ===== ANOTAÇÕES =====
+
+  /**
+   * Listar anotações
+   */
+  async getNotes(params?: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  }): Promise<ApiResponse<{ notes: Note[]; pagination: PaginationData }>> {
+    const queryParams = new URLSearchParams();
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.search) queryParams.append('search', params.search);
+
+    const queryString = queryParams.toString();
+    return this.request(`/notes${queryString ? `?${queryString}` : ''}`);
+  }
+
+  /**
+   * Buscar anotações
+   */
+  async searchNotes(params: {
+    q: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ApiResponse<{ notes: Note[]; pagination: PaginationData; searchTerm: string }>> {
+    const queryParams = new URLSearchParams();
+    queryParams.append('q', params.q);
+    if (params.page) queryParams.append('page', params.page.toString());
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+
+    return this.request(`/notes/search?${queryParams.toString()}`);
+  }
+
+  /**
+   * Obter anotação por ID
+   */
+  async getNote(id: string): Promise<ApiResponse<{ note: Note }>> {
+    return this.request(`/notes/${id}`);
+  }
+
+  /**
+   * Criar anotação
+   */
+  async createNote(data: { conteudo: string }): Promise<ApiResponse<{ note: Note }>> {
+    return this.request('/notes', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Atualizar anotação
+   */
+  async updateNote(id: string, data: { conteudo: string }): Promise<ApiResponse<{ note: Note }>> {
+    return this.request(`/notes/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  /**
+   * Excluir anotação
+   */
+  async deleteNote(id: string): Promise<ApiResponse<any>> {
+    return this.request(`/notes/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
+   * Obter estatísticas das anotações
+   */
+  async getNoteStats(): Promise<ApiResponse<{ stats: any }>> {
+    return this.request('/notes/stats');
   }
 }
 
+// Instância singleton do serviço
+export const apiService = new ApiService();
 
-
-
-
-
-
-
-
+// Exportar tipos
+export type {
+  ApiResponse,
+  User,
+  Essay,
+  Flashcard,
+  Note,
+  LoginData,
+  UpdateProfileData,
+  ChangePasswordData,
+  PaginationData,
+};

@@ -36,8 +36,8 @@ const RedefinirSenha = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const token = searchParams.get('token');
-  const email = searchParams.get('email');
+  const token = searchParams?.get('token');
+  const email = searchParams?.get('email');
 
   useEffect(() => {
     if (!token || !email) {

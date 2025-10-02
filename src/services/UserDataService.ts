@@ -78,8 +78,8 @@ export class UserDataService {
           const parsedData = parseDates(data);
           return {
               ...parsedData,
-              createdAt: new Date(parsedData.createdAt),
-              updatedAt: new Date(parsedData.updatedAt)
+              createdAt: parsedData.createdAt ? new Date(parsedData.createdAt) : new Date(),
+              updatedAt: parsedData.updatedAt ? new Date(parsedData.updatedAt) : new Date()
           } as UserData;
       }
       return this.initializeUserData(userId);

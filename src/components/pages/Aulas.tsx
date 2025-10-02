@@ -39,7 +39,7 @@ const aulaoData = {
 
 function AulasContent() {
   const searchParams = useSearchParams();
-  const [selectedMateria, setSelectedMateria] = useState<string | null>(searchParams.get('materia'));
+  const [selectedMateria, setSelectedMateria] = useState<string | null>(searchParams?.get('materia') ?? null);
 
   const { 
     progress, 
@@ -54,7 +54,7 @@ function AulasContent() {
 
   const handleMateriaClick = (materiaId: string) => {
     setSelectedMateria(materiaId);
-    const newSearchParams = new URLSearchParams(searchParams.toString());
+    const newSearchParams = new URLSearchParams(searchParams?.toString() ?? '');
     newSearchParams.set('materia', materiaId);
     window.history.pushState(null, '', `?${newSearchParams.toString()}`);
   };
@@ -198,9 +198,9 @@ function AulasContent() {
             </div>
           </>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="space-y-8">
             {/* Player de Vídeo Principal */}
-            <div className="lg:col-span-2">
+            <div className="mb-12">
               <Card className="overflow-hidden shadow-2xl border-0">
                 <CardContent className="p-0">
                   <div className="relative">
@@ -217,11 +217,6 @@ function AulasContent() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-
-            {/* Playlist e Detalhes */}
-            <div className="lg:col-span-1">
-                {/* Aqui você pode adicionar a lista de vídeos da playlist, se desejar */}
             </div>
           </div>
         )}
