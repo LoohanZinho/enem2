@@ -122,7 +122,7 @@ const Admin = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900">
+      <div className="flex items-center justify-center min-h-screen bg-slate-900 p-4">
         <Card className="w-full max-w-sm bg-slate-800 border-slate-700">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
@@ -157,8 +157,8 @@ const Admin = () => {
   }
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold mb-8 text-slate-800 dark:text-white">Painel de Administração</h1>
+    <div className="p-4 sm:p-8">
+      <h1 className="text-2xl sm:text-4xl font-bold mb-8 text-slate-800 dark:text-white">Painel de Administração</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Adicionar Usuário */}
@@ -214,7 +214,7 @@ const Admin = () => {
             {isLoading && <Loader2 className="h-6 w-6 animate-spin mx-auto"/>}
             <div className="space-y-3 max-h-96 overflow-y-auto">
               {users.map(userItem => (
-                <div key={userItem.id} className="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-md">
+                <div key={userItem.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-md">
                   {editingUser?.id === userItem.id ? (
                     <div className="flex-1 space-y-2">
                       <Input name="nome" value={editingUser.nome} onChange={handleEditChange} placeholder="Nome" />
@@ -227,7 +227,7 @@ const Admin = () => {
                     </div>
                   ) : (
                     <>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 mb-2 sm:mb-0">
                         <User className="h-4 w-4 text-slate-500"/>
                         <div>
                           <p className="font-semibold text-sm">{userItem.nome}</p>

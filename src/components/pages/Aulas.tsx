@@ -97,11 +97,11 @@ function AulasContent() {
                 Aulão Completo
               </div>
               
-              <h1 className="text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">
+              <h1 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-slate-900 via-slate-700 to-slate-900 dark:from-white dark:via-slate-200 dark:to-white bg-clip-text text-transparent">
                 Aulão ENEM
               </h1>
               
-              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
                 Prepare-se para o ENEM com nossa playlist completa de todas as matérias
               </p>
             </div>
@@ -141,75 +141,12 @@ function AulasContent() {
                           ENEM
                         </div>
 
-                        {/* Frases de motivação flutuantes - bem distribuídas */}
-                        <div className="absolute top-6 left-6 text-white/40 text-sm font-semibold animate-float-slow">
+                        {/* Frases de motivação flutuantes */}
+                        <div className="absolute top-6 left-6 text-white/40 text-xs md:text-sm font-semibold animate-float-slow">
                           Você é incrível!
                         </div>
                         <div className="absolute top-6 right-6 text-white/35 text-xs font-medium animate-float-medium">
                           Você consegue!
-                        </div>
-                        
-                        <div className="absolute top-20 left-8 text-white/30 text-sm font-semibold animate-float-fast">
-                          Foco e determinação!
-                        </div>
-                        <div className="absolute top-20 right-12 text-white/40 text-xs font-medium animate-float-slow">
-                          Seu futuro começa aqui!
-                        </div>
-                        
-                        <div className="absolute top-40 left-4 text-white/35 text-sm font-semibold animate-float-medium">
-                          Acredite em você!
-                        </div>
-                        <div className="absolute top-40 right-8 text-white/30 text-xs font-medium animate-float-fast">
-                          Conhecimento é poder!
-                        </div>
-                        
-                        <div className="absolute top-60 left-12 text-white/40 text-sm font-semibold animate-float-slow">
-                          Você vai arrasar!
-                        </div>
-                        <div className="absolute top-60 right-16 text-white/35 text-xs font-medium animate-float-medium">
-                          Persistência é a chave!
-                        </div>
-                        
-                        <div className="absolute top-80 left-6 text-white/30 text-xs font-medium animate-float-fast">
-                          Sua dedicação vale ouro!
-                        </div>
-                        <div className="absolute top-80 right-10 text-white/40 text-sm font-semibold animate-float-slow">
-                          Sonhos se realizam!
-                        </div>
-                        
-                        <div className="absolute top-100 left-16 text-white/35 text-xs font-medium animate-float-medium">
-                          Você tem potencial!
-                        </div>
-                        <div className="absolute top-100 right-4 text-white/30 text-xs font-medium animate-float-fast">
-                          Cada esforço conta!
-                        </div>
-                        
-                        <div className="absolute top-120 left-2 text-white/40 text-sm font-semibold animate-float-slow">
-                          Continue assim!
-                        </div>
-                        <div className="absolute top-120 right-20 text-white/35 text-xs font-medium animate-float-medium">
-                          Você está no caminho certo!
-                        </div>
-                        
-                        <div className="absolute top-140 left-20 text-white/30 text-xs font-medium animate-float-fast">
-                          Não desista!
-                        </div>
-                        <div className="absolute top-140 right-6 text-white/40 text-sm font-semibold animate-float-slow">
-                          Sua jornada importa!
-                        </div>
-                        
-                        <div className="absolute top-160 left-8 text-white/35 text-xs font-medium animate-float-medium">
-                          Você é capaz!
-                        </div>
-                        <div className="absolute top-160 right-14 text-white/30 text-xs font-medium animate-float-fast">
-                          Mantenha o foco!
-                        </div>
-                        
-                        <div className="absolute top-180 left-4 text-white/40 text-sm font-semibold animate-float-slow">
-                          Sucesso está chegando!
-                        </div>
-                        <div className="absolute top-180 right-8 text-white/35 text-xs font-medium animate-float-medium">
-                          Você é especial!
                         </div>
                       </div>
                       
@@ -220,8 +157,8 @@ function AulasContent() {
                             <span className="text-green-300 text-sm font-medium">Disponível</span>
                           </div>
                           
-                          <h3 className="text-5xl font-black text-white mb-2">{aulaoData.title}</h3>
-                          <p className="text-white/90 text-xl font-medium max-w-2xl">{aulaoData.description}</p>
+                          <h3 className="text-3xl md:text-5xl font-black text-white mb-2">{aulaoData.title}</h3>
+                          <p className="text-white/90 text-lg md:text-xl font-medium max-w-2xl">{aulaoData.description}</p>
                           
                           <div className="flex items-center gap-3 text-white/80">
                             <BookOpen className="h-5 w-5" />
@@ -232,13 +169,13 @@ function AulasContent() {
                     </div>
                   </CardHeader>
                   
-                  <CardContent className="p-12">
+                  <CardContent className="p-8 md:p-12">
                     <div className="text-center space-y-8">
                       <div className="space-y-4">
-                        <h4 className="text-3xl font-bold text-slate-900 dark:text-white">
+                        <h4 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
                           Prepare-se para o ENEM
                         </h4>
-                        <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed max-w-3xl mx-auto">
+                        <p className="text-md md:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl mx-auto">
                           Acesse nossa playlist completa com todas as matérias do ENEM. 
                           Ideal para revisão geral e preparação final para o exame.
                         </p>
@@ -248,7 +185,7 @@ function AulasContent() {
                       <div className="pt-4">
                         <Button
                           size="lg" 
-                          className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-lg px-12 py-6 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
+                          className="bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-lg px-8 md:px-12 py-6 shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
                         >
                           <Play className="h-6 w-6 mr-3" />
                           Iniciar Aulão
@@ -262,14 +199,13 @@ function AulasContent() {
           </>
         ) : (
           <div className="space-y-8">
-
             {/* Player de Vídeo Principal - Tela Cheia */}
             <div className="mb-12">
               <Card className="overflow-hidden shadow-2xl border-0">
                 <CardContent className="p-0">
                   <div className="relative">
                     {/* Player Container */}
-                           <div className="aspect-[16/9] bg-slate-900 relative" style={{ height: '85vh', minHeight: '700px' }}>
+                    <div className="aspect-[16/9] bg-slate-900 relative">
                       {selectedMateriaData && (
                         <YouTubePlaylistPlayer
                           playlistId={selectedMateriaData.playlistId}
@@ -283,8 +219,6 @@ function AulasContent() {
                 </CardContent>
               </Card>
             </div>
-
-
           </div>
         )}
         </div>
