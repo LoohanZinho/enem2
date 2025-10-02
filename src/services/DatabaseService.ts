@@ -100,7 +100,12 @@ class DatabaseService {
   async saveUserData(userId: string, data: UserData): Promise<void> {
     const userDocRef = doc(this.db, 'user_data', userId);
     // Deep clone e converte todas as instâncias de Date para string ISO
-    const serializableData = JSON.parse(JSON.stringify(data));
+    const serializableData = JSON.parse(JSON.stringify(data, (key, value) => {
+      if (value instanceof Date) {
+        return value.toISOString();
+      }
+      return value;
+    }));
     await setDoc(userDocRef, serializableData);
   }
 

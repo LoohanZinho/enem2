@@ -206,7 +206,7 @@ const CronogramaEstudos = () => {
   const getCompletedStudyHours = () => weeks.reduce((acc, week) => acc + week.completedHours, 0);
   const getStudyProgress = () => (getTotalStudyHours() > 0 ? (getCompletedStudyHours() / getTotalStudyHours()) * 100 : 0);
   
-  const handleAddActivity = () => {
+  const handleAddActivity = async () => {
     if (!newActivity.time || !newActivity.subject || !newActivity.topic) return;
     
     const activity: Activity = {
@@ -221,41 +221,41 @@ const CronogramaEstudos = () => {
       notes: newActivity.notes
     };
     
-    setWeeks(prevWeeks => {
-      const updatedWeeks = [...prevWeeks];
-      updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
-      updatedWeeks[currentWeek].days[selectedDayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
-      return updatedWeeks;
-    });
+    const updatedWeeks = [...weeks];
+    updatedWeeks[currentWeek].days[selectedDayIndex].activities.push(activity);
+    updatedWeeks[currentWeek].days[selectedDayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
+    setWeeks(updatedWeeks);
+    await userDataService.addActivity(currentWeek, selectedDayIndex, activity);
     
     setNewActivity({ time: '', subject: '', topic: '', type: 'aula', duration: '1h', status: 'pending', priority: 'medium' });
     setIsAddModalOpen(false);
   };
 
-  const handleEditActivity = () => {
+  const handleEditActivity = async () => {
     if(!editingActivity) return;
-    setWeeks(prevWeeks => {
-        const newWeeks = [...prevWeeks];
-        const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === editingActivity.id));
-        if (dayIndex > -1) {
-            const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === editingActivity!.id);
-            if (activityIndex > -1) {
-                newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = editingActivity;
-                newWeeks[currentWeek].days[dayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
-            }
+    
+    const newWeeks = [...weeks];
+    const dayIndex = newWeeks[currentWeek].days.findIndex(d => d.activities.some(a => a.id === editingActivity.id));
+    if (dayIndex > -1) {
+        const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === editingActivity!.id);
+        if (activityIndex > -1) {
+            newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = editingActivity;
+            newWeeks[currentWeek].days[dayIndex].activities.sort((a,b) => a.time.localeCompare(b.time));
+            
+            setWeeks(newWeeks);
+            await userDataService.updateActivity(currentWeek, dayIndex, editingActivity.id, editingActivity);
         }
-        return newWeeks;
-    });
+    }
+
     setEditingActivity(null);
     setIsEditModalOpen(false);
   };
 
-  const handleDeleteActivity = (activityId: string, dayIndex: number) => {
-    setWeeks(prevWeeks => {
-        const newWeeks = [...prevWeeks];
-        newWeeks[currentWeek].days[dayIndex].activities = newWeeks[currentWeek].days[dayIndex].activities.filter(a => a.id !== activityId);
-        return newWeeks;
-    });
+  const handleDeleteActivity = async (activityId: string, dayIndex: number) => {
+    const newWeeks = [...weeks];
+    newWeeks[currentWeek].days[dayIndex].activities = newWeeks[currentWeek].days[dayIndex].activities.filter(a => a.id !== activityId);
+    setWeeks(newWeeks);
+    await userDataService.deleteActivity(currentWeek, dayIndex, activityId);
   };
 
   const handleStartActivity = (activityId: string) => {
@@ -277,25 +277,28 @@ const CronogramaEstudos = () => {
     return 0;
   };
 
-  const handleCompleteActivity = (activityId: string, dayIndex: number) => {
-    setWeeks(prevWeeks => {
-        const newWeeks = [...prevWeeks];
-        const activity = newWeeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
-        if (activity) {
-            const durationHours = parseDurationToHours(activity.duration);
-            const currentWeekData = newWeeks[currentWeek];
-            if (activity.status === 'completed') {
-                activity.status = 'pending';
-                activity.completedAt = undefined;
-                currentWeekData.completedHours = Math.max(0, currentWeekData.completedHours - durationHours);
-            } else {
-                activity.status = 'completed';
-                activity.completedAt = new Date().toISOString();
-                currentWeekData.completedHours += durationHours;
-            }
+  const handleCompleteActivity = async (activityId: string, dayIndex: number) => {
+    const newWeeks = [...weeks];
+    const activity = newWeeks[currentWeek].days[dayIndex].activities.find(a => a.id === activityId);
+    if (activity) {
+        const durationHours = parseDurationToHours(activity.duration);
+        const currentWeekData = newWeeks[currentWeek];
+        
+        let updatedActivity: Activity;
+        if (activity.status === 'completed') {
+            updatedActivity = { ...activity, status: 'pending', completedAt: undefined };
+            currentWeekData.completedHours = Math.max(0, currentWeekData.completedHours - durationHours);
+        } else {
+            updatedActivity = { ...activity, status: 'completed', completedAt: new Date().toISOString() };
+            currentWeekData.completedHours += durationHours;
         }
-        return newWeeks;
-    });
+
+        const activityIndex = newWeeks[currentWeek].days[dayIndex].activities.findIndex(a => a.id === activityId);
+        newWeeks[currentWeek].days[dayIndex].activities[activityIndex] = updatedActivity;
+        
+        setWeeks(newWeeks);
+        await userDataService.updateActivity(currentWeek, dayIndex, activityId, updatedActivity);
+    }
   };
 
   const schedule = getCurrentWeek()?.days || [];

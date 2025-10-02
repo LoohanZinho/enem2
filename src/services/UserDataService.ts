@@ -61,10 +61,25 @@ export class UserDataService {
     try {
       const data = await this.db.getUserData(userId);
       if (data) {
+          // Convert date strings back to Date objects
+          const parseDates = (obj: any): any => {
+            for (const key in obj) {
+              if (typeof obj[key] === 'string') {
+                const match = obj[key].match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/);
+                if (match) {
+                  obj[key] = new Date(obj[key]);
+                }
+              } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                parseDates(obj[key]);
+              }
+            }
+            return obj;
+          };
+          const parsedData = parseDates(data);
           return {
-              ...data,
-              createdAt: new Date(data.createdAt),
-              updatedAt: new Date(data.updatedAt)
+              ...parsedData,
+              createdAt: new Date(parsedData.createdAt),
+              updatedAt: new Date(parsedData.updatedAt)
           } as UserData;
       }
       return this.initializeUserData(userId);
