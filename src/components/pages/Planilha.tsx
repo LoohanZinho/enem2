@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import InteractiveSpreadsheet from "@/components/InteractiveSpreadsheet";
-import type { RowData } from "@/components/InteractiveSpreadsheet";
+import type { RowData } from "@/types/Spreadsheet";
 
 
 interface User {
