@@ -1,4 +1,5 @@
 
+"use client";
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,7 +80,7 @@ interface SubMateria {
 const ResumosModulos = () => {
   const searchParams = useSearchParams();
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState(user?.role === 'admin');
+  const [isAdmin, setIsAdmin] = useState(false);
   const [materiaSelecionada, setMateriaSelecionada] = useState<Materia | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedNivel, setSelectedNivel] = useState('Todos');
@@ -87,7 +88,9 @@ const ResumosModulos = () => {
   const [selectedSubMateria, setSelectedSubMateria] = useState<SubMateria | null>(null);
 
   useEffect(() => {
-    setIsAdmin(user?.role === 'admin');
+    if (user) {
+      setIsAdmin(user.role === 'admin');
+    }
   }, [user]);
 
   const materiasData = useMemo((): Materia[] => [

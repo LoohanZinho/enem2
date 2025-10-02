@@ -54,9 +54,9 @@ class FlashcardAIService {
   }
 
   // Gerar flashcards a partir da análise
-  async generateFlashcards(text: string): Promise<FlashcardData[]> {
+  async generateFlashcards(text: string): Promise<Omit<FlashcardData, 'incorrectCount' | 'quality' | 'isActive'>[]> {
     const analysis = await this.analyzeText(text);
-    const flashcards: FlashcardData[] = [];
+    const flashcards: Omit<FlashcardData, 'incorrectCount' | 'quality' | 'isActive'>[] = [];
     
     analysis.concepts.forEach((concept, index) => {
       const flashcard = this.createIntelligentFlashcard(concept, analysis.subject, analysis.module, index);
@@ -274,7 +274,7 @@ class FlashcardAIService {
   }
 
   // Criar flashcard inteligente
-  private createIntelligentFlashcard(concept: Concept, subject: string, module: string, index: number): FlashcardData {
+  private createIntelligentFlashcard(concept: Concept, subject: string, module: string, index: number): Omit<FlashcardData, 'incorrectCount' | 'quality' | 'isActive'> {
     const question = this.generateIntelligentQuestion(concept);
     const answer = concept.text;
     

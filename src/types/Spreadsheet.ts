@@ -6,5 +6,5 @@ export interface CellData {
 }
 
 export interface RowData {
-    [key: string]: CellData;
+    [key: string]: CellData | string | number;
 }
