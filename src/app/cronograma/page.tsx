@@ -1,5 +1,5 @@
 "use client";
-import Cronograma from "@/pages/Cronograma";
+import Cronograma from "@/components/pages/Cronograma";
 
 export default function CronogramaPage() {
   return <Cronograma />;

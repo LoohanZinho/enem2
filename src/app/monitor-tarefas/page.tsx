@@ -1,5 +1,5 @@
 "use client";
-import MonitorTarefas from "@/pages/MonitorTarefas";
+import MonitorTarefas from "@/components/pages/MonitorTarefas";
 
 export default function MonitorTarefasPage() {
   return <MonitorTarefas />;

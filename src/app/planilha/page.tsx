@@ -1,5 +1,5 @@
 "use client";
-import Planilha from "@/pages/Planilha";
+import Planilha from "@/components/pages/Planilha";
 
 export default function PlanilhaPage() {
   return <Planilha />;

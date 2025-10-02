@@ -1,5 +1,5 @@
 "use client";
-import Aulas from "@/pages/Aulas";
+import Aulas from "@/components/pages/Aulas";
 
 export default function AulasPage() {
   return <Aulas />;

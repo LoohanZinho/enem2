@@ -1,6 +1,6 @@
 "use client";
 import { Suspense } from "react";
-import ResumosModulos from "@/pages/ResumosModulos";
+import ResumosModulos from "@/components/pages/ResumosModulos";
 
 function ResumosModulosContent() {
   return <ResumosModulos />;

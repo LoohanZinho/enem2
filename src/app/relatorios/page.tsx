@@ -1,5 +1,5 @@
 "use client";
-import Relatorios from "@/pages/Relatorios";
+import Relatorios from "@/components/pages/Relatorios";
 
 export default function RelatoriosPage() {
   return <Relatorios />;

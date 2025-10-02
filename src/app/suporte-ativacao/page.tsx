@@ -1,5 +1,5 @@
 "use client";
-import SuporteAtivacao from "@/pages/SuporteAtivacao";
+import SuporteAtivacao from "@/components/pages/SuporteAtivacao";
 
 export default function SuporteAtivacaoPage() {
   return <SuporteAtivacao />;

@@ -1,5 +1,5 @@
 "use client";
-import Perfil from "@/pages/Perfil";
+import Perfil from "@/components/pages/Perfil";
 
 export default function PerfilPage() {
   return <Perfil />;

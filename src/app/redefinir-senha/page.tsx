@@ -1,6 +1,6 @@
 "use client";
 import { Suspense } from "react";
-import RedefinirSenha from "@/pages/RedefinirSenha";
+import RedefinirSenha from "@/components/pages/RedefinirSenha";
 
 function RedefinirSenhaContent() {
   return <RedefinirSenha />;

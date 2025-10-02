@@ -1,5 +1,5 @@
 "use client";
-import Redacao from "@/pages/Redacao";
+import Redacao from "@/components/pages/Redacao";
 
 export default function RedacaoPage() {
   return <Redacao />;
