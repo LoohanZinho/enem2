@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
-import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 
 // Mapeia o nome do produto recebido da Cakto para o tipo de plano e duração em meses
 const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: number } } = {
@@ -11,16 +11,14 @@ const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: numb
   'Produto Teste': { plan: 'anual', durationInMonths: 12 },
 };
 
-// --- Configuração do Nodemailer centralizada ---
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.SMTP_PORT || '587'),
-  secure: (process.env.SMTP_PORT || '587') === '465',
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
-});
+// Configuração do OAuth2 para a API do Gmail
+const oAuth2Client = new google.auth.OAuth2(
+  process.env.G_CLIENT_ID,
+  process.env.G_CLIENT_SECRET,
+  process.env.G_REDIRECT_URI
+);
+
+oAuth2Client.setCredentials({ refresh_token: process.env.G_REFRESH_TOKEN });
 
 // Função para calcular a data de expiração
 const calculateExpirationDate = (startDate: Date, months: number): string => {
@@ -29,19 +27,21 @@ const calculateExpirationDate = (startDate: Date, months: number): string => {
   return expirationDate.toISOString();
 };
 
-// Função para enviar email de boas-vindas
+// Função para enviar email de boas-vindas usando a API do Gmail
 const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
-  // Validação para garantir que as credenciais SMTP estão configuradas
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
-    console.error('Credenciais SMTP não configuradas. O e-mail de boas-vindas não será enviado.');
+  if (!process.env.G_CLIENT_ID || !process.env.G_CLIENT_SECRET || !process.env.G_REFRESH_TOKEN || !process.env.EMAIL_FROM) {
+    console.error('Credenciais da API do Gmail não configuradas. O e-mail de boas-vindas não será enviado.');
     return;
   }
-  
-  const mailOptions = {
-    from: `EnemPro <${process.env.EMAIL_FROM || 'noreply@enempro.com.br'}>`,
-    to: user.email,
-    subject: '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso',
-    html: `
+
+  try {
+    const accessToken = await oAuth2Client.getAccessToken();
+    const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+    const emailFrom = `EnemPro <${process.env.EMAIL_FROM}>`;
+    const emailTo = user.email;
+    const subject = '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso';
+    const emailBody = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <h2>Olá, ${user.nome}!</h2>
         <p>Seu pagamento foi confirmado e seu acesso à plataforma EnemPro foi liberado!</p>
@@ -57,17 +57,33 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
         <p>Atenciosamente,</p>
         <p><strong>Equipe EnemPro</strong></p>
       </div>
-    `,
-  };
+    `;
 
-  try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log(`E-mail de boas-vindas enviado com sucesso para ${user.email}. Message ID: ${info.messageId}`);
+    const rawMessage = [
+      `From: ${emailFrom}`,
+      `To: ${emailTo}`,
+      `Subject: =?utf-8?B?${Buffer.from(subject).toString('base64')}?=`,
+      'Content-Type: text/html; charset=utf-8',
+      'MIME-Version: 1.0',
+      '',
+      emailBody,
+    ].join('\n');
+
+    const encodedMessage = Buffer.from(rawMessage).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: encodedMessage,
+      },
+    });
+
+    console.log(`E-mail de boas-vindas enviado com sucesso para ${user.email} via API do Gmail.`);
   } catch (error) {
-    console.error(`Falha ao enviar e-mail de boas-vindas para ${user.email}:`, error);
-    // Não impede a criação do usuário, apenas loga o erro
+    console.error(`Falha ao enviar e-mail de boas-vindas para ${user.email} via API do Gmail:`, error);
   }
 };
+
 
 export async function POST(request: Request) {
   try {
