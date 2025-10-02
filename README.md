@@ -32,11 +32,10 @@ Uma plataforma moderna e intuitiva para estudantes que se preparam para o ENEM, 
 
 ## 🚀 Tecnologias Utilizadas
 
+- **Framework**: Next.js 14+ (App Router)
 - **Frontend**: React 18 + TypeScript
 - **Styling**: Tailwind CSS com sistema de design personalizado
 - **Componentes**: Shadcn/ui (Radix UI)
-- **Roteamento**: React Router DOM
-- **Build**: Vite
 - **Ícones**: Lucide React
 
 ## 🎨 Design System
@@ -58,8 +57,9 @@ A interface se adapta perfeitamente a diferentes tamanhos de tela:
 
 ## ⚡ Performance
 
-- Lazy loading de imagens
-- Otimização de bundle com Vite
+- Renderização no Servidor (SSR) e Geração Estática (SSG) com Next.js
+- Otimização de imagens com `next/image`
+- Code splitting automático por rota
 - Componentes otimizados com React
 - CSS minificado em produção
 
