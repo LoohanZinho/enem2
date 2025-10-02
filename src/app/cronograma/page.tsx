@@ -302,6 +302,9 @@ const CronogramaEstudos = () => {
   };
 
   const schedule = getCurrentWeek()?.days || [];
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // Domingo = 0, Segunda = 1, ...
+  const currentDayName = schedule[dayOfWeek === 0 ? 6 : dayOfWeek - 1]?.day || schedule[0]?.day;
 
   const getTypeColor = (type: string) => ({aula: "primary", exercicio: "success", redacao: "accent", resumo: "secondary", revisao: "outline", descanso: "outline"}[type as 'aula'|'exercicio'|'redacao'|'resumo'|'revisao'|'descanso'] || "outline");
   const getTypeIcon = (type: string) => ({aula: <BookOpen className="h-4 w-4" />, exercicio: <Target className="h-4 w-4" />, redacao: <Edit className="h-4 w-4" />, resumo: <BookOpen className="h-4 w-4" />, revisao: <TrendingUp className="h-4 w-4" />, descanso: <Circle className="h-4 w-4" />}[type as 'aula'|'exercicio'|'redacao'|'resumo'|'revisao'|'descanso'] || <BookOpen className="h-4 w-4" />);
@@ -401,7 +404,7 @@ const CronogramaEstudos = () => {
 
           <div className="hidden md:grid md:grid-cols-7 gap-4">
             {schedule.map((day, dayIndex) => (
-              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-6 rounded-lg min-h-[200px]">
+              <div key={dayIndex} className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg min-h-[200px]">
                 <div className="text-center mb-4">
                   <p className="font-semibold">{day.day}</p>
                   <p className="text-xs text-muted-foreground">{day.date}</p>
@@ -422,7 +425,7 @@ const CronogramaEstudos = () => {
           </div>
 
           <div className="md:hidden">
-            <Tabs defaultValue={schedule[new Date().getDay() -1]?.day || schedule[0]?.day} className="w-full">
+            <Tabs defaultValue={currentDayName} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 {schedule.slice(0, 4).map((day) => (
                   <TabsTrigger key={day.day} value={day.day}>{day.day.substring(0,3)}</TabsTrigger>
