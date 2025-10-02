@@ -150,7 +150,7 @@ const CronogramaEstudos = () => {
               type: "aula", duration: "2h", status: 'completed', priority: 'high', completedAt: new Date().toISOString()
             });
             activities.push({
-                id: `${weekNumber}-${i}-2`, time: "08:55", subject: "Português", topic: "Funções",
+                id: `${weekNumber}-${i}-2`, time: "10:00", subject: "Português", topic: "Análise Sintática: Período Composto",
                 type: "aula", duration: "1h", status: 'pending', priority: 'high'
             });
           }
@@ -162,7 +162,7 @@ const CronogramaEstudos = () => {
           }
           if (i === 2) {
             activities.push({
-              id: `${weekNumber}-${i}-1`, time: "14:00", subject: "Português", topic: "Interpretação de Texto",
+              id: `${weekNumber}-${i}-1`, time: "14:00", subject: "Redação", topic: "Praticar argumento de autoridade",
               type: "exercicio", duration: "1h", status: 'pending', priority: 'medium'
             });
           }
@@ -335,40 +335,40 @@ const CronogramaEstudos = () => {
   
   const ActivityCard = ({ activity, dayIndex }: { activity: Activity; dayIndex: number }) => (
     <Card className="p-3 bg-card/80 dark:bg-slate-800/80 backdrop-blur-sm shadow-sm hover:shadow-lg transition-shadow flex flex-col h-full">
-        <div className="flex-grow space-y-2">
-            <div className="flex justify-between items-start">
-                <p className="font-semibold text-sm break-words">{activity.subject}</p>
-                <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0">{activity.type}</Badge>
-            </div>
-            <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
+      <div className="flex-grow space-y-2">
+        <div className="flex justify-between items-start gap-2">
+          <p className="font-semibold text-sm break-words">{activity.subject}</p>
+          <Badge variant={getTypeColor(activity.type) as any} className="text-xs shrink-0 whitespace-nowrap">{activity.type}</Badge>
         </div>
-        <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
-
-        <div className="grid grid-cols-2 gap-1 mt-3">
-            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleStartActivity(activity)}>
-                {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
-                {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
-            </Button>
-            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
-                <CheckCircle size={14} className="mr-1"/>
-                {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
-            </Button>
-            <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
-                <Edit size={14} className="mr-1"/>
-                Editar
-            </Button>
-            <Button size="sm" variant="destructive" className="justify-start text-xs h-8" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
-                <Trash2 size={14} className="mr-1"/>
-                Excluir
-            </Button>
+        <p className="text-xs text-muted-foreground break-words">{activity.topic}</p>
+      </div>
+      <div className="text-xs text-muted-foreground mt-2">{activity.time} - {activity.duration}</div>
+  
+      <div className="grid grid-cols-2 gap-1 mt-3">
+        <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleStartActivity(activity)}>
+          {activeTimer === activity.id ? <Pause size={14} className="mr-1"/> : <Play size={14} className="mr-1"/>}
+          {activeTimer === activity.id ? 'Pausar' : 'Iniciar'}
+        </Button>
+        <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => handleCompleteActivity(activity.id, dayIndex)}>
+          <CheckCircle size={14} className="mr-1"/>
+          {activity.status === 'completed' ? 'Refazer' : 'Concluir'}
+        </Button>
+        <Button size="sm" variant="ghost" className="justify-start text-xs h-8" onClick={() => {setEditingActivity(activity); setIsEditModalOpen(true);}}>
+          <Edit size={14} className="mr-1"/>
+          Editar
+        </Button>
+        <Button size="sm" variant="destructive" className="justify-start text-xs h-8" onClick={() => handleDeleteActivity(activity.id, dayIndex)}>
+          <Trash2 size={14} className="mr-1"/>
+          Excluir
+        </Button>
+      </div>
+      {(activeTimer === activity.id || (activity.elapsedSeconds && activity.elapsedSeconds > 0)) && (
+        <div className="text-xs font-semibold mt-2 text-primary">
+          {activeTimer === activity.id ? formatTime(timerSeconds) : `Focado: ${formatTime(activity.elapsedSeconds!)}`}
         </div>
-        {(activeTimer === activity.id || (activity.elapsedSeconds && activity.elapsedSeconds > 0)) && (
-            <div className="text-xs font-semibold mt-2 text-primary">
-                {activeTimer === activity.id ? formatTime(timerSeconds) : `Focado: ${formatTime(activity.elapsedSeconds!)}`}
-            </div>
-        )}
+      )}
     </Card>
-);
+  );
 
 
   return (
@@ -437,16 +437,20 @@ const CronogramaEstudos = () => {
           >
             <CarouselContent>
               {schedule.map((day, dayIndex) => (
-                <CarouselItem key={dayIndex} className="basis-full md:basis-1/2 lg:basis-[40%] pl-4">
+                <CarouselItem key={dayIndex} className="md:basis-1/2 lg:basis-[28%] pl-4">
                   <div className="bg-card/50 dark:bg-slate-800/50 p-4 rounded-lg h-full flex flex-col">
                     <div className="text-center mb-4">
                       <p className="font-semibold">{day.day}</p>
                       <p className="text-xs text-muted-foreground">{day.date}</p>
                     </div>
                     <div className="space-y-3 flex-grow">
-                      {day.activities.map((activity) => (
-                        <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
-                      ))}
+                      {day.activities.length > 0 ? (
+                        day.activities.map((activity) => (
+                          <ActivityCard key={activity.id} activity={activity} dayIndex={dayIndex} />
+                        ))
+                      ) : (
+                        <div className="text-center text-sm text-muted-foreground pt-12">Nenhuma atividade.</div>
+                      )}
                     </div>
                     <Button variant="outline" size="sm" className="w-full mt-4" onClick={() => {
                       setSelectedDayIndex(dayIndex);
@@ -554,3 +558,5 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
+
+    
