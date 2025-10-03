@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
 
@@ -12,23 +12,21 @@ interface AuthContextType {
   isLoading: boolean;
 }
 
-// Hook personalizado para autenticação
-export const useAuth = (): AuthContextType => {
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar se há usuário logado no localStorage
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const storedUserId = localStorage.getItem('enem_pro_user_id');
         if (storedUserId && storedUserId !== 'undefined' && storedUserId !== 'null') {
-          // Buscar dados completos do usuário no banco
           const userData = await authService.getUserById(storedUserId);
           if (userData) {
             setUser(userData);
           } else {
-            // Se usuário não existe mais no banco, limpar localStorage
             localStorage.removeItem('enem_pro_user_id');
           }
         }
@@ -43,12 +41,10 @@ export const useAuth = (): AuthContextType => {
     checkAuth();
   }, []);
 
-
   const login = async (email: string, password: string): Promise<{success: boolean; message: string}> => {
     setIsLoading(true);
     
     try {
-      // Validação básica
       if (!email || !password) {
         return { success: false, message: 'Email e senha são obrigatórios'};
       }
@@ -100,7 +96,7 @@ export const useAuth = (): AuthContextType => {
     setUser(null);
   };
 
-  return {
+  const value = {
     user,
     login,
     updateUser,
@@ -108,4 +104,14 @@ export const useAuth = (): AuthContextType => {
     isAuthenticated: !!user,
     isLoading
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };
