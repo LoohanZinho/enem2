@@ -16,6 +16,8 @@ import {
 import {
   Sheet,
   SheetContent,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
@@ -227,8 +229,8 @@ const Header = () => {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="p-0 w-72">
-                <div className="flex h-full flex-col">
-                  <div className="p-6 border-b">
+                <SheetHeader className="p-6 border-b">
+                  <SheetTitle>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-700 flex items-center justify-center shadow-lg">
@@ -244,24 +246,24 @@ const Header = () => {
                         </Button>
                       </SheetClose>
                     </div>
-                  </div>
-                  <nav className="flex-1 p-6 space-y-3">
-                    {navLinks.map(link => (
-                      <SheetClose asChild key={link.href}>
-                        <Button 
-                          variant={isActive(link.href) ? "default" : "ghost"} 
-                          onClick={() => {
-                            router.push(link.href);
-                            setIsSheetOpen(false);
-                          }}
-                          className="w-full justify-start text-base py-6"
-                        >
-                          {link.icon}{link.label}
-                        </Button>
-                      </SheetClose>
-                    ))}
-                  </nav>
-                </div>
+                  </SheetTitle>
+                </SheetHeader>
+                <nav className="flex-1 p-6 space-y-3">
+                  {navLinks.map(link => (
+                    <SheetClose asChild key={link.href}>
+                      <Button 
+                        variant={isActive(link.href) ? "default" : "ghost"} 
+                        onClick={() => {
+                          router.push(link.href);
+                          setIsSheetOpen(false);
+                        }}
+                        className="w-full justify-start text-base py-6"
+                      >
+                        {link.icon}{link.label}
+                      </Button>
+                    </SheetClose>
+                  ))}
+                </nav>
               </SheetContent>
             </Sheet>
           </div>
