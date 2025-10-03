@@ -18,7 +18,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetClose,
 } from "@/components/ui/sheet";
 import {
@@ -39,7 +38,7 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from 'next/link';
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth.tsx";
 
 // Função para extrair iniciais do nome
 const getInitials = (name: string | undefined): string => {

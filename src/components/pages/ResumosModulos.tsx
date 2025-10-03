@@ -40,7 +40,7 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import FileManager from "@/components/FileManager";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth.tsx";
 
 interface Resumo {
   id: string;
