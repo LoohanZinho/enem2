@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { authService } from '@/services/AuthService';
@@ -27,12 +28,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (userData) {
             setUser(userData);
           } else {
+            // Se o ID não corresponder a um usuário válido, limpe o localStorage
             localStorage.removeItem('enem_pro_user_id');
+            localStorage.removeItem('enem_pro_current_user'); // Limpa também o usuário atual do outro serviço
           }
         }
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
         localStorage.removeItem('enem_pro_user_id');
+        localStorage.removeItem('enem_pro_current_user');
       } finally {
         setIsLoading(false);
       }
@@ -115,3 +119,5 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
+    

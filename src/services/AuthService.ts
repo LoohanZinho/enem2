@@ -43,7 +43,7 @@ class AuthService {
     if (typeof window !== 'undefined') {
         const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
         try {
-            if (userJson && userJson !== 'undefined') {
+            if (userJson && userJson !== 'undefined' && userJson !== 'null') {
               this.currentUser = JSON.parse(userJson);
             } else {
               this.currentUser = null;
@@ -156,6 +156,11 @@ class AuthService {
 
 
       this.setCurrentUser(user);
+      // Compatibility with useAuth
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('enem_pro_user_id', user.id);
+      }
+
 
       return {
         success: true,
@@ -269,3 +274,5 @@ class AuthService {
 }
 
 export const authService = new AuthService();
+
+    
