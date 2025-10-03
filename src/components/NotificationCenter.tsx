@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Check, Trash2, Settings, Clock, Star, AlertTriangle, BookOpen, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
