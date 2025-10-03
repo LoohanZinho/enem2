@@ -21,7 +21,7 @@ const oAuth2Client = new google.auth.OAuth2(
 
 oAuth2Client.setCredentials({ refresh_token: process.env.G_REFRESH_TOKEN });
 
-// Função para calcular a data de expiração
+// Função para calcular a data de expiração a partir de uma data base
 const calculateExpirationDate = (startDate: Date, months: number): string => {
   const expirationDate = new Date(startDate);
   expirationDate.setMonth(expirationDate.getMonth() + months);
@@ -44,7 +44,7 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
     const subject = '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso';
     const emailBody = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-        <h2>Olá, ${user.nome}!</h2>
+        <h2>Olá, ${user.name}!</h2>
         <p>Seu pagamento foi confirmado e seu acesso à plataforma EnemPro foi liberado!</p>
         <h3>Suas credenciais de acesso:</h3>
         <ul>
@@ -130,7 +130,7 @@ export async function POST(request: Request) {
         const newUserPayload: Omit<User, 'id' | 'createdAt' | 'updatedAt'> = {
           email: customer.email,
           password: defaultPassword,
-          nome: customer.name,
+          name: customer.name,
           phone: customer.phone || '',
           cpf: customer.docNumber || '',
           birthDate: '', 
