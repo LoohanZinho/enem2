@@ -12,15 +12,6 @@ const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: numb
   'Produto Teste': { plan: 'anual', durationInMonths: 12 },
 };
 
-// Configuração do OAuth2 para a API do Gmail
-const oAuth2Client = new google.auth.OAuth2(
-  process.env.G_CLIENT_ID,
-  process.env.G_CLIENT_SECRET,
-  process.env.G_REDIRECT_URI
-);
-
-oAuth2Client.setCredentials({ refresh_token: process.env.G_REFRESH_TOKEN });
-
 // Função para calcular a data de expiração a partir de uma data base
 const calculateExpirationDate = (startDate: Date, months: number): string => {
   const expirationDate = new Date(startDate);
@@ -30,12 +21,20 @@ const calculateExpirationDate = (startDate: Date, months: number): string => {
 
 // Função para enviar email de boas-vindas usando a API do Gmail
 const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
-  if (!process.env.G_CLIENT_ID || !process.env.G_CLIENT_SECRET || !process.env.G_REFRESH_TOKEN || !process.env.EMAIL_FROM) {
+  if (!process.env.G_CLIENT_ID || !process.env.G_CLIENT_SECRET || !process.env.G_REDIRECT_URI || !process.env.G_REFRESH_TOKEN || !process.env.EMAIL_FROM) {
     console.error('Credenciais da API do Gmail não configuradas. O e-mail de boas-vindas não será enviado.');
     return;
   }
 
   try {
+    // Inicializar o cliente OAuth2 somente quando for usar
+    const oAuth2Client = new google.auth.OAuth2(
+      process.env.G_CLIENT_ID,
+      process.env.G_CLIENT_SECRET,
+      process.env.G_REDIRECT_URI
+    );
+    oAuth2Client.setCredentials({ refresh_token: process.env.G_REFRESH_TOKEN });
+
     const accessToken = await oAuth2Client.getAccessToken();
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
 
