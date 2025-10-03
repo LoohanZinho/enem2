@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "next-themes";
@@ -21,6 +20,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
+      {/* Adicione a tag <head> aqui */}
+      <head />
       <body className={inter.className}>
         <ThemeProvider
           attribute="class"
