@@ -1,3 +1,5 @@
+
+"use client";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { userDataService } from "@/services/UserDataService";
@@ -38,7 +40,8 @@ import {
   Clock3,
   AlertTriangle,
   XCircle,
-  PlayCircle
+  PlayCircle,
+  Loader2
 } from "lucide-react";
 
 interface Task {
@@ -121,73 +124,20 @@ const TaskMonitor = () => {
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [filterMateria, setFilterMateria] = useState<string>('todas');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Carregar dados iniciais
+  // Carregar dados iniciais do serviço
   useEffect(() => {
-    const initialTasks: Task[] = [
-      {
-        id: '1',
-        materia: 'matematica',
-        descricao: 'Resolver exercícios de geometria analítica',
-        tipoTarefa: 'exercicios',
-        prazo: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'concluido',
-        dataCriacao: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        prioridade: 'media',
-        favorita: true
-      },
-      {
-        id: '2',
-        materia: 'ciencias_natureza',
-        descricao: 'Estudar química orgânica - hidrocarbonetos',
-        tipoTarefa: 'estudo',
-        prazo: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'andamento',
-        dataCriacao: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        prioridade: 'alta',
-        favorita: false
-      },
-      {
-        id: '3',
-        materia: 'linguagens',
-        descricao: 'Análise de texto literário - Modernismo',
-        tipoTarefa: 'redacao',
-        prazo: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'pendente',
-        dataCriacao: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        prioridade: 'baixa',
-        favorita: true
-      },
-      {
-        id: '4',
-        materia: 'ciencias_humanas',
-        descricao: 'Pesquisar sobre Revolução Francesa',
-        tipoTarefa: 'pesquisa',
-        prazo: '2024-04-30',
-        status: 'concluido',
-        dataCriacao: '2024-03-18',
-        prioridade: 'media',
-        favorita: false
-      },
-      {
-        id: '5',
-        materia: 'redacao',
-        descricao: 'Praticar redação dissertativa-argumentativa',
-        tipoTarefa: 'redacao',
-        prazo: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        status: 'pendente',
-        dataCriacao: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        prioridade: 'alta',
-        favorita: false
+    const fetchTasks = async () => {
+      setIsLoading(true);
+      const loadedTasks = await userDataService.loadTasks();
+      if (loadedTasks && loadedTasks.length > 0) {
+        setTasks(loadedTasks);
       }
-    ];
-    setTasks(initialTasks);
+      setIsLoading(false);
+    };
+    fetchTasks();
   }, []);
-
-  // Salvar no localStorage
-  useEffect(() => {
-    localStorage.setItem('taskMonitor', JSON.stringify(tasks));
-  }, [tasks]);
 
   const getMateriaInfo = (materiaId: string) => {
     return materias.find(m => m.id === materiaId) || materias[0];
@@ -202,12 +152,19 @@ const TaskMonitor = () => {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-    return `${date.getDate()} ${months[date.getMonth()]}. ${date.getFullYear()}`;
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return "Data inválida";
+      const userTimezoneOffset = date.getTimezoneOffset() * 60000;
+      const correctedDate = new Date(date.getTime() + userTimezoneOffset);
+      const months = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+      return `${correctedDate.getDate()} ${months[correctedDate.getMonth()]}. ${correctedDate.getFullYear()}`;
+    } catch (e) {
+        return "Data inválida"
+    }
   };
 
-  const handleAddTask = () => {
+  const handleAddTask = async () => {
     if (newTask.materia && newTask.descricao && newTask.tipoTarefa && newTask.prazo) {
       const task: Task = {
         id: Date.now().toString(),
@@ -220,6 +177,7 @@ const TaskMonitor = () => {
         prioridade: 'media',
         favorita: false
       };
+      await userDataService.addTask(task);
       setTasks([...tasks, task]);
       setNewTask({ materia: '', descricao: '', tipoTarefa: '', prazo: '', status: 'pendente' });
       setShowAddForm(false);
@@ -229,45 +187,56 @@ const TaskMonitor = () => {
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
   };
-
+  
   const handleEditField = (taskId: string, field: string) => {
     setEditingField(`${taskId}-${field}`);
   };
 
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     if (editingTask) {
+      await userDataService.updateTask(editingTask.id, editingTask);
       setTasks(tasks.map(t => t.id === editingTask.id ? editingTask : t));
       setEditingTask(null);
       setEditingField(null);
     }
   };
 
-  const handleSaveFieldEdit = (taskId: string, field: string, value: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, [field]: value } : t
-    ));
+  const handleSaveFieldEdit = async (taskId: string, field: string, value: any) => {
+    const taskToUpdate = tasks.find(t => t.id === taskId);
+    if(taskToUpdate) {
+        const updatedTask = { ...taskToUpdate, [field]: value };
+        await userDataService.updateTask(taskId, updatedTask);
+        setTasks(tasks.map(t => t.id === taskId ? updatedTask : t));
+    }
     setEditingField(null);
   };
-
+  
   const handleCancelEdit = () => {
     setEditingTask(null);
     setEditingField(null);
   };
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
+    await userDataService.deleteTask(taskId);
     setTasks(tasks.filter(t => t.id !== taskId));
   };
 
-  const handleToggleFavorite = (taskId: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, favorita: !t.favorita } : t
-    ));
+  const handleToggleFavorite = async (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, favorita: !task.favorita };
+      await userDataService.updateTask(taskId, updatedTask);
+      setTasks(tasks.map(t => (t.id === taskId ? updatedTask : t)));
+    }
   };
 
-  const handleStatusChange = (taskId: string, newStatus: string) => {
-    setTasks(tasks.map(t => 
-      t.id === taskId ? { ...t, status: newStatus } : t
-    ));
+  const handleStatusChange = async (taskId: string, newStatus: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      const updatedTask = { ...task, status: newStatus };
+      await userDataService.updateTask(taskId, updatedTask);
+      setTasks(tasks.map(t => (t.id === taskId ? updatedTask : t)));
+    }
   };
 
   const handleSort = (column: keyof Task) => {
@@ -292,24 +261,35 @@ const TaskMonitor = () => {
       let aValue: string | number | boolean | undefined = a[sortColumn];
       let bValue: string | number | boolean | undefined = b[sortColumn];
       
-      if (sortColumn === 'prazo') {
-        aValue = new Date(a.prazo).getTime();
-        bValue = new Date(b.prazo).getTime();
+      if (sortColumn === 'prazo' || sortColumn === 'dataCriacao') {
+        aValue = new Date(a[sortColumn] as string).getTime();
+        bValue = new Date(b[sortColumn] as string).getTime();
       }
       
       if (aValue === undefined || bValue === undefined) return 0;
       
       if (sortDirection === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        if (aValue < bValue) return -1;
+        if (aValue > bValue) return 1;
+        return 0;
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        if (aValue > bValue) return -1;
+        if (aValue < bValue) return 1;
+        return 0;
       }
     });
-
 
   const isOverdue = (prazo: string) => {
     return new Date(prazo) < new Date() && new Date(prazo).toDateString() !== new Date().toDateString();
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6 flex items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-background to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6">
@@ -705,3 +685,5 @@ const TaskMonitor = () => {
 };
 
 export default TaskMonitor;
+
+    
