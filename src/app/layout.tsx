@@ -24,18 +24,18 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       {/* A tag <head /> foi removida daqui */}
       <body className={inter.className}>
-        <ThemeProvider
+        {/* <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <TooltipProvider>
+          <TooltipProvider> */}
             <Toaster />
             <Sonner />
             {children}
-          </TooltipProvider>
-        </ThemeProvider>
+          {/* </TooltipProvider>
+        </ThemeProvider> */}
       </body>
     </html>
   );
