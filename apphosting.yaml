@@ -4,7 +4,7 @@ build:
   cache: false
 env:
   - variable: NEXT_PUBLIC_BACKEND_URL
-    value: 'https://seu-backend-de-producao.com/api'
+    value: 'https://enem--enempro-25193085-f5db3.us-central1.hosted.app/api'
   - variable: NEXT_PUBLIC_CAKTO_API_URL
     value: 'https://api.cakto.com'
   - variable: NEXT_PUBLIC_CAKTO_API_KEY
