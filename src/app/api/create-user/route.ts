@@ -25,7 +25,7 @@ async function saveWebhookToLocalStorage(data: any) {
 // Ex: Se a Cakto envia "Plano Anual", nosso sistema sabe que é o plano 'anual' com 12 meses de duração.
 const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: number } } = {
   'Plano Mensal': { plan: 'mensal', durationInMonths: 1 },
-  'Plano 6 Meses': { plan: '6meses', durationInMonths: 6 },
+  'Plano 3 Meses': { plan: '3meses', durationInMonths: 3 },
   'Plano Anual': { plan: 'anual', durationInMonths: 12 },
   'Produto Teste': { plan: 'anual', durationInMonths: 12 }, // Produto para testes de integração
 };

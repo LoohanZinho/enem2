@@ -44,7 +44,9 @@ export const useAulaProgress = () => {
     if (savedProgress && savedProgress !== 'undefined' && savedProgress !== 'null') {
       try {
         const parsed = JSON.parse(savedProgress);
-        setProgress(parsed);
+        if (parsed) {
+          setProgress(parsed);
+        }
       } catch (error) {
         console.error('Erro ao carregar progresso:', error);
       }

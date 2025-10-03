@@ -10,7 +10,7 @@ export interface User {
   createdAt: string;
   updatedAt: string;
   isActive: boolean;
-  plan?: 'mensal' | '6meses' | 'anual';
+  plan?: 'mensal' | '3meses' | 'anual';
   planExpiresAt?: string;
   avatar?: string;
 }
