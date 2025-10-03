@@ -12,4 +12,4 @@ env:
     value: 'your_public_cakto_api_key_here'
   - variable: CAKTO_WEBHOOK_SECRET
     # O secret real deve ser configurado no Google Cloud Secret Manager
-    value: 'your_cakto_webhook_secret_placeholder'
+    value: '15edd2d5-d662-418a-93ff-d1ba6a631272'
