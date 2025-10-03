@@ -1,3 +1,4 @@
+
 // Serviço centralizado para gerenciar dados isolados por usuário
 // Garante que cada usuário tenha seu próprio espaço de dados
 
@@ -33,7 +34,7 @@ export class UserDataService {
     return UserDataService.instance;
   }
 
-  // Obter usuário atual
+  // Obter usuário atual de forma segura
   private getCurrentUser(): User | null {
     if (typeof window === 'undefined') return null;
     try {
@@ -147,17 +148,23 @@ export class UserDataService {
   
   // Salvar cronograma do usuário
   async saveSchedule(schedule: any[]): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     await this.updateUserData({ schedule });
   }
 
   // Carregar cronograma do usuário
   async loadSchedule(): Promise<any[]> {
+    const userId = await this.getUserId();
+    if (!userId) return [];
     const userData = await this.loadUserData();
     return userData?.schedule || [];
   }
 
   // Adicionar atividade ao cronograma
   async addActivity(weekIndex: number, dayIndex: number, activity: any): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
     if (!userData) return;
 
@@ -177,6 +184,8 @@ export class UserDataService {
 
   // Atualizar atividade no cronograma
   async updateActivity(weekIndex: number, dayIndex: number, activityId: string, updatedActivity: any): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
     if (!userData || !userData.schedule[weekIndex]?.days[dayIndex]?.activities) return;
 
@@ -191,6 +200,8 @@ export class UserDataService {
 
   // Excluir atividade do cronograma
   async deleteActivity(weekIndex: number, dayIndex: number, activityId: string): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
     if (!userData || !userData.schedule[weekIndex]?.days[dayIndex]?.activities) return;
 
@@ -203,28 +214,39 @@ export class UserDataService {
   
   // Salvar tarefas do usuário
   async saveTasks(tasks: any[]): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     await this.updateUserData({ tasks });
   }
 
   // Carregar tarefas do usuário
   async loadTasks(): Promise<any[]> {
+    const userId = await this.getUserId();
+    if (!userId) return [];
     const userData = await this.loadUserData();
     return userData?.tasks || [];
   }
 
   // Adicionar tarefa
   async addTask(task: any): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
     if (!userData) return;
 
+    if (!userData.tasks) {
+      userData.tasks = [];
+    }
     userData.tasks.push(task);
     await this.saveUserData(userData);
   }
 
   // Atualizar tarefa
   async updateTask(taskId: string, updatedTask: any): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
-    if (!userData) return;
+    if (!userData || !userData.tasks) return;
 
     const taskIndex = userData.tasks.findIndex((t: any) => t.id === taskId);
     if (taskIndex !== -1) {
@@ -235,8 +257,10 @@ export class UserDataService {
 
   // Excluir tarefa
   async deleteTask(taskId: string): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     const userData = await this.loadUserData();
-    if (!userData) return;
+    if (!userData || !userData.tasks) return;
 
     userData.tasks = userData.tasks.filter((t: any) => t.id !== taskId);
     await this.saveUserData(userData);
@@ -244,10 +268,14 @@ export class UserDataService {
 
   // Métodos específicos para metas
   async saveGoals(goals: any[]): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
     await this.updateUserData({ goals });
   }
 
   async loadGoals(): Promise<any[]> {
+    const userId = await this.getUserId();
+    if (!userId) return [];
     const userData = await this.loadUserData();
     return userData?.goals || [];
   }
