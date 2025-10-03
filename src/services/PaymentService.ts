@@ -1,3 +1,4 @@
+
 // Serviço de Pagamento - Integração com múltiplas formas de pagamento
 export interface PaymentMethod {
   id: string;
@@ -52,8 +53,8 @@ export interface PaymentResult {
 }
 
 class PaymentService {
-  private apiUrl = import.meta.env.VITE_PAYMENT_API_URL || 'https://api.pagamentos.com';
-  private apiKey = import.meta.env.VITE_PAYMENT_API_KEY || '';
+  private apiUrl = process.env.NEXT_PUBLIC_PAYMENT_API_URL || 'https://api.pagamentos.com';
+  private apiKey = process.env.NEXT_PUBLIC_PAYMENT_API_KEY || '';
 
   // Métodos de pagamento disponíveis
   getPaymentMethods(): PaymentMethod[] {

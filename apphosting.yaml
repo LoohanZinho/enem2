@@ -1,0 +1,15 @@
+apphosting:
+
+build:
+  cache: false
+env:
+  - variable: NEXT_PUBLIC_BACKEND_URL
+    value: 'https://seu-backend-de-producao.com/api'
+  - variable: NEXT_PUBLIC_CAKTO_API_URL
+    value: 'https://api.cakto.com'
+  - variable: NEXT_PUBLIC_CAKTO_API_KEY
+    # Chaves de API públicas não devem ser secrets. Definidas como variável comum.
+    value: 'your_public_cakto_api_key_here'
+  - variable: CAKTO_WEBHOOK_SECRET
+    # O secret real deve ser configurado no Google Cloud Secret Manager
+    value: 'your_cakto_webhook_secret_placeholder'

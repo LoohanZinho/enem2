@@ -1,9 +1,10 @@
+
 /**
  * Serviço para integração com o backend ENEM Pro
  * Sistema de autenticação integrado com Cakto
  */
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001/api';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001/api';
 
 // Função auxiliar para fetch com retentativas
 async function fetchWithRetry(url: string, options: RequestInit, retries = 3, delay = 1000): Promise<Response> {
