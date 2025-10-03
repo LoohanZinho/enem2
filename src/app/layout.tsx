@@ -1,11 +1,9 @@
 // src/app/layout.tsx
-
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Providers } from "./providers"; // Importe o novo componente
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -22,20 +20,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      {/* A tag <head /> foi removida daqui */}
+      <head />
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            {children}
-          </TooltipProvider>
-        </ThemeProvider>
+        <Providers> {/* Envolva os children com o novo Providers */}
+          <Toaster />
+          <Sonner />
+          {children}
+        </Providers>
       </body>
     </html>
   );
