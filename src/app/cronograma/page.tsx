@@ -1,6 +1,9 @@
 
-
 "use client";
+
+// Adicione esta linha para forçar a renderização dinâmica
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -582,5 +585,3 @@ const CronogramaEstudos = () => {
 export default function CronogramaPage() {
   return <CronogramaEstudos />;
 }
-
-    
