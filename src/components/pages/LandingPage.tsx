@@ -258,7 +258,7 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Plano 6 Meses - DESTAQUE */}
+            {/* Plano 3 Meses - DESTAQUE */}
             <div className="group relative bg-gradient-to-br from-blue-50/95 via-purple-50/95 to-indigo-50/95 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-indigo-900/40 backdrop-blur-sm rounded-3xl p-6 shadow-3xl border-2 border-blue-500/50 dark:border-blue-400/50 transform scale-105 hover:scale-110 transition-all duration-500 aspect-square flex flex-col justify-between">
               <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
                 <div className="bg-gradient-to-r from-purple-600/90 to-gray-600/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-purple-400/30">
@@ -277,12 +277,12 @@ const LandingPage = () => {
               
               <div className="text-center flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-3">Plano 6 Meses</h3>
+                  <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-3">Plano 3 Meses</h3>
                   <div className="relative mb-3">
                     <div className="flex items-baseline justify-center space-x-2">
                       <span className="text-2xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg animate-pulse">R$</span>
-                      <span className="text-5xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent animate-pulse">299,90</span>
-                      <span className="text-xl text-purple-500 dark:text-purple-300 font-semibold drop-shadow-md">/6</span>
+                      <span className="text-5xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent animate-pulse">149,90</span>
+                      <span className="text-xl text-purple-500 dark:text-purple-300 font-semibold drop-shadow-md">/3</span>
                     </div>
                     <div className="text-center mt-1">
                       <span className="text-lg text-purple-500 dark:text-purple-300 font-medium drop-shadow-sm">meses</span>
@@ -291,14 +291,14 @@ const LandingPage = () => {
                   {/* Desconto destacado em card */}
                   <div className="mt-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-sm rounded-xl p-3 border-2 border-purple-400/40 shadow-lg">
                     <div className="flex items-center justify-center space-x-2 mb-2">
-                      <span className="text-sm text-purple-400 dark:text-purple-500 line-through font-semibold">R$ 358,20</span>
+                      <span className="text-sm text-purple-400 dark:text-purple-500 line-through font-semibold">R$ 179,10</span>
                       <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-black shadow-lg">16% OFF</span>
                     </div>
                     <div className="text-purple-600 dark:text-purple-400 font-black text-sm mb-1">
-                      Economize R$ 58,30
+                      Economize R$ 29,20
                     </div>
                     <div className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
-                      Apenas R$ 49,98/mês
+                      Apenas R$ 49,96/mês
                     </div>
                   </div>
                 </div>
@@ -358,7 +358,7 @@ const LandingPage = () => {
                   {/* Conteúdo do botão */}
                   <span className="relative z-10 flex items-center justify-center space-x-2">
                     {/* Texto principal */}
-                    <span className="font-black tracking-wide">ASSINAR 6 MESES</span>
+                    <span className="font-black tracking-wide">ASSINAR 3 MESES</span>
                     
                     {/* Seta elegante */}
                     <div className="w-4 h-4 border-r-2 border-t-2 border-white transform rotate-45 group-hover:translate-x-1 transition-transform duration-300"></div>
