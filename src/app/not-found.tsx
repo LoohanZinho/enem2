@@ -1,5 +1,7 @@
 import React from 'react';
 
+export const dynamic = 'force-dynamic';
+
 // Não precisa mais de "use client"
 const NotFound = () => {
   return (
