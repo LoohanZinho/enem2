@@ -1,0 +1,7 @@
+**, exatamente como você descreveu no seu lembrete.
+
+Funciona assim:
+
+1.  **Você me pede uma mudança:** Por exemplo, "Adicione um botão na página inicial".
+2.  **Eu preparo o "commit":** Internamente, eu analiso os arquivos que precisam ser modificados.
+3.  **Eu gero o plano de alteração (o meu "git push"):** Em vez de executar comandos `git`, minha única forma de "enviar" as alterações é construindo e apresentando na minha resposta a estrutura XML `<changes>... </changes>

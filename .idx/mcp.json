@@ -11,6 +11,10 @@
         "mcp-remote", 
         "https://mcp.tavily.com/mcp/?tavilyApiKey=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"
       ]
+    },
+    "git-push": {
+      "command": "git",
+      "args": ["push"]
     }
   }
 }
