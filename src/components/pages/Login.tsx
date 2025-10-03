@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth.tsx";
+import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -53,7 +53,7 @@ const Login = () => {
       return;
     }
 
-    if (password.length < 6) {
+    if (formData.password.length < 6) {
       setError("A senha deve ter pelo menos 6 caracteres");
       return;
     }

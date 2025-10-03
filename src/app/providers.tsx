@@ -2,7 +2,7 @@
 
 import { ThemeProvider } from "next-themes";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider } from "@/hooks/useAuth.tsx";
+import { AuthProvider } from "@/hooks/useAuth";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (

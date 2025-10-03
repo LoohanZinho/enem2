@@ -20,7 +20,7 @@ import {
   X
 } from "lucide-react";
 import Header from "@/components/Header";
-import { useAuth } from "@/hooks/useAuth.tsx";
+import { useAuth } from "@/hooks/useAuth";
 
 // Função para extrair iniciais do nome
 const getInitials = (name: string | undefined): string => {

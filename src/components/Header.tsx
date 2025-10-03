@@ -39,7 +39,7 @@ import {
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from 'next/link';
-import { useAuth } from "@/hooks/useAuth.tsx";
+import { useAuth } from "@/hooks/useAuth";
 
 // Função para extrair iniciais do nome
 const getInitials = (name: string | undefined): string => {
