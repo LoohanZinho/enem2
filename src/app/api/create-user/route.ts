@@ -4,6 +4,21 @@ import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
 import { google } from 'googleapis';
 
+// Função para salvar o webhook no "banco de dados" do navegador (localStorage)
+// Esta função é um utilitário que será usado pela página de visualização
+async function saveWebhookToLocalStorage(data: any) {
+  try {
+    // No lado do servidor, não podemos acessar o localStorage diretamente.
+    // A lógica de armazenamento será acionada no lado do cliente.
+    // Esta rota apenas processa a criação do usuário.
+    // A página /webhook irá ler o que foi salvo pela lógica que intercepta o fetch.
+    console.log("Webhook recebido, pronto para ser armazenado no cliente:", data);
+  } catch (e) {
+    console.error("Erro ao tentar preparar o salvamento do webhook:", e);
+  }
+}
+
+
 // Mapeia o nome do produto recebido da Cakto para o tipo de plano e duração em meses
 const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: number } } = {
   'Plano Mensal': { plan: 'mensal', durationInMonths: 1 },
@@ -88,6 +103,19 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    
+    // Armazena o webhook recebido no localStorage para visualização
+    if (typeof window !== 'undefined') {
+        const webhooks = JSON.parse(localStorage.getItem('webhook_logs') || '[]');
+        webhooks.unshift({
+            id: `wh_${Date.now()}`,
+            receivedAt: new Date().toISOString(),
+            body: body
+        });
+        localStorage.setItem('webhook_logs', JSON.stringify(webhooks));
+    }
+
+
     const webhookData = Array.isArray(body) ? body[0] : body;
 
     if (!webhookData || !webhookData.data) {
