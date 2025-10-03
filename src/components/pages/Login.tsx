@@ -53,6 +53,11 @@ const Login = () => {
       return;
     }
 
+    if (password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres");
+      return;
+    }
+
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
