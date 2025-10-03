@@ -113,24 +113,42 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
 // --- ENDPOINT PRINCIPAL DO WEBHOOK ---
 // Esta é a função principal que a Vercel executa quando uma requisição POST chega em /api/create-user.
 export async function POST(request: Request) {
+  let requestBodyAsText: string;
+
   try {
-    const body = await request.json();
-    
-    // Salva o webhook recebido para depuração na página /webhook.
+    // ETAPA 1: Ler o corpo da requisição como texto bruto primeiro para garantir o log.
+    requestBodyAsText = await request.text();
+
+    // ETAPA 2: Salvar o corpo bruto no localStorage para depuração.
+    // Esta é uma "trapaça" para desenvolvimento, já que a API do servidor não tem acesso
+    // direto ao localStorage. A página /webhook no cliente irá ler isso.
     if (typeof window !== 'undefined') {
-        const webhooks = JSON.parse(localStorage.getItem('webhook_logs') || '[]');
-        webhooks.unshift({
-            id: `wh_${Date.now()}`,
-            receivedAt: new Date().toISOString(),
-            body: body
-        });
-        localStorage.setItem('webhook_logs', JSON.stringify(webhooks));
+      const webhooks = JSON.parse(localStorage.getItem('webhook_logs') || '[]');
+      webhooks.unshift({
+        id: `wh_${Date.now()}`,
+        receivedAt: new Date().toISOString(),
+        body: requestBodyAsText, // Salva o texto bruto
+        parsed: false, // Indica que ainda não foi interpretado como JSON
+      });
+      localStorage.setItem('webhook_logs', JSON.stringify(webhooks));
     }
 
+    // ETAPA 3: Tentar interpretar o texto como JSON para processamento.
+    const body = JSON.parse(requestBodyAsText);
+    
+    // Atualizar o log com o JSON interpretado, se bem-sucedido.
+    if (typeof window !== 'undefined') {
+        const webhooks = JSON.parse(localStorage.getItem('webhook_logs') || '[]');
+        if(webhooks.length > 0) {
+            webhooks[0].body = body;
+            webhooks[0].parsed = true;
+            localStorage.setItem('webhook_logs', JSON.stringify(webhooks));
+        }
+    }
 
     const webhookData = Array.isArray(body) ? body[0] : body;
 
-    // Validação inicial do payload do webhook.
+    // ETAPA 4: Validação e lógica de negócio.
     if (!webhookData || !webhookData.data) {
       return NextResponse.json({ success: false, message: 'Payload inválido.' }, { status: 400 });
     }
@@ -204,9 +222,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, message: `Evento '${event}' recebido, mas não acionou nenhuma ação.` });
 
   } catch (error) {
-    // Tratamento de erros inesperados no processamento.
+    // ETAPA 5: Tratamento de erros, incluindo falha no parse do JSON.
     console.error('Erro ao processar webhook da Cakto:', error);
     const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido no servidor.';
+    // Mesmo em caso de erro, a requisição bruta já foi logada no início do 'try'.
     return NextResponse.json({ success: false, message: 'Erro interno do servidor.', error: errorMessage }, { status: 500 });
   }
 }
+
+
+    
