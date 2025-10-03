@@ -1,5 +1,4 @@
 
-"use client";
 import {
   getFirestore,
   collection,
@@ -274,5 +273,3 @@ class AuthService {
 }
 
 export const authService = new AuthService();
-
-    
