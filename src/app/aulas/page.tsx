@@ -12,6 +12,9 @@ import Header from "@/components/Header";
 import YouTubePlaylistPlayer from "@/components/YouTubePlaylistPlayer";
 import { useAulaProgress } from "@/hooks/useAulaProgress";
 
+// Adicione esta linha para forçar a renderização dinâmica
+export const dynamic = 'force-dynamic';
+
 // Dados do módulo único
 const aulaoData = {
   id: 'aulao-enem',
