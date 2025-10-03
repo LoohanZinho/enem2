@@ -16,7 +16,7 @@ const Admin = () => {
   const [users, setUsers] = useState<UserType[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [newUser, setNewUser] = useState({ email: "", password: "", nome: "" });
+  const [newUser, setNewUser] = useState({ email: "", password: "", name: "" });
   const [editingUser, setEditingUser] = useState<UserType | null>(null);
 
   const ADMIN_PASSWORD = "2Raparigas*";
@@ -51,7 +51,7 @@ const Admin = () => {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUser.email || !newUser.password || !newUser.nome) {
+    if (!newUser.email || !newUser.password || !newUser.name) {
       setError("Preencha nome, email e senha para o novo usuário.");
       return;
     }
@@ -60,7 +60,7 @@ const Admin = () => {
       const result = await authService.register({
         email: newUser.email,
         password: newUser.password,
-        nome: newUser.nome,
+        name: newUser.name,
         role: "user",
         phone: "",
         cpf: "",
@@ -69,7 +69,7 @@ const Admin = () => {
       });
 
       if (result.success) {
-        setNewUser({ email: "", password: "", nome: "" });
+        setNewUser({ email: "", password: "", name: "" });
         await fetchUsers();
       } else {
         setError(result.message);
@@ -100,7 +100,7 @@ const Admin = () => {
     setIsLoading(true);
     try {
       await authService.updateUser(editingUser.id, {
-        nome: editingUser.nome,
+        name: editingUser.name,
         email: editingUser.email,
         password: editingUser.password, // Assumindo que a senha pode ser editada
       });
@@ -169,12 +169,12 @@ const Admin = () => {
           <CardContent>
             <form onSubmit={handleAddUser} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="new-nome">Nome</Label>
+                <Label htmlFor="new-name">Nome</Label>
                 <Input
-                  id="new-nome"
+                  id="new-name"
                   type="text"
-                  value={newUser.nome}
-                  onChange={(e) => setNewUser(prev => ({...prev, nome: e.target.value}))}
+                  value={newUser.name}
+                  onChange={(e) => setNewUser(prev => ({...prev, name: e.target.value}))}
                   placeholder="Nome do usuário"
                 />
               </div>
@@ -217,7 +217,7 @@ const Admin = () => {
                 <div key={userItem.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-md">
                   {editingUser?.id === userItem.id ? (
                     <div className="flex-1 space-y-2">
-                      <Input name="nome" value={editingUser.nome} onChange={handleEditChange} placeholder="Nome" />
+                      <Input name="name" value={editingUser.name} onChange={handleEditChange} placeholder="Nome" />
                       <Input name="email" type="email" value={editingUser.email} onChange={handleEditChange} placeholder="Email" />
                       <Input name="password" value={editingUser.password} onChange={handleEditChange} placeholder="Senha" />
                       <div className="flex gap-2">
@@ -230,7 +230,7 @@ const Admin = () => {
                       <div className="flex items-center gap-3 mb-2 sm:mb-0">
                         <User className="h-4 w-4 text-slate-500"/>
                         <div>
-                          <p className="font-semibold text-sm">{userItem.nome}</p>
+                          <p className="font-semibold text-sm">{userItem.name}</p>
                           <p className="text-xs text-slate-500">{userItem.email}</p>
                         </div>
                       </div>
