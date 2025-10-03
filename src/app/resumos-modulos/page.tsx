@@ -2,6 +2,9 @@
 import { Suspense } from "react";
 import ResumosModulos from "@/components/pages/ResumosModulos";
 
+// Adicione esta linha para forçar a renderização dinâmica
+export const dynamic = 'force-dynamic';
+
 function ResumosModulosContent() {
   return <ResumosModulos />;
 }
