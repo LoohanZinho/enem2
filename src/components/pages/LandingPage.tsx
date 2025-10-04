@@ -281,7 +281,7 @@ const LandingPage = () => {
                   <div className="relative mb-3">
                     <div className="flex items-baseline justify-center space-x-2">
                       <span className="text-2xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg">R$</span>
-                      <span className="text-4xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">49,90</span>
+                      <span className="text-4xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">49,96</span>
                       <span className="text-lg text-purple-500 dark:text-purple-300 font-semibold drop-shadow-md">/mês</span>
                     </div>
                   </div>
@@ -398,8 +398,8 @@ const LandingPage = () => {
                   <div className="relative mb-4">
                     <div className="flex items-baseline justify-center space-x-2">
                       <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 drop-shadow-lg">R$</span>
-                      <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 drop-shadow-lg bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent">539,90</span>
-                      <span className="text-lg text-emerald-500 dark:text-emerald-300 font-semibold drop-shadow-md">/ano</span>
+                      <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 drop-shadow-lg bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent">44,99</span>
+                      <span className="text-lg text-emerald-500 dark:text-emerald-300 font-semibold drop-shadow-md">/mês</span>
                     </div>
                     
                     {/* Desconto destacado em card */}
@@ -412,7 +412,7 @@ const LandingPage = () => {
                         Economize R$ 176,50
                       </div>
                       <div className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
-                        Apenas R$ 44,99/mês
+                        Total R$ 539,90
                       </div>
                     </div>
                   </div>
