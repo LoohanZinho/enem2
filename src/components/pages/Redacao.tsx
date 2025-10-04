@@ -24,7 +24,9 @@ import {
   Trash2,
   Copy,
   Settings,
-  Brain
+  Brain,
+  Loader2,
+  X
 } from "lucide-react";
 import Header from "@/components/Header";
 import HandwrittenEssayUpload from "@/components/HandwrittenEssayUpload";
@@ -34,7 +36,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import jsPDF from 'jspdf';
-import { CorrecaoRedacao as CorrecaoRedacaoType, RedacaoAIService } from "@/services/RedacaoAIService";
+import { RedacaoAIService } from "@/services/RedacaoAIService";
+import type { CorrecaoRedacao, PontuacaoCompetencia } from "@/services/RedacaoAIService";
 
 // Componente para adicionar modelo de redação
 interface AdicionarModeloFormProps {
@@ -149,16 +152,6 @@ const AdicionarModeloForm = ({ onSubmit, onCancel }: AdicionarModeloFormProps) =
   );
 };
 
-interface Competencia {
-  id: string;
-  nome: string;
-  descricao: string;
-  peso: number;
-  nota: number;
-  feedback: string;
-  sugestoes: string[];
-}
-
 interface ModeloRedacao {
   id: string;
   titulo: string;
@@ -175,14 +168,16 @@ const Redacao = () => {
   const [selectedTheme, setSelectedTheme] = useState<number | null>(null);
   const [essayText, setEssayText] = useState("");
   const [isCorrecting, setIsCorrecting] = useState(false);
-  const [correcaoAtual, setCorrecaoAtual] = useState<CorrecaoRedacaoType | null>(null);
+  const [correcaoAtual, setCorrecaoAtual] = useState<CorrecaoRedacao | null>(null);
   const [showCorrection, setShowCorrection] = useState(false);
-  const [redacoesRecentes, setRedacoesRecentes] = useState<CorrecaoRedacaoType[]>([]);
+  const [redacoesRecentes, setRedacoesRecentes] = useState<CorrecaoRedacao[]>([]);
   const [modelosRedacao, setModelosRedacao] = useState<ModeloRedacao[]>([]);
   const [showModelos, setShowModelos] = useState(false);
   const [showAdicionarModelo, setShowAdicionarModelo] = useState(false);
   const [showVisualizarModelo, setShowVisualizarModelo] = useState(false);
   const [modeloSelecionado, setModeloSelecionado] = useState<ModeloRedacao | null>(null);
+
+  const redacaoService = RedacaoAIService.getInstance();
 
   const themes = [
     {
@@ -261,8 +256,34 @@ const Redacao = () => {
     //
   };
 
-  const corrigirRedacao = async (texto: string, tema: string) => {
-    //
+  const handleCorrect = async () => {
+    if (!essayText.trim() || selectedTheme === null) return;
+    setIsCorrecting(true);
+    setShowCorrection(false);
+    try {
+      const themeTitle = themes[selectedTheme].title;
+      const correction = await redacaoService.corrigirRedacao(essayText, themeTitle);
+      setCorrecaoAtual(correction);
+      setShowCorrection(true);
+      // Adicionar à lista de recentes
+      setRedacoesRecentes(prev => [correction, ...prev.slice(0, 4)]);
+    } catch (error) {
+      console.error("Erro ao corrigir redação:", error);
+      // Aqui você pode mostrar uma mensagem de erro para o usuário
+    } finally {
+      setIsCorrecting(false);
+    }
+  };
+
+  const getNivelColorClass = (nivel: string) => {
+    switch (nivel) {
+      case 'Excelente': return 'text-green-500';
+      case 'Muito Bom': return 'text-blue-500';
+      case 'Bom': return 'text-yellow-500';
+      case 'Regular': return 'text-orange-500';
+      case 'Insuficiente': return 'text-red-500';
+      default: return 'text-gray-500';
+    }
   };
 
   return (
@@ -385,12 +406,12 @@ const Redacao = () => {
                           className="min-h-[400px] text-base"
                        />
                        <Button 
-                          onClick={() => {}}
+                          onClick={handleCorrect}
                           disabled={isCorrecting || !essayText.trim()}
                           size="lg"
                           className="w-full"
                         >
-                          {isCorrecting ? 'Corrigindo...' : <><Send className="h-4 w-4 mr-2"/>Corrigir Redação</>}
+                          {isCorrecting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin"/>Corrigindo...</> : <><Send className="h-4 w-4 mr-2"/>Corrigir Redação</>}
                        </Button>
                     </div>
                   ) : (
@@ -404,7 +425,7 @@ const Redacao = () => {
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-8">
-            <HandwrittenEssayUpload onTextExtracted={(text) => setEssayText(text)} />
+            <HandwrittenEssayUpload onTextExtracted={(text, confidence) => setEssayText(text)} />
           </TabsContent>
           
           <TabsContent value="modelos" className="space-y-6">
@@ -465,14 +486,62 @@ const Redacao = () => {
         
         {/* Modal de Correção */}
         {showCorrection && correcaoAtual && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
              <Card className="w-full max-w-4xl h-[90vh] overflow-y-auto">
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Resultado da Correção</CardTitle>
                   <Button variant="ghost" size="sm" onClick={() => setShowCorrection(false)}><X className="h-4 w-4" /></Button>
                 </CardHeader>
-                <CardContent>
-                   {/* Aqui será exibida a correção detalhada */}
+                <CardContent className="space-y-6">
+                  <div className="text-center">
+                    <p className="text-lg font-medium text-muted-foreground">Nota Final</p>
+                    <p className={`text-6xl font-bold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.notaFinal}</p>
+                    <p className={`font-semibold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.nivel}</p>
+                  </div>
+                  <Tabs defaultValue="resumo" className="w-full">
+                    <TabsList className="grid w-full grid-cols-6">
+                      <TabsTrigger value="resumo">Resumo</TabsTrigger>
+                      <TabsTrigger value="c1">C1</TabsTrigger>
+                      <TabsTrigger value="c2">C2</TabsTrigger>
+                      <TabsTrigger value="c3">C3</TabsTrigger>
+                      <TabsTrigger value="c4">C4</TabsTrigger>
+                      <TabsTrigger value="c5">C5</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="resumo" className="p-4">
+                       <h3 className="font-bold text-lg mb-2">Feedback Geral</h3>
+                       <p>{correcaoAtual.feedbackGeral}</p>
+                    </TabsContent>
+                    {correcaoAtual.competencias.map(comp => (
+                       <TabsContent key={comp.competencia} value={`c${comp.competencia}`} className="p-4 space-y-4">
+                         <div className="flex justify-between items-center">
+                           <h3 className="font-bold text-lg">Competência {comp.competencia}</h3>
+                           <p className="text-2xl font-bold">{comp.nota}</p>
+                         </div>
+                         <div>
+                           <h4 className="font-semibold">Justificativa:</h4>
+                           <p className="text-sm">{comp.justificativa}</p>
+                         </div>
+                         <div>
+                           <h4 className="font-semibold text-green-600">Pontos Fortes:</h4>
+                           <ul className="list-disc list-inside text-sm">
+                              {comp.pontosFortes.map((p, i) => <li key={i}>{p}</li>)}
+                           </ul>
+                         </div>
+                         <div>
+                           <h4 className="font-semibold text-red-600">Pontos a Melhorar:</h4>
+                           <ul className="list-disc list-inside text-sm">
+                              {comp.pontosFracos.map((p, i) => <li key={i}>{p}</li>)}
+                           </ul>
+                         </div>
+                         <div>
+                           <h4 className="font-semibold text-blue-600">Sugestões:</h4>
+                           <ul className="list-disc list-inside text-sm">
+                              {comp.sugestoes.map((s, i) => <li key={i}>{s}</li>)}
+                           </ul>
+                         </div>
+                       </TabsContent>
+                    ))}
+                  </Tabs>
                 </CardContent>
              </Card>
           </div>

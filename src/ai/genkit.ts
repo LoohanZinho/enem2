@@ -5,17 +5,17 @@
  * interact with the generative AI models.
  */
 
-// import { genkit } from 'genkit';
-// import { googleAI } from '@genkit-ai/google-genai';
+import { genkit } from 'genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 
-export const ai = {} as any; // genkit({
-//   plugins: [
-//     // googleAI({
-//     //   // Specify the API version if needed, e.g., 'v1beta'
-//     // }),
-//   ],
-//   // Log errors to the console.
-//   logLevel: 'error',
-//   // Omit a flow menu from the developer UI.
-//   enableApp: false,
-// });
+export const ai = genkit({
+  plugins: [
+    googleAI({
+      // Specify the API version if needed, e.g., 'v1beta'
+    }),
+  ],
+  // Log errors to the console.
+  logLevel: 'error',
+  // Omit a flow menu from the developer UI.
+  enableApp: false,
+});
