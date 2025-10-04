@@ -1,6 +1,6 @@
 # EnemPro: Sua Aprovação no ENEM Começa Aqui
 
-Você se sente perdido na imensidão de matérias para o ENEM? Cansado de escrever redações sem saber se está no caminho certo? Acha difícil memorizar tantas fórmulas e datas?
+Você se asente perdido na imensidão de matérias para o ENEM? Cansado de escrever redações sem saber se está no caminho certo? Acha difícil memorizar tantas fórmulas e datas?
 
 Nós entendemos. A jornada para o ENEM é cheia de desafios: desorganização, falta de feedback e a monotonia de estudar sozinho. É fácil se sentir sobrecarregado e desmotivado.
 
