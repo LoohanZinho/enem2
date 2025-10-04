@@ -26,7 +26,6 @@ class AuthService {
   private db: Firestore | null = null;
   private usersCollection: CollectionReference<DocumentData> | null = null;
   private readonly CURRENT_USER_KEY = 'enem_pro_current_user';
-  private currentUser: User | null = null;
   private didInitialize = false;
 
   private async initialize() {
@@ -38,43 +37,40 @@ class AuthService {
 
   private ensureInitialized() {
     if (this.didInitialize) return;
-
-    if (typeof window !== 'undefined') {
-        const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
-        try {
-            if (userJson && userJson !== 'undefined' && userJson !== 'null') {
-              this.currentUser = JSON.parse(userJson);
-            } else {
-              this.currentUser = null;
-            }
-        } catch (e) {
-            console.error("Failed to parse user from localStorage", e);
-            this.currentUser = null;
-            localStorage.removeItem(this.CURRENT_USER_KEY);
-        }
+    // A inicialização agora confia no useEffect do AuthProvider para carregar o usuário.
+    // Esta função principalmente garante que o serviço não tente rodar no servidor.
+    if (typeof window === 'undefined') {
+        console.warn("AuthService.ensureInitialized chamado no servidor. O estado do usuário não estará disponível.");
     }
     this.didInitialize = true;
   }
 
   getCurrentUser(): User | null {
-    if (!this.didInitialize) {
-        this.ensureInitialized();
+    this.ensureInitialized();
+    if (typeof window === 'undefined') return null;
+
+    try {
+        const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
+        if (userJson && userJson !== 'undefined' && userJson !== 'null') {
+          return JSON.parse(userJson);
+        }
+        return null;
+    } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+        localStorage.removeItem(this.CURRENT_USER_KEY);
+        return null;
     }
-    return this.currentUser;
   }
 
   setCurrentUser(user: User | null): void {
-    this.currentUser = user;
-    this.didInitialize = true;
     if (typeof window !== 'undefined') {
       if (user) {
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
       } else {
         localStorage.removeItem(this.CURRENT_USER_KEY);
-        // Expirar o cookie ao fazer logout no cliente
-        document.cookie = 'enem_pro_user_id=; path=/; max-age=0';
       }
     }
+    this.didInitialize = true;
   }
 
   async register(
@@ -154,7 +150,6 @@ class AuthService {
           message: 'Sua assinatura expirou. Por favor, renove seu plano para continuar acessando a plataforma.',
         };
       }
-
 
       this.setCurrentUser(user);
 
@@ -266,6 +261,10 @@ class AuthService {
 
   logout(): void {
     this.setCurrentUser(null);
+    // Limpa o cookie do lado do cliente
+    if (typeof window !== 'undefined') {
+      document.cookie = 'enem_pro_user_id=; path=/; max-age=0; SameSite=Lax';
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import { User } from '@/types/User';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string) => Promise<{success: boolean; message: string}>;
+  login: (email: string, password: string) => Promise<{success: boolean; message: string; user?: User}>;
   updateUser: (updates: Partial<User>) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -20,7 +20,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // A verificação inicial agora confia no `authService` que lê do localStorage.
     const checkAuth = () => {
       const currentUser = authService.getCurrentUser();
       setUser(currentUser);
@@ -30,7 +29,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     checkAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<{success: boolean; message: string}> => {
+  const login = async (email: string, password: string): Promise<{success: boolean; message: string; user?: User}> => {
     setIsLoading(true);
     
     try {
@@ -39,20 +38,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-
-      const result = await response.json();
       
-      if (result.success && result.user) {
-        // O cookie é setado no servidor, aqui só atualizamos o estado local
+      const result = await response.json();
+
+      if (response.ok && result.success) {
         authService.setCurrentUser(result.user);
         setUser(result.user);
-        return { success: true, message: 'Login bem-sucedido!'};
+        return { success: true, message: 'Login bem-sucedido!', user: result.user };
       } else {
         return { success: false, message: result.message || 'Falha no login.' };
       }
 
     } catch (error) {
-      console.error('Erro no login:', error);
+      console.error('Erro na chamada de API de login:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       return { success: false, message: errorMessage };
     } finally {
@@ -67,7 +65,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if(result.success) {
       const updatedUser = await authService.getUserById(user.id);
       if (updatedUser) {
-        authService.setCurrentUser(updatedUser); // Atualiza o localStorage
+        authService.setCurrentUser(updatedUser);
         setUser(updatedUser);
       }
       return true;

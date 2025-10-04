@@ -1,3 +1,4 @@
+
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,6 @@ const Login = () => {
     e.preventDefault();
     setError("");
 
-    // Validação básica
     if (!formData.email || !formData.password) {
       setError("Por favor, preencha todos os campos");
       return;
@@ -61,7 +61,6 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // Redirecionar para a página principal
       router.push('/cronograma');
     } else {
       setError(result.message);
