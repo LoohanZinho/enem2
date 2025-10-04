@@ -25,7 +25,7 @@ async function saveWebhookToLocalStorage(data: any) {
 // Ex: Se a Cakto envia "Plano Anual", nosso sistema sabe que é o plano 'anual' com 12 meses de duração.
 const planMapping: { [key: string]: { plan: User['plan'], durationInMonths: number } } = {
   'Plano Mensal': { plan: 'mensal', durationInMonths: 1 },
-  'Plano 3 Meses': { plan: '3meses', durationInMonths: 3 },
+  'Plano Trimestral': { plan: '3meses', durationInMonths: 3 },
   'Plano Anual': { plan: 'anual', durationInMonths: 12 },
   'Produto Teste': { plan: 'anual', durationInMonths: 12 }, // Produto para testes de integração
 };
@@ -44,8 +44,8 @@ const calculateExpirationDate = (startDate: Date, months: number): string => {
 // Ela usa a API do Gmail para enviar um e-mail formatado com o login (e-mail) e a senha padrão.
 const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt'>) => {
   // Verifica se as credenciais da API do Gmail estão configuradas nas variáveis de ambiente.
-  if (!process.env.G_CLIENT_ID || !process.env.G_CLIENT_SECRET || !process.env.G_REDIRECT_URI || !process.env.G_REFRESH_TOKEN || !process.env.EMAIL_FROM) {
-    console.error('Credenciais da API do Gmail não configuradas. O e-mail de boas-vindas não será enviado.');
+  if (!process.env.G_CLIENT_ID || !process.env.G_CLIENT_SECRET || !process.env.G_REDIRECT_URI || !process.env.G_REFRESH_TOKEN || !process.env.EMAIL_FROM || !process.env.NEXT_PUBLIC_APP_URL) {
+    console.error('Credenciais da API do Gmail ou URL do App não configuradas. O e-mail de boas-vindas não será enviado.');
     return;
   }
 
@@ -64,6 +64,7 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
     const emailFrom = `EnemPro <${process.env.EMAIL_FROM}>`;
     const emailTo = user.email;
     const subject = '🎓 Bem-vindo ao ENEM Pro - Suas credenciais de acesso';
+    const loginUrl = `${process.env.NEXT_PUBLIC_APP_URL}/login`;
     const emailBody = `
       <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
         <h2>Olá, ${user.name}!</h2>
@@ -74,7 +75,7 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
           <li><strong>Senha:</strong> ${user.password}</li>
         </ul>
         <p>Você pode acessar a plataforma através do link abaixo:</p>
-        <a href="https://enem--enempro-25193085-f5db3.us-central1.hosted.app/login" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Acessar Plataforma</a>
+        <a href="${loginUrl}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Acessar Plataforma</a>
         <p>Recomendamos que você altere sua senha no primeiro acesso.</p>
         <br>
         <p>Atenciosamente,</p>

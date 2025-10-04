@@ -258,7 +258,7 @@ const LandingPage = () => {
               </div>
             </div>
 
-            {/* Plano 3 Meses - DESTAQUE */}
+            {/* Plano Trimestral - DESTAQUE */}
             <div className="group relative bg-gradient-to-br from-blue-50/95 via-purple-50/95 to-indigo-50/95 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-indigo-900/40 backdrop-blur-sm rounded-3xl p-6 shadow-3xl border-2 border-blue-500/50 dark:border-blue-400/50 transform scale-105 hover:scale-110 transition-all duration-500 aspect-square flex flex-col justify-between">
               <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 z-10">
                 <div className="bg-gradient-to-r from-purple-600/90 to-gray-600/90 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-lg border border-purple-400/30">
@@ -277,7 +277,7 @@ const LandingPage = () => {
               
               <div className="text-center flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-3">Plano 3 Meses</h3>
+                  <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-3">Plano Trimestral</h3>
                   <div className="relative mb-3">
                     <div className="flex items-baseline justify-center space-x-2">
                       <span className="text-2xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg">R$</span>
@@ -355,7 +355,7 @@ const LandingPage = () => {
                   {/* Conteúdo do botão */}
                   <span className="relative z-10 flex items-center justify-center space-x-2">
                     {/* Texto principal */}
-                    <span className="font-black tracking-wide">ASSINAR 3 MESES</span>
+                    <span className="font-black tracking-wide">ASSINAR TRIMESTRAL</span>
                     
                     {/* Seta elegante */}
                     <div className="w-4 h-4 border-r-2 border-t-2 border-white transform rotate-45 group-hover:translate-x-1 transition-transform duration-300"></div>
