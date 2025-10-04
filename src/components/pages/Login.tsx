@@ -60,9 +60,8 @@ const Login = () => {
 
     const result = await login(formData.email, formData.password);
     
-    if (result.success) {
-      router.push('/cronograma');
-    } else {
+    // O redirecionamento agora é tratado pelo `setCurrentUser` no `AuthService`
+    if (!result.success) {
       setError(result.message);
     }
   };

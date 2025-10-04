@@ -65,6 +65,9 @@ class AuthService {
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
         // Manter o cookie para o middleware
         document.cookie = `enem_pro_user_id=${user.id}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`;
+        // Força o recarregamento da página para que o middleware reconheça o cookie.
+        // Isso resolve o loop de redirecionamento.
+        window.location.href = '/cronograma';
       } else {
         localStorage.removeItem(this.CURRENT_USER_KEY);
         document.cookie = 'enem_pro_user_id=; path=/; max-age=0; SameSite=Lax';

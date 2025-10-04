@@ -36,18 +36,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const result = await authService.login({ email, password });
 
       if (result.success && result.user) {
-        setUser(result.user);
+        // O `setCurrentUser` agora lida com o estado e o redirecionamento
         return { success: true, message: 'Login bem-sucedido!', user: result.user };
       } else {
+        setIsLoading(false);
         return { success: false, message: result.message || 'Falha no login.' };
       }
 
     } catch (error) {
       console.error('Erro na chamada de login:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-      return { success: false, message: errorMessage };
-    } finally {
       setIsLoading(false);
+      return { success: false, message: errorMessage };
     }
   };
 
