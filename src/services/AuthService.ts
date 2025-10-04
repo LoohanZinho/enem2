@@ -63,17 +63,15 @@ class AuthService {
     return this.currentUser;
   }
 
-  private setCurrentUser(user: User | null): void {
+  setCurrentUser(user: User | null): void {
     this.currentUser = user;
     this.didInitialize = true;
     if (typeof window !== 'undefined') {
       if (user) {
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
-        // Criar o cookie para o middleware
-        document.cookie = `enem_pro_user_id=${user.id}; path=/; max-age=86400`; // Expira em 1 dia
       } else {
         localStorage.removeItem(this.CURRENT_USER_KEY);
-        // Expirar o cookie
+        // Expirar o cookie ao fazer logout no cliente
         document.cookie = 'enem_pro_user_id=; path=/; max-age=0';
       }
     }

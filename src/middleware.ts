@@ -17,6 +17,7 @@ export function middleware(request: NextRequest) {
     '/login', // A página de login
     '/redefinir-senha', // A página de redefinição de senha
     '/api/create-user', // O endpoint que recebe webhooks de pagamento
+    '/api/login', // O endpoint que processa o login
     '/suporte-ativacao', // Página de suporte para ativação de conta
     '/admin', // Página de administração
     '/webhook', // Página de visualização de webhooks
@@ -24,9 +25,9 @@ export function middleware(request: NextRequest) {
 
   // Verifica se a página acessada está na lista de páginas públicas.
   const isPublicPath = publicPaths.some(path => 
-    pathname === path || (path !== '/' && pathname.startsWith(path))
+    pathname === path || (path.endsWith('/') ? pathname.startsWith(path) : pathname === path)
   );
-
+  
   // Se a página NÃO é pública e o usuário NÃO está logado...
   if (!isPublicPath && !currentUser) {
     // ...redireciona o usuário para a página de login.

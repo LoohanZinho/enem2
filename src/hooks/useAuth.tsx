@@ -20,26 +20,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const storedUserId = localStorage.getItem('enem_pro_user_id');
-        if (storedUserId && storedUserId !== 'undefined' && storedUserId !== 'null') {
-          const userData = await authService.getUserById(storedUserId);
-          if (userData) {
-            setUser(userData);
-          } else {
-            // Se o ID não corresponder a um usuário válido, limpe o localStorage
-            localStorage.removeItem('enem_pro_user_id');
-            localStorage.removeItem('enem_pro_current_user'); // Limpa também o usuário atual do outro serviço
-          }
-        }
-      } catch (error) {
-        console.error('Erro ao verificar autenticação:', error);
-        localStorage.removeItem('enem_pro_user_id');
-        localStorage.removeItem('enem_pro_current_user');
-      } finally {
-        setIsLoading(false);
-      }
+    // A verificação inicial agora confia no `authService` que lê do localStorage.
+    const checkAuth = () => {
+      const currentUser = authService.getCurrentUser();
+      setUser(currentUser);
+      setIsLoading(false);
     };
 
     checkAuth();
@@ -49,26 +34,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     
     try {
-      if (!email || !password) {
-        return { success: false, message: 'Email e senha são obrigatórios'};
-      }
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (!email.includes('@')) {
-        return { success: false, message: 'Email inválido'};
-      }
-
-      if (password.length < 6) {
-        return { success: false, message: 'A senha deve ter pelo menos 6 caracteres'};
-      }
-
-      const result = await authService.login({email, password});
+      const result = await response.json();
       
       if (result.success && result.user) {
-        localStorage.setItem('enem_pro_user_id', result.user.id);
+        // O cookie é setado no servidor, aqui só atualizamos o estado local
+        authService.setCurrentUser(result.user);
         setUser(result.user);
         return { success: true, message: 'Login bem-sucedido!'};
       } else {
-        return { success: false, message: result.message };
+        return { success: false, message: result.message || 'Falha no login.' };
       }
 
     } catch (error) {
@@ -87,6 +67,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if(result.success) {
       const updatedUser = await authService.getUserById(user.id);
       if (updatedUser) {
+        authService.setCurrentUser(updatedUser); // Atualiza o localStorage
         setUser(updatedUser);
       }
       return true;
@@ -95,8 +76,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('enem_pro_user_id');
-    localStorage.removeItem('enem_pro_current_user');
+    authService.logout();
     setUser(null);
   };
 
@@ -119,5 +99,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-    
