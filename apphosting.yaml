@@ -8,13 +8,16 @@ env:
   - variable: NEXT_PUBLIC_CAKTO_API_URL
     value: 'https://api.cakto.com'
   - variable: NEXT_PUBLIC_CAKTO_API_KEY
-    # Chaves de API públicas não devem ser secrets. Definidas como variável comum.
     value: 'your_public_cakto_api_key_here'
   - variable: CAKTO_WEBHOOK_SECRET
-    # O secret real deve ser configurado no Google Cloud Secret Manager
     value: '15edd2d5-d662-418a-93ff-d1ba6a631272'
-  - secret: G_CLIENT_ID
-  - secret: G_CLIENT_SECRET
-  - secret: G_REDIRECT_URI
-  - secret: G_REFRESH_TOKEN
-  - secret: EMAIL_FROM
+  - variable: G_CLIENT_ID
+    value: 'SUA_CREDENCIAL_AQUI'
+  - variable: G_CLIENT_SECRET
+    value: 'SUA_CREDENCIAL_AQUI'
+  - variable: G_REDIRECT_URI
+    value: 'SUA_CREDENCIAL_AQUI'
+  - variable: G_REFRESH_TOKEN
+    value: 'SUA_CREDENCIAL_AQUI'
+  - variable: EMAIL_FROM
+    value: 'EnemPro <seu-email@gmail.com>'
