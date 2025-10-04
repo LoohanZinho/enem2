@@ -37,8 +37,6 @@ class AuthService {
 
   private ensureInitialized() {
     if (this.didInitialize) return;
-    // A inicialização agora confia no useEffect do AuthProvider para carregar o usuário.
-    // Esta função principalmente garante que o serviço não tente rodar no servidor.
     if (typeof window === 'undefined') {
         console.warn("AuthService.ensureInitialized chamado no servidor. O estado do usuário não estará disponível.");
     }
@@ -66,8 +64,11 @@ class AuthService {
     if (typeof window !== 'undefined') {
       if (user) {
         localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
+        // Manter o cookie para o middleware
+        document.cookie = `enem_pro_user_id=${user.id}; path=/; max-age=${60 * 60 * 24}; SameSite=Lax`;
       } else {
         localStorage.removeItem(this.CURRENT_USER_KEY);
+        document.cookie = 'enem_pro_user_id=; path=/; max-age=0; SameSite=Lax';
       }
     }
     this.didInitialize = true;
@@ -261,10 +262,6 @@ class AuthService {
 
   logout(): void {
     this.setCurrentUser(null);
-    // Limpa o cookie do lado do cliente
-    if (typeof window !== 'undefined') {
-      document.cookie = 'enem_pro_user_id=; path=/; max-age=0; SameSite=Lax';
-    }
   }
 }
 

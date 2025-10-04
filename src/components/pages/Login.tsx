@@ -61,7 +61,6 @@ const Login = () => {
     const result = await login(formData.email, formData.password);
     
     if (result.success) {
-      // O redirecionamento agora é feito aqui, após o sucesso
       router.push('/cronograma');
     } else {
       setError(result.message);

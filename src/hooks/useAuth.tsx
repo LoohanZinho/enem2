@@ -33,16 +33,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     
     try {
-      const response = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      const result = await response.json();
+      const result = await authService.login({ email, password });
 
-      if (response.ok && result.success) {
-        authService.setCurrentUser(result.user);
+      if (result.success && result.user) {
         setUser(result.user);
         return { success: true, message: 'Login bem-sucedido!', user: result.user };
       } else {
@@ -50,7 +43,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
     } catch (error) {
-      console.error('Erro na chamada de API de login:', error);
+      console.error('Erro na chamada de login:', error);
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
       return { success: false, message: errorMessage };
     } finally {
