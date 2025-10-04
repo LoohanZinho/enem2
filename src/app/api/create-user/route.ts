@@ -58,7 +58,6 @@ const sendWelcomeEmail = async (user: Omit<User, 'id' | 'createdAt' | 'updatedAt
     );
     oAuth2Client.setCredentials({ refresh_token: process.env.G_REFRESH_TOKEN });
 
-    const accessToken = await oAuth2Client.getAccessToken();
     const gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
 
     // Construção do corpo do e-mail em HTML.
