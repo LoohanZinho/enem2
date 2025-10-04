@@ -29,9 +29,9 @@ export function middleware(request: NextRequest) {
 
   // Se a página NÃO é pública e o usuário NÃO está logado...
   if (!isPublicPath && !currentUser) {
-    // ...redireciona o usuário para a página inicial.
+    // ...redireciona o usuário para a página de login.
     // Isso protege todas as páginas internas da aplicação.
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 
   // Se a página é pública ou o usuário está logado, permite o acesso.
