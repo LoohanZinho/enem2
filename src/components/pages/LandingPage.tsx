@@ -280,12 +280,9 @@ const LandingPage = () => {
                   <h3 className="text-xl font-bold text-purple-800 dark:text-purple-200 mb-3">Plano 3 Meses</h3>
                   <div className="relative mb-3">
                     <div className="flex items-baseline justify-center space-x-2">
-                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg animate-pulse">R$</span>
-                      <span className="text-5xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent animate-pulse">149,90</span>
-                      <span className="text-xl text-purple-500 dark:text-purple-300 font-semibold drop-shadow-md">/3</span>
-                    </div>
-                    <div className="text-center mt-1">
-                      <span className="text-lg text-purple-500 dark:text-purple-300 font-medium drop-shadow-sm">meses</span>
+                      <span className="text-2xl font-bold text-purple-600 dark:text-purple-400 drop-shadow-lg">R$</span>
+                      <span className="text-4xl font-black text-purple-600 dark:text-purple-400 drop-shadow-lg bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">49,90</span>
+                      <span className="text-lg text-purple-500 dark:text-purple-300 font-semibold drop-shadow-md">/mês</span>
                     </div>
                   </div>
                   {/* Desconto destacado em card */}
@@ -297,8 +294,8 @@ const LandingPage = () => {
                     <div className="text-purple-600 dark:text-purple-400 font-black text-sm mb-1">
                       Economize R$ 29,20
                     </div>
-                    <div className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
-                      Apenas R$ 49,96/mês
+                    <div className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
+                      Total R$ 149,90
                     </div>
                   </div>
                 </div>
@@ -400,9 +397,9 @@ const LandingPage = () => {
                   {/* Preço principal destacado */}
                   <div className="relative mb-4">
                     <div className="flex items-baseline justify-center space-x-2">
-                      <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 drop-shadow-lg animate-pulse">R$</span>
-                      <span className="text-5xl font-black text-emerald-600 dark:text-emerald-400 drop-shadow-lg bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent animate-pulse">539,90</span>
-                      <span className="text-xl text-emerald-500 dark:text-emerald-300 font-semibold drop-shadow-md">/ano</span>
+                      <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 drop-shadow-lg">R$</span>
+                      <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 drop-shadow-lg bg-gradient-to-r from-emerald-500 to-emerald-700 bg-clip-text text-transparent">539,90</span>
+                      <span className="text-lg text-emerald-500 dark:text-emerald-300 font-semibold drop-shadow-md">/ano</span>
                     </div>
                     
                     {/* Desconto destacado em card */}
@@ -414,7 +411,7 @@ const LandingPage = () => {
                       <div className="text-red-600 dark:text-red-400 font-black text-sm mb-1">
                         Economize R$ 176,50
                       </div>
-                      <div className="text-emerald-600 dark:text-emerald-400 text-sm font-bold">
+                      <div className="text-emerald-600 dark:text-emerald-400 text-xl font-bold">
                         Apenas R$ 44,99/mês
                       </div>
                     </div>
