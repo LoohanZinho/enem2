@@ -57,21 +57,17 @@ const Admin = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch('/api/create-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: newUser.email,
-          password: newUser.password,
-          name: newUser.name,
-        }),
+      const result = await authService.register({
+        email: newUser.email,
+        password: newUser.password,
+        name: newUser.name,
+        role: 'user', // Define um papel padrão
+        isActive: true, // Define como ativo por padrão
       });
-
-      const result = await response.json();
 
       if (result.success) {
         setNewUser({ email: "", password: "", name: "" });
-        await fetchUsers();
+        await fetchUsers(); // Atualiza a lista após adicionar
       } else {
         setError(result.message);
       }
