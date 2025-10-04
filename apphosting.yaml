@@ -5,6 +5,8 @@ build:
 env:
   - variable: NEXT_PUBLIC_BACKEND_URL
     value: 'https://enem--enempro-25193085-f5db3.us-central1.hosted.app/api'
+  - variable: NEXT_PUBLIC_APP_URL
+    value: 'SUA_URL_DO_FRONTEND_AQUI'
   - variable: NEXT_PUBLIC_CAKTO_API_URL
     value: 'https://api.cakto.com'
   - variable: NEXT_PUBLIC_CAKTO_API_KEY
@@ -12,12 +14,12 @@ env:
   - variable: CAKTO_WEBHOOK_SECRET
     value: '15edd2d5-d662-418a-93ff-d1ba6a631272'
   - variable: G_CLIENT_ID
-    value: '40797873801-qh7dfpkvakbaqtj4un4ktdmpf3o9cfrm.apps.googleusercontent.com'
+    value: 'SUA_CREDENCIAL_AQUI'
   - variable: G_CLIENT_SECRET
-    value: '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'
+    value: 'SUA_CREDENCIAL_AQUI'
   - variable: G_REDIRECT_URI
-    value: 'https://developers.google.com/oauthplayground'
+    value: 'SUA_CREDENCIAL_AQUI'
   - variable: G_REFRESH_TOKEN
-    value: '1//04D0R5PpppZDXCgYIARAAGAQSNwF-L9Irj2w8kQnbhNUhQFPfZc_WypRq0WReJUxQgWUdfD5latJ4uRFEjVLtTm8iIgu8jaVPMPY'
+    value: 'SUA_CREDENCIAL_AQUI'
   - variable: EMAIL_FROM
-    value: 'EnemPro enempro25@gmail.com'
+    value: 'SUA_CREDENCIAL_AQUI'
