@@ -14,22 +14,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await authService.login({ email, password });
+    // A validação do login agora é feita aqui, no lado do servidor.
+    const result = await authService.login(credentials.email, credentials.password);
 
     if (result.success && result.user) {
-      // O login foi bem-sucedido, agora criamos o cookie na resposta.
+      // Se o login for bem-sucedido, configuramos o cookie na resposta.
       const response = NextResponse.json({ success: true, user: result.user });
       
-      // Define o cookie que o middleware irá ler.
       cookies().set('enem_pro_user_id', result.user.id, {
         path: '/',
+        httpOnly: true,
         maxAge: 60 * 60 * 24, // 1 dia
-        httpOnly: true, // Mais seguro, o cookie não é acessível via JS no cliente
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
       });
-
+      
       return response;
+
     } else {
       // Falha no login, retorna a mensagem de erro do serviço.
       return NextResponse.json(
