@@ -287,7 +287,7 @@ const Redacao = () => {
               Redação ENEM
             </h1>
             <p className="text-lg md:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Pratique, aprimore e corrija suas redações com nossa plataforma inteligente de correção automática
+              Pratique, aprimore e corrija suas redações com nossa plataforma inteligente e receba notas precisas
             </p>
           </div>
         </div>
@@ -336,23 +336,148 @@ const Redacao = () => {
           <TabsContent value="escrever" className="space-y-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <Card className="p-6 lg:col-span-1 border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-                {/* ... conteúdo dos temas ... */}
+                <CardHeader className="p-0 mb-6">
+                  <CardTitle className="text-xl font-bold flex items-center gap-3">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Temas Disponíveis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0 space-y-4">
+                  {themes.map((theme, index) => (
+                    <div key={index} className={`p-4 rounded-lg border-2 ${selectedTheme === index ? 'border-primary shadow-lg' : 'border-slate-200 dark:border-slate-700'}`}>
+                      <h4 className="font-semibold">{theme.title}</h4>
+                      <p className="text-sm text-muted-foreground mt-1 mb-3">{theme.description}</p>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline">{theme.category}</Badge>
+                          <Badge variant="secondary">{theme.difficulty}</Badge>
+                        </div>
+                        <Button 
+                          size="sm"
+                          onClick={() => setSelectedTheme(index)}
+                          variant={selectedTheme === index ? 'default' : 'outline'}
+                        >
+                          {selectedTheme === index ? 'Selecionado' : 'Selecionar'}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
               </Card>
 
               <Card className="p-6 lg:col-span-2 border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
-                {/* ... área de escrita ... */}
+                <CardHeader className="p-0 mb-6">
+                  <CardTitle className="text-xl font-bold flex items-center gap-3">
+                    <PenTool className="h-5 w-5 text-primary" />
+                    Área de Escrita
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {selectedTheme !== null ? (
+                    <div className="space-y-6">
+                       <div className="p-4 bg-slate-100 dark:bg-slate-700 rounded-lg">
+                          <h3 className="font-semibold text-lg">{themes[selectedTheme].title}</h3>
+                       </div>
+                       <Textarea 
+                          value={essayText}
+                          onChange={(e) => setEssayText(e.target.value)}
+                          placeholder="Comece a escrever sua redação aqui..."
+                          className="min-h-[400px] text-base"
+                       />
+                       <Button 
+                          onClick={() => {}}
+                          disabled={isCorrecting || !essayText.trim()}
+                          size="lg"
+                          className="w-full"
+                        >
+                          {isCorrecting ? 'Corrigindo...' : <><Send className="h-4 w-4 mr-2"/>Corrigir Redação</>}
+                       </Button>
+                    </div>
+                  ) : (
+                    <div className="min-h-[400px] flex items-center justify-center text-center text-slate-500 border-2 border-dashed rounded-lg">
+                      <p>Selecione um tema para começar a escrever.</p>
+                    </div>
+                  )}
+                </CardContent>
               </Card>
             </div>
           </TabsContent>
 
           <TabsContent value="upload" className="space-y-8">
-            {/* ... conteúdo do upload ... */}
+            <HandwrittenEssayUpload onTextExtracted={(text) => setEssayText(text)} />
           </TabsContent>
           
           <TabsContent value="modelos" className="space-y-6">
-            {/* ... conteúdo dos modelos ... */}
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold">Modelos de Redação</h2>
+              <Button onClick={() => setShowAdicionarModelo(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                Adicionar Modelo
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {modelosExemplo.map((modelo) => (
+                <Card key={modelo.id} className="p-6 space-y-4">
+                  <h3 className="font-bold">{modelo.titulo}</h3>
+                  <p className="text-sm text-muted-foreground">{modelo.tema}</p>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="outline" onClick={() => usarModelo(modelo)}>Usar</Button>
+                    <Button size="sm" variant="ghost" onClick={() => visualizarModelo(modelo)}>Visualizar</Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="recentes" className="space-y-6">
+             {/* Conteúdo das redações recentes */}
+          </TabsContent>
+
+          <TabsContent value="estatisticas" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Total de Redações</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">{stats.totalRedacoes}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Média Geral</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">{stats.mediaNotas}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Melhor Nota</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-4xl font-bold">{stats.melhorNota}</p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
+        
+        {/* Modal de Correção */}
+        {showCorrection && correcaoAtual && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4">
+             <Card className="w-full max-w-4xl h-[90vh] overflow-y-auto">
+                <CardHeader>
+                  <CardTitle>Resultado da Correção</CardTitle>
+                  <Button variant="ghost" size="sm" onClick={() => setShowCorrection(false)}><X className="h-4 w-4" /></Button>
+                </CardHeader>
+                <CardContent>
+                   {/* Aqui será exibida a correção detalhada */}
+                </CardContent>
+             </Card>
+          </div>
+        )}
+
       </main>
     </div>
   );
