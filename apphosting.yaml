@@ -13,3 +13,8 @@ env:
   - variable: CAKTO_WEBHOOK_SECRET
     # O secret real deve ser configurado no Google Cloud Secret Manager
     value: '15edd2d5-d662-418a-93ff-d1ba6a631272'
+  - secret: G_CLIENT_ID
+  - secret: G_CLIENT_SECRET
+  - secret: G_REDIRECT_URI
+  - secret: G_REFRESH_TOKEN
+  - secret: EMAIL_FROM
