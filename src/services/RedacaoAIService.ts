@@ -1,6 +1,7 @@
 // Sistema de IA para Correção Automática de Redações ENEM
 // Baseado na Matriz de Referência Oficial do ENEM
-import { corrigirRedacao, CorrecaoRedacaoInput, CorrecaoRedacaoOutput } from '@/ai/flows/redacao-flow';
+import { corrigirRedacao } from '@/ai/flows/redacao-flow';
+import type { CorrecaoRedacaoInput, CorrecaoRedacaoOutput } from '@/ai/flows/redacao-types';
 
 export interface Competencia {
   numero: number;

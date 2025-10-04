@@ -354,7 +354,7 @@ const Redacao = () => {
             </TabsList>
           </div>
 
-          <TabsContent value="escrever" className="space-y-8">
+          <TabsContent value="escrever" className="space-y-8 mt-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               <Card className="p-6 lg:col-span-1 border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm">
                 <CardHeader className="p-0 mb-6">
@@ -424,11 +424,11 @@ const Redacao = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="upload" className="space-y-8">
+          <TabsContent value="upload" className="space-y-8 mt-6">
             <HandwrittenEssayUpload onTextExtracted={(text, confidence) => setEssayText(text)} />
           </TabsContent>
           
-          <TabsContent value="modelos" className="space-y-6">
+          <TabsContent value="modelos" className="space-y-6 mt-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Modelos de Redação</h2>
               <Button onClick={() => setShowAdicionarModelo(true)}>
@@ -450,11 +450,11 @@ const Redacao = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="recentes" className="space-y-6">
+          <TabsContent value="recentes" className="space-y-6 mt-6">
              {/* Conteúdo das redações recentes */}
           </TabsContent>
 
-          <TabsContent value="estatisticas" className="space-y-6">
+          <TabsContent value="estatisticas" className="space-y-6 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card>
                 <CardHeader>
