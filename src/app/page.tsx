@@ -591,8 +591,8 @@ const LandingPage = () => {
               
               <div className="relative z-10">
                 <div className="flex items-start space-x-6 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-white text-2xl font-black">M</span>
+                  <div className="w-16 h-16 rounded-2xl flex-shrink-0 shadow-xl group-hover:scale-110 transition-transform duration-300 overflow-hidden">
+                    <img src="https://media.discordapp.net/attachments/1423002687708074023/1423824880390111423/leads_2.jpg?ex=68e1b7c0&is=68e06640&hm=569cc23bc1b43c82b2c8c17af55c5efd64aa54d71b3a490552b8a1d8c2082dbd&=&format=webp&width=260&height=463" alt="Maria Silva" className="w-full h-full object-cover"/>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-1 mb-3">
