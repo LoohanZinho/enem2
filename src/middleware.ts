@@ -18,6 +18,7 @@ export function middleware(request: NextRequest) {
     '/redefinir-senha', // A página de redefinição de senha
     '/api/create-user', // O endpoint que recebe webhooks de pagamento
     '/suporte-ativacao', // Página de suporte para ativação de conta
+    '/admin', // Página de administração
   ];
 
   // Verifica se a página acessada está na lista de páginas públicas.
