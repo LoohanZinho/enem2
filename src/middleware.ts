@@ -19,10 +19,10 @@ export function middleware(request: NextRequest) {
     '/api/create-user', // O endpoint que recebe webhooks de pagamento
     '/suporte-ativacao', // Página de suporte para ativação de conta
     '/admin', // Página de administração
+    '/webhook', // Página de visualização de webhooks
   ];
 
   // Verifica se a página acessada está na lista de páginas públicas.
-  // A verificação é feita para o caminho exato ou se o caminho começa com uma das rotas da API/públicas.
   const isPublicPath = publicPaths.some(path => 
     pathname === path || (path !== '/' && pathname.startsWith(path))
   );
@@ -30,8 +30,12 @@ export function middleware(request: NextRequest) {
   // Se a página NÃO é pública e o usuário NÃO está logado...
   if (!isPublicPath && !currentUser) {
     // ...redireciona o usuário para a página de login.
-    // Isso protege todas as páginas internas da aplicação.
     return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  // Se o usuário está logado e tenta acessar a página de login, redireciona para o cronograma
+  if (currentUser && pathname === '/login') {
+    return NextResponse.redirect(new URL('/cronograma', request.url));
   }
 
   // Se a página é pública ou o usuário está logado, permite o acesso.
