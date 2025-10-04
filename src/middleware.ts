@@ -13,7 +13,6 @@ export function middleware(request: NextRequest) {
     '/login',
     '/redefinir-senha',
     '/api/create-user',
-    '/api/login',
     '/suporte-ativacao',
     '/admin',
     '/webhook',
