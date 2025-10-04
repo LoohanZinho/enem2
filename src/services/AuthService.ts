@@ -29,7 +29,7 @@ class AuthService {
   private didInitialize = false;
 
   private async initialize() {
-    if (this.db) return;
+    if (this.didInitialize) return;
     const firebaseServices = initializeFirebase();
     this.db = getFirestore(firebaseServices.firebaseApp);
     this.usersCollection = collection(this.db, 'users');
