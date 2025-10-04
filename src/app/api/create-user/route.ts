@@ -1,4 +1,4 @@
-
+"use server";
 import { NextResponse } from 'next/server';
 import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
@@ -229,6 +229,3 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: false, message: 'Erro interno do servidor.', error: errorMessage }, { status: 500 });
   }
 }
-
-
-    
