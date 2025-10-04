@@ -38,7 +38,8 @@ class AuthService {
   private ensureInitialized() {
     if (this.didInitialize) return;
     if (typeof window === 'undefined') {
-        console.warn("AuthService.ensureInitialized chamado no servidor. O estado do usuário não estará disponível.");
+        // No-op no servidor, a inicialização completa acontecerá quando um método for chamado.
+        return;
     }
     this.didInitialize = true;
   }
