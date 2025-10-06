@@ -1,7 +1,6 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Providers } from "./providers"; // Importe o novo componente
 import "./globals.css";
@@ -23,7 +22,6 @@ export default function RootLayout({
       <head />
       <body className={inter.className}>
         <Providers> {/* Envolva os children com o novo Providers */}
-          <Toaster />
           <Sonner />
           {children}
         </Providers>
