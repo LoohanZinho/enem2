@@ -63,6 +63,7 @@ const Login = () => {
     if (!result.success) {
       setError(result.message);
     }
+    // O redirecionamento agora é tratado pelo AuthProvider
   };
 
   return (

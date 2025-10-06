@@ -37,31 +37,18 @@ const getInitials = (name: string | undefined): string => {
 
 const Perfil = () => {
   const router = useRouter();
-  const { user, logout, isLoading, updateUser: updateUserInDB } = useAuth();
+  const { user, logout, isLoading, updateUser } = useAuth();
   
   // Todos os hooks devem estar no topo, antes de qualquer return condicional
   const [isEditing, setIsEditing] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || "João Silva Santos",
-    email: user?.email || "joao.silva@email.com",
+    name: user?.name || "",
+    email: user?.email || "",
     bio: "Estudante dedicado ao ENEM 2024",
     location: "São Paulo, SP",
-    phone: user?.phone || "(11) 99999-9999"
+    phone: user?.phone || ""
   });
-
-  const updateUser = async (data: any) => {
-    try {
-      const success = await updateUserInDB(data);
-      if (success) {
-        console.log('Usuário atualizado com sucesso!');
-      } else {
-        console.error('Erro ao atualizar usuário');
-      }
-    } catch (error) {
-      console.error('Erro ao atualizar usuário:', error);
-    }
-  };
 
   // Redirecionar se não estiver logado
   useEffect(() => {
@@ -78,7 +65,7 @@ const Perfil = () => {
         email: user.email || "",
         bio: "Estudante dedicado ao ENEM 2024",
         location: "São Paulo, SP",
-        phone: user.phone || "(11) 99999-9999"
+        phone: user.phone || ""
       });
     }
   }, [user]);
@@ -98,8 +85,7 @@ const Perfil = () => {
     try {
       if (!user) return;
 
-      // Atualizar dados do usuário no banco
-      const success = await updateUserInDB({
+      const success = await updateUser({
         name: formData.name,
         phone: formData.phone
       });
@@ -116,13 +102,15 @@ const Perfil = () => {
   };
 
   const handleCancel = () => {
-    setFormData({
-      name: user?.name || "",
-      email: user?.email || "",
-      bio: "Estudante dedicado ao ENEM 2024",
-      location: "São Paulo, SP",
-      phone: user?.phone || "(11) 99999-9999"
-    });
+    if (user) {
+        setFormData({
+          name: user.name || "",
+          email: user.email || "",
+          bio: "Estudante dedicado ao ENEM 2024",
+          location: "São Paulo, SP",
+          phone: user.phone || ""
+        });
+    }
     setIsEditing(false);
   };
 
@@ -271,20 +259,9 @@ const Perfil = () => {
                       <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-green-600 rounded-full shadow-lg"></div>
                       E-mail
                     </Label>
-                    {isEditing ? (
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData({...formData, email: e.target.value})}
-                        className="h-14 px-6 rounded-2xl border-2 border-slate-200 dark:border-slate-600 focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl"
-                        placeholder="Digite seu e-mail"
-                      />
-                    ) : (
-                      <div className="h-14 px-6 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 dark:from-slate-700/50 dark:via-slate-800/50 dark:to-slate-700/50 rounded-2xl border-2 border-slate-200 dark:border-slate-600 flex items-center group-hover:border-green-300 dark:group-hover:border-green-600 group-hover:shadow-xl transition-all duration-300">
-                        <span className="text-slate-900 dark:text-white font-bold text-lg">{formData.email}</span>
-                      </div>
-                    )}
+                    <div className="h-14 px-6 bg-gradient-to-r from-slate-50 via-slate-100 to-slate-50 dark:from-slate-700/50 dark:via-slate-800/50 dark:to-slate-700/50 rounded-2xl border-2 border-slate-200 dark:border-slate-600 flex items-center group-hover:border-green-300 dark:group-hover:border-green-600 group-hover:shadow-xl transition-all duration-300">
+                      <span className="text-slate-900 dark:text-white font-bold text-lg">{formData.email}</span>
+                    </div>
                   </div>
                   <div className="group space-y-3">
                     <Label htmlFor="phone" className="text-base font-bold text-slate-700 dark:text-slate-300 flex items-center gap-3">

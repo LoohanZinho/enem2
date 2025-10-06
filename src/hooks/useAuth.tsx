@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { authService } from '@/services/AuthService';
 import { User } from '@/types/User';
+import { useRouter } from 'next/navigation';
 
 interface AuthContextType {
   user: User | null;
@@ -18,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = () => {
@@ -36,7 +38,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const result = await authService.login({ email, password });
 
       if (result.success && result.user) {
-        // O `setCurrentUser` agora lida com o estado e o redirecionamento
+        setUser(result.user);
+        router.push('/cronograma');
         return { success: true, message: 'Login bem-sucedido!', user: result.user };
       } else {
         setIsLoading(false);
@@ -56,9 +59,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     
     const result = await authService.updateUser(user.id, updates);
     if(result.success) {
-      const updatedUser = await authService.getUserById(user.id);
+      const updatedUser = authService.getCurrentUser();
       if (updatedUser) {
-        authService.setCurrentUser(updatedUser);
         setUser(updatedUser);
       }
       return true;
@@ -69,6 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = () => {
     authService.logout();
     setUser(null);
+    router.push('/login');
   };
 
   const value = {
