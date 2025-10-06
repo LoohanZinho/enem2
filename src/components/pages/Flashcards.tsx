@@ -49,7 +49,9 @@ import {
   Lightbulb,
   Users,
   Palette,
-  PenTool
+  PenTool,
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
 import Header from '@/components/Header';
 import BackButton from '@/components/BackButton';
@@ -218,9 +220,7 @@ const Flashcards = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isStudyMode, setIsStudyMode] = useState(false);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [studySession, setStudySession] = useState<StudySession | null>(null);
   const [sessionTime, setSessionTime] = useState(0);
-  const [studyStats, setStudyStats] = useState({ correct: 0, incorrect: 0, streak: 0, bestStreak: 0 });
   
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [inputText, setInputText] = useState('');
@@ -238,12 +238,13 @@ const Flashcards = () => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const getSubjectIcon = (subject: string) => {
-    const icons: { [key: string]: any } = {
+    const icons: { [key: string]: React.ElementType } = {
       'Matemática': Calculator, 'Física': Atom, 'Química': Atom, 'Biologia': Dna,
       'História': ScrollText, 'Geografia': Globe, 'Português': BookOpen, 'Literatura': BookOpen,
       'Filosofia': Lightbulb, 'Sociologia': Users, 'Artes': Palette, 'Redação': PenTool
     };
-    return icons[subject] || GraduationCap;
+    const IconComponent = icons[subject] || GraduationCap;
+    return <IconComponent />;
   };
 
   const getSubjectColor = (subject: string) => {
@@ -411,6 +412,17 @@ const Flashcards = () => {
     setInputText('');
     setShowAIGenerator(false);
     setActiveTab('modules');
+  };
+
+  const deleteCard = (cardId: string) => {
+    setFlashcards(prev => prev.filter(card => card.id !== cardId));
+    setModules(organizeFlashcardsBySubject(flashcards.filter(card => card.id !== cardId)));
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = (seconds % 60).toString().padStart(2, '0');
+    return `${minutes}:${secs}`;
   };
 
   const filteredModules = modules.filter(module =>
@@ -602,5 +614,3 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
-
-    
