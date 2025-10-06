@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileoverview This file initializes the Genkit AI instance with the Google GenAI plugin.
  * It exports a singleton `ai` object that can be used throughout the application to
