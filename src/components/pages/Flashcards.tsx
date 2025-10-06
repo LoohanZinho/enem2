@@ -34,9 +34,10 @@ import {
 } from "lucide-react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
-import FlashcardAIService, { FlashcardData } from "@/services/FlashcardAIService";
+import FlashcardAIService from "@/services/FlashcardAIService";
 import { toast } from "@/hooks/use-toast";
 import FlashcardService from "@/services/FlashcardService";
+import type { FlashcardGerado } from "@/ai/flows/flashcard-types";
 
 // Tipos
 interface FlashcardCardProps {
@@ -80,7 +81,7 @@ const FlashcardCard: React.FC<FlashcardCardProps> = ({ card, onAnswer, isStudyMo
 
 const Flashcards = () => {
   const [inputText, setInputText] = useState("Exemplo: A equação do segundo grau é ax² + bx + c = 0, onde a ≠ 0. O discriminante é calculado por Δ = b² - 4ac. A fórmula de Bhaskara é x = (-b ± √Δ) / 2a. Quando Δ > 0, a equação tem duas raízes reais distintas. Quando Δ = 0, tem uma raiz real dupla. Quando Δ < 0, não tem raízes reais...");
-  const [generatedCards, setGeneratedCards] = useState<Omit<FlashcardData, "incorrectCount" | "quality" | "isActive">[]>([]);
+  const [generatedCards, setGeneratedCards] = useState<FlashcardGerado[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("gerador");
 
@@ -148,7 +149,14 @@ const Flashcards = () => {
 
   const handleAddCardsToCollection = () => {
     generatedCards.forEach(card => {
-      flashcardService.createFlashcard(card);
+      flashcardService.createFlashcard({
+        front: card.front,
+        back: card.back,
+        subject: card.subject,
+        topic: card.module, // Mapeando module para topic
+        difficulty: card.difficulty,
+        tags: card.tags,
+      });
     });
     setGeneratedCards([]);
     toast('Flashcards Salvos!', {

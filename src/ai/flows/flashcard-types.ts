@@ -34,3 +34,4 @@ const FlashcardSchema = z.object({
 // Output schema: an array of flashcards
 export const GerarFlashcardsOutputSchema = z.array(FlashcardSchema);
 export type GerarFlashcardsOutput = z.infer<typeof GerarFlashcardsOutputSchema>;
+export type FlashcardGerado = z.infer<typeof FlashcardSchema>;
