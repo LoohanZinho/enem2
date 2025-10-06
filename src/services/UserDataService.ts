@@ -18,6 +18,7 @@ export interface UserData {
   studySessions: any[];
   schedule: any[]; // Cronograma de estudos
   tasks: any[]; // Tarefas do TaskMonitor
+  redacaoModelos?: any[]; // Adicionado para modelos de redação
   createdAt: Date;
   updatedAt: Date;
 }
@@ -107,6 +108,7 @@ export class UserDataService {
       studySessions: [],
       schedule: [],
       tasks: [],
+      redacaoModelos: [],
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -278,6 +280,20 @@ export class UserDataService {
     if (!userId) return [];
     const userData = await this.loadUserData();
     return userData?.goals || [];
+  }
+
+  // Métodos específicos para modelos de redação
+  async saveRedacaoModelos(modelos: any[]): Promise<void> {
+    const userId = await this.getUserId();
+    if (!userId) return;
+    await this.updateUserData({ redacaoModelos: modelos });
+  }
+
+  async loadRedacaoModelos(): Promise<any[]> {
+    const userId = await this.getUserId();
+    if (!userId) return [];
+    const userData = await this.loadUserData();
+    return userData?.redacaoModelos || [];
   }
 
   // Obter estatísticas do usuário

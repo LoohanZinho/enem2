@@ -38,15 +38,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import jsPDF from 'jspdf';
 import { RedacaoAIService } from "@/services/RedacaoAIService";
 import type { CorrecaoRedacao, PontuacaoCompetencia } from "@/services/RedacaoAIService";
+import { Dialog, DialogHeader, DialogTitle, DialogContent } from "@/components/ui/dialog";
+import { userDataService } from "@/services/UserDataService";
 
-// Componente para adicionar modelo de redação
+// Tipos
+interface ModeloRedacao {
+  id: string;
+  titulo: string;
+  tema: string;
+  categoria: string;
+  dificuldade: 'Fácil' | 'Médio' | 'Difícil';
+  texto: string;
+  observacoes: string;
+  dataCriacao: string;
+  autor: string;
+}
+
 interface AdicionarModeloFormProps {
   onSubmit: (modelo: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => void;
   onCancel: () => void;
+  initialData?: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>;
 }
 
-const AdicionarModeloForm = ({ onSubmit, onCancel }: AdicionarModeloFormProps) => {
-  const [formData, setFormData] = useState({
+const AdicionarModeloForm = ({ onSubmit, onCancel, initialData }: AdicionarModeloFormProps) => {
+  const [formData, setFormData] = useState(initialData || {
     titulo: '',
     tema: '',
     categoria: '',
@@ -95,7 +110,7 @@ const AdicionarModeloForm = ({ onSubmit, onCancel }: AdicionarModeloFormProps) =
             id="categoria"
             value={formData.categoria}
             onChange={(e) => setFormData(prev => ({ ...prev, categoria: e.target.value }))}
-            placeholder="Ex: Educação, Meio Ambiente, Sociedade"
+            placeholder="Ex: Educação, Meio Ambiente"
             required
           />
         </div>
@@ -145,24 +160,13 @@ const AdicionarModeloForm = ({ onSubmit, onCancel }: AdicionarModeloFormProps) =
           Cancelar
         </Button>
         <Button type="submit">
-          Adicionar Modelo
+          Salvar Modelo
         </Button>
       </div>
     </form>
   );
 };
 
-interface ModeloRedacao {
-  id: string;
-  titulo: string;
-  tema: string;
-  categoria: string;
-  dificuldade: 'Fácil' | 'Médio' | 'Difícil';
-  texto: string;
-  observacoes: string;
-  dataCriacao: string;
-  autor: string;
-}
 
 const Redacao = () => {
   const [selectedTheme, setSelectedTheme] = useState<number | null>(null);
@@ -172,12 +176,20 @@ const Redacao = () => {
   const [showCorrection, setShowCorrection] = useState(false);
   const [redacoesRecentes, setRedacoesRecentes] = useState<CorrecaoRedacao[]>([]);
   const [modelosRedacao, setModelosRedacao] = useState<ModeloRedacao[]>([]);
-  const [showModelos, setShowModelos] = useState(false);
   const [showAdicionarModelo, setShowAdicionarModelo] = useState(false);
   const [showVisualizarModelo, setShowVisualizarModelo] = useState(false);
   const [modeloSelecionado, setModeloSelecionado] = useState<ModeloRedacao | null>(null);
+  const [editingModelo, setEditingModelo] = useState<ModeloRedacao | null>(null);
 
   const redacaoService = RedacaoAIService.getInstance();
+
+  useEffect(() => {
+    const loadModelos = async () => {
+      const modelos = await userDataService.loadRedacaoModelos();
+      setModelosRedacao(modelos);
+    };
+    loadModelos();
+  }, []);
 
   const themes = [
     {
@@ -201,9 +213,7 @@ const Redacao = () => {
       timeLimit: "60min",
       description: "Aborde a importância da preservação da Amazônia para o equilíbrio climático global e a biodiversidade."
     },
-    // Adicionar mais temas conforme necessário
   ];
-
 
   const stats = {
     totalRedacoes: 18,
@@ -211,49 +221,56 @@ const Redacao = () => {
     melhorNota: 920,
   };
 
-  // Modelos de redação de exemplo
-  const modelosExemplo: ModeloRedacao[] = [
-    {
-      id: "1",
-      titulo: "Platão + Constituição",
-      tema: "Tema a ser definido",
-      categoria: "Filosofia",
-      dificuldade: "Difícil",
-      texto: `Introdução...`,
-      observacoes: "Modelo filosófico...",
+  const adicionarModelo = async (novoModelo: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => {
+    const modeloCompleto: ModeloRedacao = {
+      ...novoModelo,
+      id: Date.now().toString(),
       dataCriacao: new Date().toLocaleDateString('pt-BR'),
-      autor: "Professor"
-    },
-    // Adicionar mais modelos
-  ];
-
-  // Funções para gerenciar modelos de redação
-  const adicionarModelo = (novoModelo: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => {
-    //
+      autor: "Usuário" // ou pegar do usuário logado
+    };
+    const novosModelos = [...modelosRedacao, modeloCompleto];
+    await userDataService.saveRedacaoModelos(novosModelos);
+    setModelosRedacao(novosModelos);
+    setShowAdicionarModelo(false);
   };
-
-  const editarModelo = (id: string, modeloEditado: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => {
-    //
+  
+  const editarModelo = async (id: string, modeloEditado: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => {
+    const novosModelos = modelosRedacao.map(m =>
+      m.id === id ? { ...m, ...modeloEditado } : m
+    );
+    await userDataService.saveRedacaoModelos(novosModelos);
+    setModelosRedacao(novosModelos);
+    setEditingModelo(null);
+    setShowAdicionarModelo(false);
   };
-
-  const excluirModelo = (id: string) => {
-    //
+  
+  const excluirModelo = async (id: string) => {
+    const novosModelos = modelosRedacao.filter(m => m.id !== id);
+    await userDataService.saveRedacaoModelos(novosModelos);
+    setModelosRedacao(novosModelos);
   };
-
+  
   const usarModelo = (modelo: ModeloRedacao) => {
-    //
+    setEssayText(modelo.texto);
+    setShowVisualizarModelo(false);
+    // Idealmente, também navegaria para a aba "Escrever"
   };
-
+  
   const visualizarModelo = (modelo: ModeloRedacao) => {
-    //
+    setModeloSelecionado(modelo);
+    setShowVisualizarModelo(true);
   };
-
-  const copiarModelo = (modelo: ModeloRedacao) => {
-    //
+  
+  const copiarModelo = (texto: string) => {
+    navigator.clipboard.writeText(texto);
+    // Idealmente, mostraria um toast de sucesso
   };
-
+  
   const baixarModeloPDF = (modelo: ModeloRedacao) => {
-    //
+    const doc = new jsPDF();
+    doc.text(modelo.titulo, 10, 10);
+    doc.text(modelo.texto, 10, 20);
+    doc.save(`${modelo.titulo}.pdf`);
   };
 
   const handleCorrect = async () => {
@@ -265,11 +282,9 @@ const Redacao = () => {
       const correction = await redacaoService.corrigirRedacao(essayText, themeTitle);
       setCorrecaoAtual(correction);
       setShowCorrection(true);
-      // Adicionar à lista de recentes
       setRedacoesRecentes(prev => [correction, ...prev.slice(0, 4)]);
     } catch (error) {
       console.error("Erro ao corrigir redação:", error);
-      // Aqui você pode mostrar uma mensagem de erro para o usuário
     } finally {
       setIsCorrecting(false);
     }
@@ -431,22 +446,41 @@ const Redacao = () => {
           <TabsContent value="modelos" className="space-y-6 mt-6">
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold">Modelos de Redação</h2>
-              <Button onClick={() => setShowAdicionarModelo(true)}>
+              <Button onClick={() => { setEditingModelo(null); setShowAdicionarModelo(true); }}>
                 <Plus className="h-4 w-4 mr-2" />
                 Adicionar Modelo
               </Button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modelosExemplo.map((modelo) => (
-                <Card key={modelo.id} className="p-6 space-y-4">
-                  <h3 className="font-bold">{modelo.titulo}</h3>
-                  <p className="text-sm text-muted-foreground">{modelo.tema}</p>
+              {modelosRedacao.map((modelo) => (
+                <Card key={modelo.id} className="p-6 space-y-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold">{modelo.titulo}</h3>
+                    <p className="text-sm text-muted-foreground">{modelo.tema}</p>
+                    <div className="flex gap-2 mt-2">
+                        <Badge variant="outline">{modelo.categoria}</Badge>
+                        <Badge variant="secondary">{modelo.dificuldade}</Badge>
+                    </div>
+                  </div>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="outline" onClick={() => usarModelo(modelo)}>Usar</Button>
-                    <Button size="sm" variant="ghost" onClick={() => visualizarModelo(modelo)}>Visualizar</Button>
+                    <Button size="sm" variant="outline" onClick={() => visualizarModelo(modelo)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        Ver
+                    </Button>
+                    <Button size="sm" onClick={() => usarModelo(modelo)}>
+                        <PenTool className="h-4 w-4 mr-2" />
+                        Usar
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => { setEditingModelo(modelo); setShowAdicionarModelo(true);}}>
+                        <Edit className="h-4 w-4" />
+                    </Button>
+                     <Button size="sm" variant="destructive" onClick={() => excluirModelo(modelo.id)}>
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </Card>
               ))}
+              {modelosRedacao.length === 0 && <p>Nenhum modelo cadastrado.</p>}
             </div>
           </TabsContent>
 
@@ -545,6 +579,58 @@ const Redacao = () => {
                 </CardContent>
              </Card>
           </div>
+        )}
+
+        {/* Modal para adicionar/editar modelo */}
+        <Dialog open={showAdicionarModelo} onOpenChange={setShowAdicionarModelo}>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    <DialogTitle>{editingModelo ? 'Editar Modelo' : 'Adicionar Novo Modelo'}</DialogTitle>
+                </DialogHeader>
+                <AdicionarModeloForm 
+                    onSubmit={editingModelo ? (data) => editarModelo(editingModelo.id, data) : adicionarModelo}
+                    onCancel={() => { setShowAdicionarModelo(false); setEditingModelo(null); }}
+                    initialData={editingModelo ? {
+                      titulo: editingModelo.titulo,
+                      tema: editingModelo.tema,
+                      categoria: editingModelo.categoria,
+                      dificuldade: editingModelo.dificuldade,
+                      texto: editingModelo.texto,
+                      observacoes: editingModelo.observacoes
+                    } : undefined}
+                />
+            </DialogContent>
+        </Dialog>
+
+        {/* Modal para visualizar modelo */}
+        {modeloSelecionado && (
+            <Dialog open={showVisualizarModelo} onOpenChange={setShowVisualizarModelo}>
+                <DialogContent className="max-w-4xl h-[90vh]">
+                    <DialogHeader>
+                        <DialogTitle>{modeloSelecionado.titulo}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 overflow-y-auto pr-4">
+                        <p><strong>Tema:</strong> {modeloSelecionado.tema}</p>
+                        <p><strong>Categoria:</strong> {modeloSelecionado.categoria}</p>
+                        <p><strong>Dificuldade:</strong> {modeloSelecionado.dificuldade}</p>
+                        <Card>
+                            <CardHeader><CardTitle>Texto do Modelo</CardTitle></CardHeader>
+                            <CardContent><pre className="whitespace-pre-wrap">{modeloSelecionado.texto}</pre></CardContent>
+                        </Card>
+                        {modeloSelecionado.observacoes && (
+                            <Card>
+                                <CardHeader><CardTitle>Observações</CardTitle></CardHeader>
+                                <CardContent>{modeloSelecionado.observacoes}</CardContent>
+                            </Card>
+                        )}
+                        <div className="flex gap-2">
+                           <Button onClick={() => usarModelo(modeloSelecionado)}>Usar este Modelo</Button>
+                           <Button variant="outline" onClick={() => copiarModelo(modeloSelecionado.texto)}>Copiar Texto</Button>
+                           <Button variant="secondary" onClick={() => baixarModeloPDF(modeloSelecionado)}>Baixar PDF</Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
         )}
 
       </main>
