@@ -14,6 +14,4 @@ export const ai = genkit({
       // Specify the API version if needed, e.g., 'v1beta'
     }),
   ],
-  // Omit a flow menu from the developer UI.
-  enableApp: false,
 });
