@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Brain, 
   Sparkles, 
@@ -19,7 +20,16 @@ import {
   BookOpen,
   Play,
   Gamepad2,
-  View
+  View,
+  SkipBack,
+  SkipForward,
+  Check,
+  X,
+  Calculator,
+  Languages,
+  TestTube,
+  History,
+  PenTool
 } from "lucide-react";
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
@@ -27,35 +37,83 @@ import FlashcardAIService, { FlashcardData } from "@/services/FlashcardAIService
 import { useToast } from "@/components/ui/use-toast";
 import FlashcardService from "@/services/FlashcardService";
 
+// Tipos
+interface FlashcardCardProps {
+  card: any;
+  onAnswer?: (quality: 'easy' | 'hard') => void;
+  isStudyMode?: boolean;
+}
+
+const FlashcardCard: React.FC<FlashcardCardProps> = ({ card, onAnswer, isStudyMode }) => {
+  const [isFlipped, setIsFlipped] = useState(false);
+
+  return (
+    <div 
+      className="w-full max-w-lg h-80 perspective-1000 mx-auto"
+      onClick={() => setIsFlipped(!isFlipped)}
+    >
+      <div 
+        className={`relative w-full h-full transform-style-3d transition-transform duration-700 ${isFlipped ? 'rotate-y-180' : ''}`}
+      >
+        {/* Frente */}
+        <div className="absolute w-full h-full backface-hidden rounded-2xl shadow-xl bg-white dark:bg-slate-800 p-8 flex flex-col justify-center items-center text-center">
+          <Badge variant="outline" className="absolute top-4 left-4">{card.subject}</Badge>
+          <p className="text-2xl font-bold text-slate-900 dark:text-white">{card.front}</p>
+        </div>
+        
+        {/* Verso */}
+        <div className="absolute w-full h-full backface-hidden rotate-y-180 rounded-2xl shadow-xl bg-blue-50 dark:bg-slate-700 p-8 flex flex-col justify-center items-center text-center">
+          <p className="text-xl text-slate-800 dark:text-slate-100">{card.back}</p>
+          {isStudyMode && onAnswer && (
+            <div className="flex gap-4 mt-6">
+              <Button onClick={() => onAnswer('hard')} variant="destructive"><X className="mr-2"/>Errei</Button>
+              <Button onClick={() => onAnswer('easy')} className="bg-green-500 hover:bg-green-600"><Check className="mr-2"/>Acertei</Button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
 const Flashcards = () => {
   const [inputText, setInputText] = useState("Exemplo: A equação do segundo grau é ax² + bx + c = 0, onde a ≠ 0. O discriminante é calculado por Δ = b² - 4ac. A fórmula de Bhaskara é x = (-b ± √Δ) / 2a. Quando Δ > 0, a equação tem duas raízes reais distintas. Quando Δ = 0, tem uma raiz real dupla. Quando Δ < 0, não tem raízes reais...");
   const [generatedCards, setGeneratedCards] = useState<Omit<FlashcardData, "incorrectCount" | "quality" | "isActive">[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState("gerador");
+  const [activeTab, setActiveTab] = useState("meus-flashcards");
   const { toast } = useToast();
   const flashcardService = useMemo(() => FlashcardService.getInstance(), []);
 
   const [allDecks, setAllDecks] = useState<any[]>([]);
+  const [studyMode, setStudyMode] = useState(false);
+  const [gameMode, setGameMode] = useState(false);
+  const [studyCards, setStudyCards] = useState<any[]>([]);
+  const [gameCards, setGameCards] = useState<any[]>([]);
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
-  // Carregar os módulos quando a aba for ativada
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     if (value === "meus-flashcards") {
-      const subjects = [...new Set(flashcardService.getCardsForReview().map(c => c.subject))];
-      const decks = subjects.map(subject => {
-        const subjectCards = flashcardService.getFlashcardsBySubject(subject);
-        const studiedCount = subjectCards.filter(c => c.reviewCount > 0).length;
-        return {
-          id: subject,
-          title: subject,
-          cardCount: subjectCards.length,
-          progress: subjectCards.length > 0 ? (studiedCount / subjectCards.length) * 100 : 0
-        };
-      });
-      setAllDecks(decks);
+      loadDecks();
     }
   };
 
+  const loadDecks = () => {
+    const subjects = [...new Set(flashcardService.getCardsForReview().map(c => c.subject))];
+    const decks = subjects.map(subject => {
+      const subjectCards = flashcardService.getFlashcardsBySubject(subject);
+      const studiedCount = subjectCards.filter(c => c.reviewCount > 0).length;
+      return {
+        id: subject,
+        title: subject,
+        cardCount: subjectCards.length,
+        progress: subjectCards.length > 0 ? (studiedCount / subjectCards.length) * 100 : 0
+      };
+    });
+    setAllDecks(decks);
+  };
+  
   const handleGenerate = async () => {
     if (!inputText.trim()) {
       toast({
@@ -97,9 +155,48 @@ const Flashcards = () => {
       title: 'Flashcards Salvos!',
       description: 'Seus novos cards foram adicionados à sua coleção.',
     });
-    // Opcional: mudar para a aba "Meus Flashcards"
     handleTabChange("meus-flashcards");
   };
+
+  const startStudy = (subject: string) => {
+    const cards = flashcardService.getCardsForReview(subject);
+    setStudyCards(cards);
+    setCurrentCardIndex(0);
+    setStudyMode(true);
+  };
+
+  const startGame = (subject: string) => {
+    const cards = flashcardService.getFlashcardsBySubject(subject);
+    setGameCards(cards);
+    setCurrentCardIndex(0);
+    setGameMode(true);
+  };
+
+  const handleCardAnswer = (quality: 'easy' | 'hard') => {
+    const card = studyCards[currentCardIndex];
+    flashcardService.answerCard(card.id, quality === 'easy' ? 4 : 1, 5000);
+    setTimeout(() => {
+      if (currentCardIndex < studyCards.length - 1) {
+        setCurrentCardIndex(currentCardIndex + 1);
+      } else {
+        setStudyMode(false);
+        toast({ title: "Sessão de estudo concluída!" });
+      }
+    }, 300);
+  };
+
+  const getSubjectIcon = (subject: string) => {
+    const iconMap: { [key: string]: React.ReactNode } = {
+      'Matemática': <Calculator />,
+      'Linguagens e Códigos': <Languages />,
+      'Ciências da Natureza': <TestTube />,
+      'Ciências Humanas': <History />,
+      'Redação': <PenTool />,
+    };
+    return iconMap[subject] || <BookOpen />;
+  };
+
+  const currentCard = studyMode ? studyCards[currentCardIndex] : gameMode ? gameCards[currentCardIndex] : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
@@ -110,7 +207,6 @@ const Flashcards = () => {
           <BackButton />
         </div>
 
-        {/* Hero Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-medium mb-4">
             <Brain className="h-4 w-4" />
@@ -124,18 +220,10 @@ const Flashcards = () => {
           </p>
         </div>
 
-        {/* Tabs */}
         <div className="flex justify-center mb-8">
           <div className="bg-white/80 dark:bg-slate-800/50 backdrop-blur-sm p-2 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700">
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
               <TabsList className="grid grid-cols-2 gap-2 bg-transparent p-0">
-                <TabsTrigger 
-                  value="gerador" 
-                  className="px-6 py-3 rounded-xl data-[state=active]:bg-slate-900 dark:data-[state=active]:bg-slate-700 data-[state=active]:text-white data-[state=active]:shadow-xl font-semibold transition-all duration-300 flex items-center gap-2"
-                >
-                  <Wand2 className="h-4 w-4" />
-                  Gerador IA
-                </TabsTrigger>
                 <TabsTrigger 
                   value="meus-flashcards"
                   className="px-6 py-3 rounded-xl data-[state=active]:bg-slate-900 dark:data-[state=active]:bg-slate-700 data-[state=active]:text-white data-[state=active]:shadow-xl font-semibold transition-all duration-300 flex items-center gap-2"
@@ -143,12 +231,19 @@ const Flashcards = () => {
                   <FileText className="h-4 w-4" />
                   Meus Flashcards
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="gerador" 
+                  className="px-6 py-3 rounded-xl data-[state=active]:bg-slate-900 dark:data-[state=active]:bg-slate-700 data-[state=active]:text-white data-[state=active]:shadow-xl font-semibold transition-all duration-300 flex items-center gap-2"
+                >
+                  <Wand2 className="h-4 w-4" />
+                  Gerador IA
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
         </div>
 
-        {activeTab === "gerador" && (
+        {activeTab === 'gerador' && (
           <Card className="border-0 shadow-2xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl">
             <CardHeader className="p-6 border-b border-slate-200 dark:border-slate-700">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -237,18 +332,27 @@ const Flashcards = () => {
               </div>
 
               <div className="text-center pt-4">
-                <Button
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  size="lg"
-                  className="w-full max-w-md bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-lg font-bold shadow-lg hover:shadow-xl"
-                >
-                  {isGenerating ? (
-                    <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Gerando Flashcards...</>
-                  ) : (
-                    <><Wand2 className="h-5 w-5 mr-2" /> Gerar Flashcards</>
-                  )}
-                </Button>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button
+                                onClick={handleGenerate}
+                                disabled={isGenerating}
+                                size="lg"
+                                className="w-full max-w-md bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-slate-100 text-white dark:text-slate-900 text-lg font-bold shadow-lg hover:shadow-xl"
+                            >
+                                {isGenerating ? (
+                                    <><Loader2 className="h-5 w-5 mr-2 animate-spin" /> Gerando Flashcards...</>
+                                ) : (
+                                    <><Wand2 className="h-5 w-5 mr-2" /> Gerar Flashcards</>
+                                )}
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Clique para que a IA gere os flashcards a partir do texto.</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
               </div>
 
               {generatedCards.length > 0 && (
@@ -269,10 +373,19 @@ const Flashcards = () => {
                     ))}
                   </div>
                   <div className="text-center">
-                    <Button onClick={handleAddCardsToCollection}>
-                      <Save className="h-4 w-4 mr-2" />
-                      Adicionar à Coleção
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                           <Button onClick={handleAddCardsToCollection}>
+                             <Save className="h-4 w-4 mr-2" />
+                             Adicionar à Coleção
+                           </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Salva os cards gerados na sua coleção pessoal.</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
                   </div>
                 </div>
               )}
@@ -280,7 +393,7 @@ const Flashcards = () => {
             </CardContent>
           </Card>
         )}
-        
+
         {activeTab === 'meus-flashcards' && (
           <div className="space-y-6">
             <h2 className="text-3xl font-bold text-center">Meus Módulos de Flashcards</h2>
@@ -289,7 +402,7 @@ const Flashcards = () => {
                 <Card key={deck.id} className="flex flex-col">
                   <CardHeader>
                     <div className="flex items-center gap-3">
-                       <BookOpen className="h-6 w-6 text-primary" />
+                       {getSubjectIcon(deck.title)}
                        <CardTitle>{deck.title}</CardTitle>
                     </div>
                     <p className="text-sm text-muted-foreground">{deck.cardCount} cards</p>
@@ -305,14 +418,30 @@ const Flashcards = () => {
                       </div>
                     </div>
                     <div className="mt-4 flex gap-2">
-                       <Button className="flex-1" >
-                          <Play className="h-4 w-4 mr-2"/>
-                          Iniciar Estudo
-                       </Button>
-                       <Button variant="secondary" className="flex-1">
-                          <Gamepad2 className="h-4 w-4 mr-2"/>
-                          Modo Jogo
-                       </Button>
+                       <TooltipProvider>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                              <Button className="flex-1" onClick={() => startStudy(deck.title)}>
+                                <Play className="h-4 w-4 mr-2"/>
+                                Estudar
+                              </Button>
+                           </TooltipTrigger>
+                           <TooltipContent>
+                             <p>Iniciar modo de estudo com repetição espaçada.</p>
+                           </TooltipContent>
+                         </Tooltip>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                              <Button variant="secondary" className="flex-1" onClick={() => startGame(deck.title)}>
+                                <Gamepad2 className="h-4 w-4 mr-2"/>
+                                Jogo Rápido
+                              </Button>
+                           </TooltipTrigger>
+                           <TooltipContent>
+                             <p>Faça um quiz rápido para testar seus conhecimentos.</p>
+                           </TooltipContent>
+                         </Tooltip>
+                       </TooltipProvider>
                     </div>
                   </CardContent>
                 </Card>
@@ -322,6 +451,33 @@ const Flashcards = () => {
         )}
 
       </main>
+
+      {/* Study Mode */}
+      {studyMode && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl relative">
+            <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white" onClick={() => setStudyMode(false)}><X/></Button>
+            <h2 className="text-2xl font-bold text-center text-white mb-8">Modo Estudo: {studyCards[0]?.subject}</h2>
+            {currentCard && <FlashcardCard card={currentCard} onAnswer={handleCardAnswer} isStudyMode />}
+          </div>
+        </div>
+      )}
+
+      {/* Game Mode */}
+      {gameMode && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-2xl relative">
+            <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white" onClick={() => setGameMode(false)}><X/></Button>
+            <h2 className="text-2xl font-bold text-center text-white mb-8">Jogo Rápido: {gameCards[0]?.subject}</h2>
+            {currentCard && <FlashcardCard card={currentCard} />}
+            <div className="flex justify-center gap-4 mt-4">
+              <Button onClick={() => setCurrentCardIndex(p => Math.max(0, p - 1))}><SkipBack/></Button>
+              <Button onClick={() => setCurrentCardIndex(p => Math.min(gameCards.length - 1, p + 1))}><SkipForward/></Button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
