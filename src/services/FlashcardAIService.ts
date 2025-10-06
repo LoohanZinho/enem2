@@ -1,9 +1,10 @@
+
 // Serviço de IA para geração inteligente de flashcards
 import {
-  gerarFlashcards,
-  type GerarFlashcardsInput,
-  type GerarFlashcardsOutput,
+  gerarFlashcards
 } from '@/ai/flows/flashcard-flow';
+import type { GerarFlashcardsInput, GerarFlashcardsOutput } from '@/ai/flows/flashcard-types';
+
 
 export interface Concept {
   text: string;
