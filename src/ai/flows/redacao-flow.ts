@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileoverview Defines the AI flow for correcting ENEM essays.
@@ -5,6 +6,7 @@
  * based on the 5 official ENEM competencies.
  */
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import { 
   CorrecaoRedacaoInputSchema, 
   CorrecaoRedacaoOutputSchema,
@@ -17,6 +19,7 @@ const correcaoRedacaoPrompt = ai.definePrompt({
   name: 'correcaoRedacaoPrompt',
   input: { schema: CorrecaoRedacaoInputSchema },
   output: { schema: CorrecaoRedacaoOutputSchema },
+  model: googleAI('gemini-pro'),
   prompt: `
     Você é um corretor especialista de redações do ENEM, treinado para avaliar textos com base nas 5 competências oficiais, seguindo o método CIRA.
     Sua tarefa é analisar a redação fornecida, considerando o tema proposto, e gerar uma correção detalhada e construtiva.
