@@ -41,6 +41,7 @@ import type { CorrecaoRedacao, PontuacaoCompetencia } from "@/services/RedacaoAI
 import { Dialog, DialogHeader, DialogTitle, DialogContent } from "@/components/ui/dialog";
 import { userDataService } from "@/services/UserDataService";
 import { RelatoriosService } from "@/services/RelatoriosService";
+import { toast } from "@/hooks/use-toast";
 
 // Tipos
 interface ModeloRedacao {
@@ -286,7 +287,18 @@ const Redacao = () => {
   };
 
   const handleCorrect = async () => {
-    if (!essayText.trim() || selectedTheme === null) return;
+    if (!essayText.trim() || selectedTheme === null) {
+      toast.error("Por favor, selecione um tema e escreva sua redação.");
+      return;
+    }
+    
+    if (essayText.trim().length < 50) {
+      toast.warning("Texto muito curto", {
+        description: "Sua redação precisa ter pelo menos 50 caracteres para uma análise precisa."
+      });
+      return;
+    }
+
     setIsCorrecting(true);
     setShowCorrection(false);
     try {
@@ -299,6 +311,9 @@ const Redacao = () => {
       setRedacoesRecentes(prev => [correction, ...prev.slice(0, 4)]);
     } catch (error) {
       console.error("Erro ao corrigir redação:", error);
+      toast.error("Erro na Correção", {
+        description: "Não foi possível corrigir a redação no momento. Tente novamente mais tarde."
+      });
     } finally {
       setIsCorrecting(false);
     }
