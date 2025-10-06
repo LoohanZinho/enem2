@@ -1519,149 +1519,125 @@ const Flashcards = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       <Header />
-      {gameMode && (
-         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-         <div className="w-full max-w-4xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700">
-           {/* Header Profissional */}
-           <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 p-6 border-b border-slate-200 dark:border-slate-700">
-             <div className="flex items-center justify-between">
-               <div className="flex items-center gap-4">
-                 <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg">
-                   <Brain className="h-6 w-6 text-white" />
-                 </div>
-                 <div>
-                   <h2 className="text-2xl font-bold text-white">Sessão de Estudo</h2>
-                   <p className="text-slate-300">Card {currentGameCard + 1} de {gameCards.length}</p>
-                 </div>
-               </div>
-               
-               <div className="flex items-center gap-6">
-                 {/* Estatísticas em Tempo Real */}
-                 <div className="flex items-center gap-4">
-                   <div className="text-center">
-                     <p className="text-slate-300 text-sm font-medium">Acertos</p>
-                     <p className="text-2xl font-bold text-emerald-400">{gameScore.correct}</p>
-                   </div>
-                   <div className="text-center">
-                     <p className="text-slate-300 text-sm font-medium">Total</p>
-                     <p className="text-2xl font-bold text-white">{gameScore.total}</p>
-                   </div>
-                   <div className="text-center">
-                     <p className="text-slate-300 text-sm font-medium">Taxa</p>
-                     <p className="text-2xl font-bold text-blue-400">
-                       {gameScore.total > 0 ? Math.round((gameScore.correct / gameScore.total) * 100) : 0}%
-                     </p>
-                   </div>
-                 </div>
-                 
-                 <Button
-                   onClick={endGameMode}
-                   variant="ghost"
-                   className="text-white hover:bg-white/20 rounded-xl p-2"
-                 >
-                   <X className="h-5 w-5" />
-                 </Button>
-               </div>
-             </div>
-             
-             {/* Barra de Progresso */}
-             <div className="mt-4">
-               <div className="flex items-center justify-between mb-2">
-                 <span className="text-slate-300 text-sm font-medium">Progresso</span>
-                 <span className="text-slate-300 text-sm font-medium">
-                   {Math.round(((currentGameCard + 1) / gameCards.length) * 100)}%
-                 </span>
-               </div>
-               <div className="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-                 <div 
-                   className="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full transition-all duration-500 ease-out"
-                   style={{ width: `${((currentGameCard + 1) / gameCards.length) * 100}%` }}
-                 />
-               </div>
-             </div>
-           </div>
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <BackButton 
+              variant="ghost"
+              size="sm"
+              className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100"
+            />
+            <div>
+              <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                Flashcards
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mt-1">
+                Crie, organize e estude com flashcards gerados por IA.
+              </p>
+            </div>
+          </div>
+        </div>
 
-           {/* Área Principal do Jogo */}
-           <div className="p-8 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 min-h-[500px]">
-             {gameCards.length > 0 && (
-               <div className="space-y-8">
-                 {/* Card Principal */}
-                 <div className="flex justify-center">
-                   <div className="w-full max-w-3xl">
-                     <FlashcardCard 
-                       card={gameCards[currentGameCard]} 
-                       onAnswer={handleGameAnswer} 
-                       isStudyMode={true}
-                     />
-                   </div>
-                 </div>
-                 
-                 {/* Controles de Navegação */}
-                 <div className="flex justify-center gap-4">
-                   <Button
-                     onClick={previousGameCard}
-                     disabled={currentGameCard === 0}
-                     variant="outline"
-                     className="h-12 px-6 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                   >
-                     <SkipBack className="h-5 w-5 mr-2" />
-                     Anterior
-                   </Button>
-                   
-                   <div className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-300 dark:border-slate-600 shadow-lg">
-                     <span className="text-slate-600 dark:text-slate-300 font-semibold">
-                       {currentGameCard + 1} / {gameCards.length}
-                     </span>
-                   </div>
-                   
-                   <Button
-                     onClick={nextGameCard}
-                     disabled={currentGameCard === gameCards.length - 1}
-                     variant="outline"
-                     className="h-12 px-6 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                   >
-                     Próximo
-                     <SkipForward className="h-5 w-5 ml-2" />
-                   </Button>
-                 </div>
-                 
-                 {/* Informações do Card Atual */}
-                 <div className="bg-white dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg">
-                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                     <div className="text-center">
-                       <p className="text-slate-600 dark:text-slate-400 text-sm font-medium mb-2">Matéria</p>
-                       <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-full text-sm font-semibold">
-                         {gameCards[currentGameCard]?.subject}
-                       </Badge>
-                     </div>
-                     <div className="text-center">
-                       <p className="text-slate-600 dark:text-slate-400 text-sm font-medium mb-2">Dificuldade</p>
-                       <Badge className={`px-4 py-2 rounded-full text-sm font-semibold ${getDifficultyColor(gameCards[currentGameCard]?.difficulty)}`}>
-                         {getDifficultyText(gameCards[currentGameCard]?.difficulty)}
-                       </Badge>
-                     </div>
-                     <div className="text-center">
-                       <p className="text-slate-600 dark:text-slate-400 text-sm font-medium mb-2">Revisões</p>
-                       <div className="flex items-center justify-center gap-2">
-                         <Target className="h-4 w-4 text-slate-500" />
-                         <span className="text-slate-900 dark:text-white font-semibold">
-                           {gameCards[currentGameCard]?.reviewCount || 0}
-                         </span>
-                       </div>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-             )}
-           </div>
-         </div>
-       </div>
-      )}
-      <p>Página de Flashcards em construção...</p>
+        <Tabs defaultValue="gerador-ia" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-6">
+            <TabsTrigger value="gerador-ia">Gerador IA</TabsTrigger>
+            <TabsTrigger value="meus-flashcards">Meus Flashcards</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="gerador-ia">
+            <Card className="shadow-lg border-0">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-primary" />
+                  Gerador Automático de Flashcards
+                </CardTitle>
+                <p className="text-muted-foreground">
+                  Cole qualquer texto e nossa IA irá analisar e gerar flashcards perfeitos.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium">Selecione a Matéria</label>
+                    <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Detectar Automaticamente</SelectItem>
+                        {subjects.map(sub => (
+                          <SelectItem key={sub} value={sub}>{sub}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Dificuldade Preferida</label>
+                    <Select value={studyMode} onValueChange={(value) => setStudyMode(value as any)}>
+                       <SelectTrigger>
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent>
+                         <SelectItem value="review">Revisão Geral</SelectItem>
+                         <SelectItem value="new">Conteúdo Novo</SelectItem>
+                         <SelectItem value="difficult">Aprofundamento</SelectItem>
+                       </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium">Cole seu texto aqui:</label>
+                  <Textarea
+                    value={inputText}
+                    onChange={(e) => setInputText(e.target.value)}
+                    placeholder="Exemplo: A equação do segundo grau é ax² + bx + c = 0, onde a ≠ 0..."
+                    className="min-h-[200px]"
+                  />
+                </div>
+                
+                <div className="flex justify-between items-center">
+                  <Button variant="outline" onClick={() => setShowQuickTemplates(true)}>Templates Rápidos</Button>
+                  <div className="flex gap-2">
+                    <Button variant="ghost" onClick={() => saveToFavorites()}>Salvar</Button>
+                    <Button variant="ghost" onClick={() => setInputText('')}>Limpar</Button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg">
+                        <h4 className="font-semibold mb-2">Dicas para melhores resultados:</h4>
+                        <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                          <li>Cole textos de livros, resumos ou anotações completas</li>
+                          <li>A IA detecta automaticamente a matéria e o módulo</li>
+                          <li>Textos mais longos geram flashcards mais precisos</li>
+                          <li>Inclua definições, fórmulas e conceitos importantes</li>
+                        </ul>
+                    </div>
+                    <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-lg">
+                       <h4 className="font-semibold mb-2">Recursos da IA:</h4>
+                       <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                          <li>Análise semântica do conteúdo</li>
+                          <li>Geração de perguntas inteligentes</li>
+                          <li>Classificação automática por dificuldade</li>
+                          <li>Organização por matéria e módulo</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <Button onClick={generateFlashcardsFromText} disabled={isGenerating} className="w-full">
+                  {isGenerating ? 'Gerando...' : 'Gerar Flashcards'}
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="meus-flashcards">
+             <p>Meus flashcards...</p>
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 };
 
 export default Flashcards;
-
-    
