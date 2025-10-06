@@ -31,7 +31,7 @@ import {
 import Header from "@/components/Header";
 import HandwrittenEssayUpload from "@/components/HandwrittenEssayUpload";
 import BackButton from "@/components/BackButton";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -40,6 +40,7 @@ import { RedacaoAIService } from "@/services/RedacaoAIService";
 import type { CorrecaoRedacao, PontuacaoCompetencia } from "@/services/RedacaoAIService";
 import { Dialog, DialogHeader, DialogTitle, DialogContent } from "@/components/ui/dialog";
 import { userDataService } from "@/services/UserDataService";
+import { RelatoriosService } from "@/services/RelatoriosService";
 
 // Tipos
 interface ModeloRedacao {
@@ -180,8 +181,24 @@ const Redacao = () => {
   const [showVisualizarModelo, setShowVisualizarModelo] = useState(false);
   const [modeloSelecionado, setModeloSelecionado] = useState<ModeloRedacao | null>(null);
   const [editingModelo, setEditingModelo] = useState<ModeloRedacao | null>(null);
+  const [stats, setStats] = useState({
+    totalRedacoes: 0,
+    mediaGeral: 0,
+    melhorNota: 0,
+  });
 
   const redacaoService = RedacaoAIService.getInstance();
+  const relatoriosService = RelatoriosService.getInstance();
+
+  const loadStats = useCallback(async () => {
+    await relatoriosService.carregarDados();
+    const summaryStats = relatoriosService.obterEstatisticasResumidas();
+    setStats({
+      totalRedacoes: summaryStats.totalRedacoes,
+      mediaGeral: summaryStats.mediaGeral,
+      melhorNota: summaryStats.melhorNota,
+    });
+  }, [relatoriosService]);
 
   useEffect(() => {
     const loadModelos = async () => {
@@ -189,7 +206,8 @@ const Redacao = () => {
       setModelosRedacao(modelos);
     };
     loadModelos();
-  }, []);
+    loadStats();
+  }, [loadStats]);
 
   const themes = [
     {
@@ -214,12 +232,6 @@ const Redacao = () => {
       description: "Aborde a importância da preservação da Amazônia para o equilíbrio climático global e a biodiversidade."
     },
   ];
-
-  const stats = {
-    totalRedacoes: 18,
-    mediaNotas: 820,
-    melhorNota: 920,
-  };
 
   const adicionarModelo = async (novoModelo: Omit<ModeloRedacao, 'id' | 'dataCriacao' | 'autor'>) => {
     const modeloCompleto: ModeloRedacao = {
@@ -281,6 +293,8 @@ const Redacao = () => {
       const themeTitle = themes[selectedTheme].title;
       const correction = await redacaoService.corrigirRedacao(essayText, themeTitle);
       setCorrecaoAtual(correction);
+      await relatoriosService.adicionarRedacao(correction);
+      await loadStats(); // Atualiza as estatísticas
       setShowCorrection(true);
       setRedacoesRecentes(prev => [correction, ...prev.slice(0, 4)]);
     } catch (error) {
@@ -503,7 +517,7 @@ const Redacao = () => {
                   <CardTitle>Média Geral</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-4xl font-bold">{stats.mediaNotas}</p>
+                  <p className="text-4xl font-bold">{stats.mediaGeral}</p>
                 </CardContent>
               </Card>
               <Card>
