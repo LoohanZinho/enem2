@@ -326,7 +326,7 @@ export class RelatoriosService {
     // Sugestão geral baseada na competência mais fraca
     const notaMaisFraca = mediasCompetencias[competenciaMaisFraca];
     if (notaMaisFraca < 100) {
-      sugestoes.push(`Foque especialmente na ${nomesCompetencias[competenciaMaisFraca]} - sua área de maior necessidade de melhoria.`);
+      sugestoes.push(`Foque especialmente na ${nomesCompetencias[competenciaMaisFraca as keyof typeof nomesCompetencias]} - sua área de maior necessidade de melhoria.`);
     }
 
     // Sugestões específicas por competência
@@ -365,14 +365,7 @@ export class RelatoriosService {
   // Gerar metas de evolução
   private gerarMetas(mediasCompetencias: { [key: number]: number }, competenciaMaisFraca: number): MetaEvolucao[] {
     const metas: MetaEvolucao[] = [];
-    const nomesCompetencias = {
-      1: 'Domínio da norma culta',
-      2: 'Compreensão da proposta',
-      3: 'Seleção e organização de informações',
-      4: 'Mecanismos linguísticos',
-      5: 'Proposta de intervenção'
-    };
-
+    
     // Meta para competência mais fraca
     const notaAtual = mediasCompetencias[competenciaMaisFraca];
     if (notaAtual < 150) {

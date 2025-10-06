@@ -1,3 +1,5 @@
+
+"use client";
 import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,7 +24,8 @@ import {
   Minus,
   FileText,
   PieChart,
-  LineChart
+  LineChart,
+  Loader2
 } from "lucide-react";
 import Header from "@/components/Header";
 import { RelatoriosService, RelatorioEvolucao, CorrecaoRedacao } from "@/services/RelatoriosService";
@@ -41,8 +44,8 @@ const Relatorios = () => {
   
   const relatoriosService = RelatoriosService.getInstance();
 
-  const carregarDados = useCallback(() => {
-    relatoriosService.carregarDados();
+  const carregarDados = useCallback(async () => {
+    await relatoriosService.carregarDados();
     const stats = relatoriosService.obterEstatisticasResumidas();
     setEstatisticas(stats);
   }, [relatoriosService]);
@@ -233,7 +236,7 @@ const Relatorios = () => {
           <div className="flex gap-2">
             <Button onClick={gerarRelatorio} disabled={isLoading}>
               {isLoading ? (
-                <Clock className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <BarChart3 className="h-4 w-4 mr-2" />
               )}
