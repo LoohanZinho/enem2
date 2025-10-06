@@ -81,7 +81,7 @@ const Flashcards = () => {
   const [inputText, setInputText] = useState("Exemplo: A equação do segundo grau é ax² + bx + c = 0, onde a ≠ 0. O discriminante é calculado por Δ = b² - 4ac. A fórmula de Bhaskara é x = (-b ± √Δ) / 2a. Quando Δ > 0, a equação tem duas raízes reais distintas. Quando Δ = 0, tem uma raiz real dupla. Quando Δ < 0, não tem raízes reais...");
   const [generatedCards, setGeneratedCards] = useState<Omit<FlashcardData, "incorrectCount" | "quality" | "isActive">[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [activeTab, setActiveTab] = useState("meus-flashcards");
+  const [activeTab, setActiveTab] = useState("gerador");
   const { toast } = useToast();
   const flashcardService = useMemo(() => FlashcardService.getInstance(), []);
 
@@ -185,7 +185,7 @@ const Flashcards = () => {
     }, 300);
   };
 
-  const getSubjectIcon = (subject: string) => {
+  const getSubjectIcon = (subject: string): React.ReactNode => {
     const iconMap: { [key: string]: React.ReactNode } = {
       'Matemática': <Calculator />,
       'Linguagens e Códigos': <Languages />,
@@ -483,3 +483,5 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
+
+    
