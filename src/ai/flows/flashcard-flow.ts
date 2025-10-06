@@ -3,6 +3,7 @@
  * @fileoverview Defines the AI flow for generating flashcards from a given text.
  */
 import { ai } from '@/ai/genkit';
+import { googleAI } from '@genkit-ai/google-genai';
 import {
   GerarFlashcardsInputSchema,
   GerarFlashcardsOutputSchema,
@@ -15,6 +16,7 @@ const gerarFlashcardsPrompt = ai.definePrompt({
   name: 'gerarFlashcardsPrompt',
   input: { schema: GerarFlashcardsInputSchema },
   output: { schema: GerarFlashcardsOutputSchema },
+  model: googleAI('gemini-pro'),
   prompt: `
     Você é um especialista em educação e um assistente de estudos para o ENEM.
     Sua tarefa é analisar o texto fornecido e criar um conjunto de flashcards (pergunta e resposta)
