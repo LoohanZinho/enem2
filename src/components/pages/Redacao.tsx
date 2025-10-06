@@ -125,7 +125,7 @@ const AdicionarModeloForm = ({ onSubmit, onCancel, initialData }: AdicionarModel
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Fácil">Fácil</SelectItem>
-              <SelectItem value="Médio">Médio</SelectItem>
+              <SelectItem value="Médio">Média</SelectItem>
               <SelectItem value="Difícil">Difícil</SelectItem>
             </SelectContent>
           </Select>
@@ -520,70 +520,70 @@ const Redacao = () => {
         
         {/* Modal de Correção */}
         {showCorrection && correcaoAtual && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-             <Card className="w-full max-w-4xl h-[90vh] overflow-y-auto">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Resultado da Correção</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => setShowCorrection(false)}><X className="h-4 w-4" /></Button>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="text-center">
-                    <p className="text-lg font-medium text-muted-foreground">Nota Final</p>
-                    <p className={`text-6xl font-bold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.notaFinal}</p>
-                    <p className={`font-semibold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.nivel}</p>
-                  </div>
-                  <Tabs defaultValue="resumo" className="w-full">
-                    <TabsList className="grid w-full grid-cols-6">
-                      <TabsTrigger value="resumo">Resumo</TabsTrigger>
-                      <TabsTrigger value="c1">C1</TabsTrigger>
-                      <TabsTrigger value="c2">C2</TabsTrigger>
-                      <TabsTrigger value="c3">C3</TabsTrigger>
-                      <TabsTrigger value="c4">C4</TabsTrigger>
-                      <TabsTrigger value="c5">C5</TabsTrigger>
-                    </TabsList>
-                    <TabsContent value="resumo" className="p-4">
-                       <h3 className="font-bold text-lg mb-2">Feedback Geral</h3>
-                       <p>{correcaoAtual.feedbackGeral}</p>
-                    </TabsContent>
-                    {correcaoAtual.competencias.map(comp => (
-                       <TabsContent key={comp.competencia} value={`c${comp.competencia}`} className="p-4 space-y-4">
-                         <div className="flex justify-between items-center">
-                           <h3 className="font-bold text-lg">Competência {comp.competencia}</h3>
-                           <p className="text-2xl font-bold">{comp.nota}</p>
-                         </div>
-                         <div>
-                           <h4 className="font-semibold">Justificativa:</h4>
-                           <p className="text-sm">{comp.justificativa}</p>
-                         </div>
-                         <div>
-                           <h4 className="font-semibold text-green-600">Pontos Fortes:</h4>
-                           <ul className="list-disc list-inside text-sm">
-                              {comp.pontosFortes.map((p, i) => <li key={i}>{p}</li>)}
-                           </ul>
-                         </div>
-                         <div>
-                           <h4 className="font-semibold text-red-600">Pontos a Melhorar:</h4>
-                           <ul className="list-disc list-inside text-sm">
-                              {comp.pontosFracos.map((p, i) => <li key={i}>{p}</li>)}
-                           </ul>
-                         </div>
-                         <div>
-                           <h4 className="font-semibold text-blue-600">Sugestões:</h4>
-                           <ul className="list-disc list-inside text-sm">
-                              {comp.sugestoes.map((s, i) => <li key={i}>{s}</li>)}
-                           </ul>
-                         </div>
-                       </TabsContent>
-                    ))}
-                  </Tabs>
-                </CardContent>
-             </Card>
-          </div>
+          <Dialog open={showCorrection} onOpenChange={setShowCorrection}>
+            <DialogContent className="max-w-4xl h-full max-h-[90vh] flex flex-col">
+              <DialogHeader className="flex-shrink-0">
+                <DialogTitle>Resultado da Correção</DialogTitle>
+                 <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => setShowCorrection(false)}><X className="h-4 w-4" /></Button>
+              </DialogHeader>
+              <div className="flex-grow overflow-y-auto pr-6 space-y-6">
+                <div className="text-center">
+                  <p className="text-lg font-medium text-muted-foreground">Nota Final</p>
+                  <p className={`text-6xl font-bold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.notaFinal}</p>
+                  <p className={`font-semibold ${getNivelColorClass(correcaoAtual.nivel)}`}>{correcaoAtual.nivel}</p>
+                </div>
+                <Tabs defaultValue="resumo" className="w-full">
+                  <TabsList className="grid w-full grid-cols-6">
+                    <TabsTrigger value="resumo">Resumo</TabsTrigger>
+                    <TabsTrigger value="c1">C1</TabsTrigger>
+                    <TabsTrigger value="c2">C2</TabsTrigger>
+                    <TabsTrigger value="c3">C3</TabsTrigger>
+                    <TabsTrigger value="c4">C4</TabsTrigger>
+                    <TabsTrigger value="c5">C5</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="resumo" className="p-4">
+                     <h3 className="font-bold text-lg mb-2">Feedback Geral</h3>
+                     <p>{correcaoAtual.feedbackGeral}</p>
+                  </TabsContent>
+                  {correcaoAtual.competencias.map(comp => (
+                     <TabsContent key={comp.competencia} value={`c${comp.competencia}`} className="p-4 space-y-4">
+                       <div className="flex justify-between items-center">
+                         <h3 className="font-bold text-lg">Competência {comp.competencia}</h3>
+                         <p className="text-2xl font-bold">{comp.nota}</p>
+                       </div>
+                       <div>
+                         <h4 className="font-semibold">Justificativa:</h4>
+                         <p className="text-sm">{comp.justificativa}</p>
+                       </div>
+                       <div>
+                         <h4 className="font-semibold text-green-600">Pontos Fortes:</h4>
+                         <ul className="list-disc list-inside text-sm">
+                            {comp.pontosFortes.map((p, i) => <li key={i}>{p}</li>)}
+                         </ul>
+                       </div>
+                       <div>
+                         <h4 className="font-semibold text-red-600">Pontos a Melhorar:</h4>
+                         <ul className="list-disc list-inside text-sm">
+                            {comp.pontosFracos.map((p, i) => <li key={i}>{p}</li>)}
+                         </ul>
+                       </div>
+                       <div>
+                         <h4 className="font-semibold text-blue-600">Sugestões:</h4>
+                         <ul className="list-disc list-inside text-sm">
+                            {comp.sugestoes.map((s, i) => <li key={i}>{s}</li>)}
+                         </ul>
+                       </div>
+                     </TabsContent>
+                  ))}
+                </Tabs>
+              </div>
+             </DialogContent>
+          </Dialog>
         )}
 
         {/* Modal para adicionar/editar modelo */}
         <Dialog open={showAdicionarModelo} onOpenChange={setShowAdicionarModelo}>
-            <DialogContent className="max-w-4xl">
+            <DialogContent className="sm:max-w-[625px]">
                 <DialogHeader>
                     <DialogTitle>{editingModelo ? 'Editar Modelo' : 'Adicionar Novo Modelo'}</DialogTitle>
                 </DialogHeader>
@@ -605,11 +605,11 @@ const Redacao = () => {
         {/* Modal para visualizar modelo */}
         {modeloSelecionado && (
             <Dialog open={showVisualizarModelo} onOpenChange={setShowVisualizarModelo}>
-                <DialogContent className="max-w-4xl h-[90vh]">
+                <DialogContent className="max-w-4xl h-full max-h-[90vh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle>{modeloSelecionado.titulo}</DialogTitle>
                     </DialogHeader>
-                    <div className="space-y-4 overflow-y-auto pr-4">
+                    <div className="flex-grow overflow-y-auto pr-4 space-y-4">
                         <p><strong>Tema:</strong> {modeloSelecionado.tema}</p>
                         <p><strong>Categoria:</strong> {modeloSelecionado.categoria}</p>
                         <p><strong>Dificuldade:</strong> {modeloSelecionado.dificuldade}</p>

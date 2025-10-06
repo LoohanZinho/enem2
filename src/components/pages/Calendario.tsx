@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -407,7 +408,7 @@ const Calendario = () => {
                 Adicionar Evento
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-md border-0 shadow-2xl bg-white dark:bg-slate-800">
+            <DialogContent className="sm:max-w-[425px]">
               <DialogHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-gradient-to-r from-slate-500 to-slate-600 rounded-lg flex items-center justify-center shadow-lg">
@@ -882,7 +883,7 @@ const Calendario = () => {
 
         {/* Modal de Confirmação de Exclusão */}
         <Dialog open={!!eventoParaExcluir} onOpenChange={() => setEventoParaExcluir(null)}>
-          <DialogContent className="max-w-md">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <AlertCircle className="h-5 w-5 text-red-500" />
