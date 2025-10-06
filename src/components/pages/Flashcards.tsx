@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   BookOpen, 
   Plus, 
@@ -237,7 +238,7 @@ const Flashcards = () => {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getSubjectIcon = (subject: string) => {
+  const getSubjectIcon = (subject: string): JSX.Element => {
     const icons: { [key: string]: React.ElementType } = {
       'Matemática': Calculator, 'Física': Atom, 'Química': Atom, 'Biologia': Dna,
       'História': ScrollText, 'Geografia': Globe, 'Português': BookOpen, 'Literatura': BookOpen,
@@ -444,14 +445,35 @@ const Flashcards = () => {
                 <Clock className="h-5 w-5" />
                 <span>{formatTime(sessionTime)}</span>
               </div>
-              <Button variant="ghost" size="icon" onClick={endStudy}><X/></Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" onClick={endStudy}><X/></Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Encerrar Estudo</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
           </div>
           <Progress value={((currentCardIndex + 1) / studyModeCards.length) * 100} className="mb-8"/>
           {currentStudyCard && <FlashcardCard card={currentStudyCard} onAnswer={handleCardAnswer} isStudyMode />}
           <div className="flex justify-center gap-4 mt-8">
-            <Button variant="outline" onClick={() => setCurrentCardIndex(p => Math.max(0, p - 1))} disabled={currentCardIndex === 0}><SkipBack/></Button>
-            <Button variant="outline" onClick={() => setCurrentCardIndex(p => Math.min(studyModeCards.length - 1, p + 1))} disabled={currentCardIndex === studyModeCards.length - 1}><SkipForward/></Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={() => setCurrentCardIndex(p => Math.max(0, p - 1))} disabled={currentCardIndex === 0}><SkipBack/></Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Card Anterior</p>
+              </TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="outline" onClick={() => setCurrentCardIndex(p => Math.min(studyModeCards.length - 1, p + 1))} disabled={currentCardIndex === studyModeCards.length - 1}><SkipForward/></Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Próximo Card</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
       </div>
@@ -467,14 +489,17 @@ const Flashcards = () => {
              <div className="flex items-center gap-4">
                <span>Score: {gameScore.correct} / {gameScore.total}</span>
                <span>{currentGameCardIndex + 1} / {gameCards.length}</span>
-               <Button variant="ghost" size="icon" onClick={endGame}><X/></Button>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" onClick={endGame}><X/></Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                        <p>Encerrar Jogo</p>
+                    </TooltipContent>
+                </Tooltip>
              </div>
            </div>
           {currentGameCard && <FlashcardCard card={currentGameCard} onAnswer={handleGameAnswer} isStudyMode />}
-          <div className="flex justify-center gap-4 mt-4">
-            <Button onClick={() => setCurrentCardIndex(p => Math.max(0, p - 1))}><SkipBack/></Button>
-            <Button onClick={() => setCurrentCardIndex(p => Math.min(gameCards.length - 1, p + 1))}><SkipForward/></Button>
-          </div>
         </div>
       </div>
     );
@@ -489,10 +514,17 @@ const Flashcards = () => {
             <h1 className="text-3xl font-bold">Meus Flashcards</h1>
             <p className="text-muted-foreground">Revise e gerencie seus baralhos de estudo.</p>
           </div>
-          <Button onClick={() => setActiveTab('generator')}>
-            <Brain className="h-4 w-4 mr-2" />
-            Gerar com IA
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+                <Button onClick={() => setActiveTab('generator')}>
+                    <Brain className="h-4 w-4 mr-2" />
+                    Gerar com IA
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+                <p>Crie flashcards automaticamente a partir de um texto.</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -518,7 +550,14 @@ const Flashcards = () => {
                           <CardContent>
                               <p>{card.back}</p>
                               <div className="flex justify-end mt-4">
-                                <Button size="sm" variant="destructive" onClick={() => deleteCard(card.id)}><Trash2 className="h-4 w-4"/></Button>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button size="sm" variant="destructive" onClick={() => deleteCard(card.id)}><Trash2 className="h-4 w-4"/></Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Excluir Card</p>
+                                    </TooltipContent>
+                                </Tooltip>
                               </div>
                           </CardContent>
                       </Card>
@@ -546,15 +585,36 @@ const Flashcards = () => {
                         <p className="text-sm text-muted-foreground mb-4">{module.description}</p>
                       </div>
                       <div className="flex gap-2">
-                        <Button className="flex-1" onClick={() => startStudy(module.subModules[0].cards)}>
-                          <Play className="h-4 w-4 mr-2"/> Estudar
-                        </Button>
-                        <Button className="flex-1" variant="secondary" onClick={() => startGame(module.subModules[0].cards)}>
-                          <Zap className="h-4 w-4 mr-2"/> Jogo Rápido
-                        </Button>
-                         <Button variant="ghost" size="icon" onClick={() => setSelectedModule(module)}>
-                           <FolderOpen className="h-4 w-4"/>
-                         </Button>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button className="flex-1" onClick={() => startStudy(module.subModules[0].cards)}>
+                                <Play className="h-4 w-4 mr-2"/> Estudar
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Iniciar modo de estudo com repetição espaçada.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button className="flex-1" variant="secondary" onClick={() => startGame(module.subModules[0].cards)}>
+                                <Zap className="h-4 w-4 mr-2"/> Jogo Rápido
+                                </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                <p>Teste seus conhecimentos de forma rápida.</p>
+                            </TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                           <TooltipTrigger asChild>
+                                <Button variant="ghost" size="icon" onClick={() => setSelectedModule(module)}>
+                                <FolderOpen className="h-4 w-4"/>
+                                </Button>
+                           </TooltipTrigger>
+                           <TooltipContent>
+                                <p>Ver todos os cards deste módulo.</p>
+                           </TooltipContent>
+                        </Tooltip>
                       </div>
                     </CardContent>
                   </Card>
