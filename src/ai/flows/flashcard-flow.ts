@@ -16,7 +16,7 @@ const gerarFlashcardsPrompt = ai.definePrompt({
   name: 'gerarFlashcardsPrompt',
   input: { schema: GerarFlashcardsInputSchema },
   output: { schema: GerarFlashcardsOutputSchema },
-  model: googleAI('gemini-pro'),
+  model: googleAI('gemini-2.5-flash-lite'),
   prompt: `
     Você é um especialista em educação e um assistente de estudos para o ENEM.
     Sua tarefa é analisar o texto fornecido e criar um conjunto de flashcards (pergunta e resposta)
