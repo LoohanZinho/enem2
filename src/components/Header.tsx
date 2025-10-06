@@ -136,7 +136,7 @@ const Header = () => {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           
-          <NotificationCenter />
+          
 
           {user ? (
             <div className="flex items-center gap-3">
