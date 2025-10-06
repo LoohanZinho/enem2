@@ -69,12 +69,12 @@ const Header = () => {
   };
 
   const navLinks = [
-    { href: "/cronograma", label: "Cronograma" },
-    { href: "/aulas", label: "Aulas" },
+    { href: "/cronograma", label: "Cronograma", icon: <BookOpen className="h-4 w-4 mr-2" /> },
+    { href: "/aulas", label: "Aulas", icon: <Play className="h-4 w-4 mr-2" /> },
     { href: "/resumos", label: "Resumos", icon: <FileText className="h-4 w-4 mr-2" /> },
     { href: "/flashcards", label: "Flashcards", icon: <Brain className="h-4 w-4 mr-2" /> },
-    { href: "/redacao", label: "Redação" },
-    { href: "/calendario", label: "Calendário" },
+    { href: "/redacao", label: "Redação", icon: <PenTool className="h-4 w-4 mr-2" /> },
+    { href: "/calendario", label: "Calendário", icon: <Calendar className="h-4 w-4 mr-2" /> },
     { href: "/monitor-tarefas", label: "Tarefas", icon: <CheckSquare className="h-4 w-4 mr-1" /> },
   ];
 
@@ -83,7 +83,7 @@ const Header = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo and Navigation */}
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3 relative group">
+          <div className="flex items-center gap-3 relative group" onClick={() => router.push('/cronograma')}>
             {/* Logo Icon com efeitos melhorados */}
             <div className="relative">
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
@@ -105,29 +105,27 @@ const Header = () => {
                 EnemPro
               </div>
             </div>
-            
-            {/* Indicador de página ativa melhorado */}
-            {isActive('/') && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full border-2 border-background animate-pulse shadow-lg"></div>
-            )}
           </div>
           
-          <nav className="hidden md:flex items-center gap-4">
-            {navLinks.map(link => (
-              <div className="relative" key={link.href}>
-                <Button 
-                  variant={isActive(link.href) ? "default" : "ghost"} 
-                  size="sm" 
-                  onClick={() => router.push(link.href)}
-                  className={`transition-all duration-200 ${isActive(link.href) ? "bg-primary text-primary-foreground shadow-lg" : "text-muted-foreground"}`}
-                >
-                  {link.icon}{link.label}
-                </Button>
-                {isActive(link.href) && (
-                  <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-background animate-pulse"></div>
-                )}
-              </div>
-            ))}
+          <nav className="hidden md:flex items-center gap-2">
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center gap-2 text-sm">
+                    Navegar
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuLabel>Menu Principal</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {navLinks.map(link => (
+                     <DropdownMenuItem key={link.href} onClick={() => router.push(link.href)} className={`flex items-center gap-2 ${isActive(link.href) ? 'bg-primary/10 text-primary' : ''}`}>
+                       {link.icon}
+                       <span>{link.label}</span>
+                     </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
           </nav>
         </div>
 
