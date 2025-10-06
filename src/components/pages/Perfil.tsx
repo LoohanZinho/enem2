@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,15 +40,14 @@ const Perfil = () => {
   const router = useRouter();
   const { user, logout, isLoading, updateUser } = useAuth();
   
-  // Todos os hooks devem estar no topo, antes de qualquer return condicional
   const [isEditing, setIsEditing] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || "",
-    email: user?.email || "",
+    name: "",
+    email: "",
     bio: "Estudante dedicado ao ENEM 2024",
     location: "São Paulo, SP",
-    phone: user?.phone || ""
+    phone: ""
   });
 
   // Redirecionar se não estiver logado
@@ -82,9 +82,9 @@ const Perfil = () => {
   }, [formData.name, isEditing]);
 
   const handleSave = async () => {
-    try {
-      if (!user) return;
+    if (!user) return;
 
+    try {
       const success = await updateUser({
         name: formData.name,
         phone: formData.phone
@@ -115,7 +115,7 @@ const Perfil = () => {
   };
 
   // Mostrar loading enquanto verifica autenticação
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-white dark:bg-slate-900 flex items-center justify-center">
         <div className="text-center">
@@ -124,11 +124,6 @@ const Perfil = () => {
         </div>
       </div>
     );
-  }
-
-  // Se não há usuário, não renderizar nada (será redirecionado)
-  if (!user) {
-    return null;
   }
 
   return (
