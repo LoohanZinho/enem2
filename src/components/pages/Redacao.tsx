@@ -491,14 +491,14 @@ const Redacao = () => {
                         <Badge variant="secondary">{modelo.dificuldade}</Badge>
                     </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
+                  <div className="flex flex-wrap gap-2">
                     <Button size="sm" variant="outline" onClick={() => visualizarModelo(modelo)}>
-                        <Eye className="h-4 w-4 mr-2" />
-                        Ver
+                        <Eye className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Ver</span>
                     </Button>
                     <Button size="sm" onClick={() => usarModelo(modelo)}>
-                        <PenTool className="h-4 w-4 mr-2" />
-                        Usar
+                        <PenTool className="h-4 w-4 sm:mr-2" />
+                        <span className="hidden sm:inline">Usar</span>
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => { setEditingModelo(modelo); setShowAdicionarModelo(true);}}>
                         <Edit className="h-4 w-4" />
