@@ -36,7 +36,10 @@ import {
   LogOut,
   User as UserIcon,
   ChevronDown,
-  X
+  X,
+  Play,
+  PenTool,
+  Calendar
 } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from 'next/link';
