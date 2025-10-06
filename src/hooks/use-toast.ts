@@ -1,3 +1,3 @@
-import { toast, useToast } from "@/components/ui/toaster";
+import { toast } from "sonner";
 
-export { useToast, toast };
+export { toast };
