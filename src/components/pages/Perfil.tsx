@@ -317,7 +317,7 @@ const Perfil = () => {
                   )}
                 </div>
                 {isEditing && (
-                  <div className="flex gap-6 pt-8 border-t-2 border-slate-200 dark:border-slate-600">
+                  <div className="flex flex-col sm:flex-row gap-6 pt-8 border-t-2 border-slate-200 dark:border-slate-600">
                     <Button
                       onClick={handleSave}
                       className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white rounded-2xl font-black shadow-2xl hover:shadow-3xl transition-all duration-300 px-10 py-5 text-lg transform hover:scale-105"

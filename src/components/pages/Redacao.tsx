@@ -288,12 +288,12 @@ const Redacao = () => {
 
   const handleCorrect = async () => {
     if (!essayText.trim() || selectedTheme === null) {
-      toast.error("Por favor, selecione um tema e escreva sua redação.");
+      toast("Por favor, selecione um tema e escreva sua redação.");
       return;
     }
     
     if (essayText.trim().length < 50) {
-      toast.warning("Texto muito curto", {
+      toast("Texto muito curto", {
         description: "Sua redação precisa ter pelo menos 50 caracteres para uma análise precisa."
       });
       return;
@@ -311,7 +311,7 @@ const Redacao = () => {
       setRedacoesRecentes(prev => [correction, ...prev.slice(0, 4)]);
     } catch (error) {
       console.error("Erro ao corrigir redação:", error);
-      toast.error("Erro na Correção", {
+      toast("Erro na Correção", {
         description: "Não foi possível corrigir a redação no momento. Tente novamente mais tarde."
       });
     } finally {
@@ -362,37 +362,37 @@ const Redacao = () => {
             <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 bg-transparent">
               <TabsTrigger 
                 value="escrever" 
-                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300"
+                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"
               >
-                <PenTool className="h-4 w-4 mr-2" />
+                <PenTool className="h-4 w-4" />
                 Escrever
               </TabsTrigger>
               <TabsTrigger 
                 value="upload"
-                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300"
+                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"
               >
-                <FileText className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4" />
                 Upload
               </TabsTrigger>
               <TabsTrigger 
                 value="modelos"
-                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300"
+                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"
               >
-                <BookOpen className="h-4 w-4 mr-2" />
+                <BookOpen className="h-4 w-4" />
                 Modelos
               </TabsTrigger>
               <TabsTrigger 
                 value="recentes"
-                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300"
+                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"
               >
-                <History className="h-4 w-4 mr-2" />
+                <History className="h-4 w-4" />
                 Recentes
               </TabsTrigger>
               <TabsTrigger 
                 value="estatisticas"
-                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300"
+                className="data-[state=active]:bg-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl font-semibold transition-all duration-300 flex items-center gap-2"
               >
-                <TrendingUp className="h-4 w-4 mr-2" />
+                <TrendingUp className="h-4 w-4" />
                 Estatísticas
               </TabsTrigger>
             </TabsList>
@@ -412,7 +412,7 @@ const Redacao = () => {
                     <div key={index} className={`p-4 rounded-lg border-2 ${selectedTheme === index ? 'border-primary shadow-lg' : 'border-slate-200 dark:border-slate-700'}`}>
                       <h4 className="font-semibold">{theme.title}</h4>
                       <p className="text-sm text-muted-foreground mt-1 mb-3">{theme.description}</p>
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">{theme.category}</Badge>
                           <Badge variant="secondary">{theme.difficulty}</Badge>
@@ -491,7 +491,7 @@ const Redacao = () => {
                         <Badge variant="secondary">{modelo.dificuldade}</Badge>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button size="sm" variant="outline" onClick={() => visualizarModelo(modelo)}>
                         <Eye className="h-4 w-4 mr-2" />
                         Ver
