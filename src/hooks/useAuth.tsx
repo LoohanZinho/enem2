@@ -19,12 +19,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialized, setIsInitialized] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     const checkAuth = () => {
       const currentUser = authService.getCurrentUser();
       setUser(currentUser);
+      setIsInitialized(true);
       setIsLoading(false);
     };
 
@@ -80,7 +82,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     updateUser,
     logout,
     isAuthenticated: !!user,
-    isLoading
+    isLoading: isLoading || !isInitialized
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
