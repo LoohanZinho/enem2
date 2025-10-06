@@ -1,3 +1,4 @@
+
 "use client";
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +35,7 @@ import {
 import Header from "@/components/Header";
 import BackButton from "@/components/BackButton";
 import FlashcardAIService, { FlashcardData } from "@/services/FlashcardAIService";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import FlashcardService from "@/services/FlashcardService";
 
 // Tipos
@@ -82,7 +83,7 @@ const Flashcards = () => {
   const [generatedCards, setGeneratedCards] = useState<Omit<FlashcardData, "incorrectCount" | "quality" | "isActive">[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [activeTab, setActiveTab] = useState("gerador");
-  const { toast } = useToast();
+
   const flashcardService = useMemo(() => FlashcardService.getInstance(), []);
 
   const [allDecks, setAllDecks] = useState<any[]>([]);
@@ -116,10 +117,12 @@ const Flashcards = () => {
   
   const handleGenerate = async () => {
     if (!inputText.trim()) {
-      toast({
-        title: "Texto vazio",
+      toast("Texto vazio", {
         description: "Por favor, cole um texto para gerar os flashcards.",
-        variant: "destructive",
+        action: {
+          label: "Fechar",
+          onClick: () => {},
+        },
       });
       return;
     }
@@ -130,16 +133,13 @@ const Flashcards = () => {
     try {
       const cards = await FlashcardAIService.generateFlashcards(inputText);
       setGeneratedCards(cards);
-      toast({
-        title: "Flashcards Gerados!",
+      toast("Flashcards Gerados!", {
         description: `${cards.length} cards foram criados com sucesso.`,
       });
     } catch (error) {
       console.error("Erro ao gerar flashcards:", error);
-      toast({
-        title: "Erro na Geração",
+      toast("Erro na Geração", {
         description: "Não foi possível gerar os flashcards. Tente novamente.",
-        variant: "destructive",
       });
     } finally {
       setIsGenerating(false);
@@ -151,8 +151,7 @@ const Flashcards = () => {
       flashcardService.createFlashcard(card);
     });
     setGeneratedCards([]);
-    toast({
-      title: 'Flashcards Salvos!',
+    toast('Flashcards Salvos!', {
       description: 'Seus novos cards foram adicionados à sua coleção.',
     });
     handleTabChange("meus-flashcards");
@@ -180,7 +179,7 @@ const Flashcards = () => {
         setCurrentCardIndex(currentCardIndex + 1);
       } else {
         setStudyMode(false);
-        toast({ title: "Sessão de estudo concluída!" });
+        toast("Sessão de estudo concluída!");
       }
     }, 300);
   };
@@ -483,5 +482,3 @@ const Flashcards = () => {
 };
 
 export default Flashcards;
-
-    
