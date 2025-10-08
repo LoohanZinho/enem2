@@ -237,7 +237,7 @@ const LandingPage = () => {
                 </ul>
                 
                 <Button
-                  onClick={() => window.open('https://pay.cakto.com.br/dovqc3t', '_blank')}
+                  onClick={() => window.open('https://pay.cakto.com.br/dovqc3t?affiliate=Mqv4rYLm', '_blank')}
                   className="w-full bg-gradient-to-r from-gray-500 via-gray-600 to-gray-700 hover:from-gray-600 hover:via-gray-700 hover:to-gray-800 text-white py-3 rounded-xl font-bold text-sm transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden group border border-gray-400/50 hover:border-gray-500"
                 >
                   {/* Efeito de brilho sutil */}
@@ -346,7 +346,7 @@ const LandingPage = () => {
                 </ul>
                 
             <Button
-                  onClick={() => window.open('https://pay.cakto.com.br/33tn6da_594749', '_blank')}
+                  onClick={() => window.open('https://pay.cakto.com.br/33tn6da_594749?affiliate=nff8mu3f', '_blank')}
                   className="w-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-700 hover:via-indigo-700 hover:to-blue-700 text-white py-3 rounded-xl font-bold text-sm transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden group border border-purple-500/50 hover:border-purple-400"
                 >
                   {/* Efeito de brilho sutil */}
@@ -478,7 +478,7 @@ const LandingPage = () => {
                 </div>
                 
                 <Button
-                  onClick={() => window.open('https://pay.cakto.com.br/39oqsff_594830', '_blank')}
+                  onClick={() => window.open('https://pay.cakto.com.br/39oqsff_594830?affiliate=UPfcZu6n', '_blank')}
                   className="w-full bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 hover:from-emerald-700 hover:via-green-700 hover:to-teal-700 text-white py-3 rounded-xl font-black text-sm transition-all duration-500 hover:scale-105 shadow-xl relative overflow-hidden group border-2 border-emerald-400/60 hover:border-emerald-300"
                 >
                   {/* Efeito de brilho premium */}
@@ -704,5 +704,7 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
+    
 
     
